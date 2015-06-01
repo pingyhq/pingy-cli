@@ -4,6 +4,13 @@ var Path = require('path');
 var expect = require('unexpected').clone();
 expect.installPlugin(require('unexpected-promise'));
 
+expect.addAssertion('string', 'to begin with', function (expect, subject, cmp) {
+  expect(cmp, 'to be a string');
+
+  expect(subject.substr(0, cmp.length), 'to be', cmp);
+});
+
+
 var readCompiled = require('../lib/tolk');
 
 function getPath(path) {
@@ -25,7 +32,7 @@ describe('readCompiled', function () {
   });
 
   it('should compile a file if there is an adapter', function () {
-    return expect(readCompiled(getPath('babel/simplest.jsx')), 'to be resolved with', '\'use strict\';\n\nvar foo = \'bar\';\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL211bnRlci9naXQvdG9say9maXh0dXJlcy9zb3VyY2UvYmFiZWwvc2ltcGxlc3QuanN4Il0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsSUFBTSxHQUFHLEdBQUcsS0FBSyxDQUFDIiwiZmlsZSI6Ii9ob21lL211bnRlci9naXQvdG9say9maXh0dXJlcy9zb3VyY2UvYmFiZWwvc2ltcGxlc3QuanN4In0=\n');
+    return expect(readCompiled(getPath('babel/simplest.jsx')), 'when resolved', 'to begin with', '\'use strict\';\n\nvar foo = \'bar\';\n//# sourceMappingURL=data:application/json;base64,');
   });
 
   it('should throw when compiling a file that does not exist', function () {
@@ -53,6 +60,6 @@ describe('readCompiled', function () {
   });
 
   it('should autoprefix compiled CSS output', function () {
-    return expect(readCompiled(getPath('scss/autoprefix.scss')), 'to be resolved with', 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg); }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL211bnRlci9naXQvdG9say9maXh0dXJlcy9zb3VyY2Uvc2Nzcy9hdXRvcHJlZml4LnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBRUE7RUFDRSxpQ0FBQTtVQUFBLHlCQUFBLEVBQUEiLCJmaWxlIjoidG8uY3NzIn0= */');
+    return expect(readCompiled(getPath('scss/autoprefix.scss')), 'when resolved', 'to begin with', 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg); }\n\n/*# sourceMappingURL=data:application/json;base64,');
   });
 });
