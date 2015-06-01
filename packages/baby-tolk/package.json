@@ -1,0 +1,61 @@
+{
+  "name": "tolk",
+  "version": "0.0.0",
+  "description": "A file reader that promises to translate non-web assets to web assets given the available transpilers, sourcemaps and all",
+  "main": "lib/tolk.js",
+  "scripts": {
+    "lint": "jshint .",
+    "test": "npm run lint && mocha",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot",
+    "travis": "npm run lint && npm run coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Munter/tolk.git"
+  },
+  "keywords": [
+    "web",
+    "asset",
+    "transpile",
+    "compile",
+    "es6",
+    "babel",
+    "jsx",
+    "sass",
+    "less",
+    "stylus"
+  ],
+  "author": "Peter Müller <munter@fumle.dk>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Munter/tolk/issues"
+  },
+  "homepage": "https://github.com/Munter/tolk",
+  "dependencies": {
+    "accord": "^0.18.0",
+    "inline-source-map-comment": "^1.0.5",
+    "when": "^3.7.2"
+  },
+  "devDependencies": {
+    "LiveScript": "1.3.1",
+    "autoprefixer-core": "^5.2.0",
+    "babel": "^5.4.7",
+    "coco": "0.9.1",
+    "coffee-script": "1.9.1",
+    "coveralls": "^2.11.2",
+    "css-parse": "2.0.0",
+    "dogescript": "2.3.0",
+    "istanbul": "^0.3.5",
+    "jshint": "^2.6.0",
+    "less": "2.4.0",
+    "marked": "0.3.3",
+    "mocha": "^2.1.0",
+    "mocha-lcov-reporter": "0.0.1",
+    "myth": "1.3.0",
+    "node-sass": "^2.1.1",
+    "stylus": "0.50.0",
+    "swig": "1.4.2",
+    "unexpected": "^7.5.1",
+    "unexpected-promise": "^1.1.1"
+  }
+}

@@ -1,0 +1,6 @@
+.embedded {
+  background: url("img/default.png");
+}
+.not-embedded {
+  background: url("img/wow.jpg");
+}

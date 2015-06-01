@@ -1,0 +1,53 @@
+(function() {
+  var tmpl;
+
+  tmpl = toffee.templates["/"] = {
+    bundlePath: "/"
+  };
+
+  tmpl.render = tmpl.pub = function(__locals) {
+    var supply, __repress, _i, _len, _ln, _ref, _to, _ts;
+    __locals = __locals || {};
+    __repress = (_ref = __locals.__toffee) != null ? _ref.repress : void 0;
+    _to = function(x) {
+      return __locals.__toffee.out.push(x);
+    };
+    _ln = function(x) {
+      return __locals.__toffee.lineno = x;
+    };
+    _ts = function(x) {
+      return __locals.__toffee.state = x;
+    };
+    toffee.__augmentLocals(__locals, "/");
+    with (__locals) {;
+    __toffee.out = [];
+    _ts(1);
+    _ts(2);
+    for (_i = 0, _len = supplies.length; _i < _len; _i++) {
+      supply = supplies[_i];
+      _ts(1);
+      _ts(1);
+      _ln(2);
+      _to("<li>");
+      _to("" + (supply != null ? escape(supply) : ''));
+      _to("</li>");
+      _ts(2);
+    }
+    __toffee.res = __toffee.out.join("");
+    if (typeof postProcess !== "undefined" && postProcess !== null) {
+      __toffee.res = postProcess(__toffee.res);
+    }
+    if (!__repress) {
+      return __toffee.res;
+    } else {
+      return "";
+    }
+  };
+
+  true; } /* closing JS 'with' */ ;
+
+  if (typeof __toffee_run_input !== "undefined" && __toffee_run_input !== null) {
+    return tmpl.pub(__toffee_run_input);
+  }
+
+}).call(this);

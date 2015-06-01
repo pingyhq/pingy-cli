@@ -1,0 +1,6 @@
+.embedded {
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB0AAAAICAYAAAAFiPQnAAAA7ElEQVQoFZ2SsQ0CMQxFAw0SEgUFFU0qOjpGoKW9mpqengFYgAVYgAluAza4ERgB/tP5RylzfOmf7Tj+cXJOKaVO7EVjL+crrmJhJvsRtxGfZcmbWT6YpHNQAQILKgUaIEYEuAkOv4rkjuJSfES8kZ2ik+ZRiBDwDd5jmF6yT5FDyd3FGqzRTKtOqeUAhH2rnXzEeGJsFn0ot6tBrRts0Sm1J3mIu2sS+ENYYh/KrWqw7xYLLTqllv9JMVzHah9x/Zz47MkiTVxEYl4GtOqMu/UdRKbU4B8j6Kn1uoeHHPQsON+q4/3NlqGBf+EH1sdV9+hmDKUAAAAASUVORK5CYII=");
+}
+.not-embedded {
+  background: url("img/wow.jpg");
+}

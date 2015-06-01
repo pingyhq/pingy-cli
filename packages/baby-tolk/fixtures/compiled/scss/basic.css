@@ -1,0 +1,4 @@
+.test {
+  content: 'bar'; }
+  .test .foo {
+    color: blue; }

@@ -1,0 +1,5 @@
+@import "_cache_partial";
+
+.foo {
+  @include set_color('red');
+}

@@ -1,0 +1,34 @@
+function anonymous(locals, escape, include, rethrow) {
+rethrow = rethrow || function rethrow(err, str, filename, lineno){
+  var lines = str.split('\n')
+    , start = Math.max(lineno - 3, 0)
+    , end = Math.min(lines.length, lineno + 3);
+
+  // Error context
+  var context = lines.slice(start, end).map(function (line, i){
+    var curr = i + start + 1;
+    return (curr == lineno ? ' >> ' : '    ')
+      + curr
+      + '| '
+      + line;
+  }).join('\n');
+
+  // Alter exception message
+  err.path = filename;
+  err.message = (filename || 'ejs') + ':'
+    + lineno + '\n'
+    + context + '\n\n'
+    + err.message;
+
+  throw err;
+};
+var encodeHTMLRules = {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&#34;", "'": "&#39;"}, matchHTML = /[&<>'"]/g;escape = escape || function (markup) {
+  return markup == undefined
+    ? ''
+    : String(markup)
+        .replace(matchHTML, function(m) {
+          return encodeHTMLRules[m] || m;
+        });
+};
+var __line = 1, __lines = "Woah look, a <%= thing %>", __filename = undefined; try {var __output = []; with (locals || {}) { ;__output.push("Woah look, a ");;__output.push(escape(thing))};return __output.join("").trim();} catch (e) { rethrow(e, __lines, __filename, __line); }
+}

@@ -1,0 +1,60 @@
+var toffee;("undefined"==typeof toffee||null===toffee)&&(toffee={}),toffee.templates||(toffee.templates={}),toffee.states={TOFFEE:1,COFFEE:2},toffee.__json=function(e,t){return null==t?"null":""+JSON.stringify(t).replace(/</g,"\\u003C").replace(/>/g,"\\u003E").replace(/&/g,"\\u0026")},toffee.__raw=function(e,t){return t},toffee.__html=function(e,t){return(""+t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")},toffee.__escape=function(e,t){var f;return f=null!=e.__toffee.autoEscape?e.__toffee.autoEscape:!0,f?void 0===t?"":null!=t&&"object"==typeof t?e.json(t):e.html(t):t},toffee.__augmentLocals=function(e,t){var f,n;return f=e,n=f.__toffee={out:[]},null==f.print&&(f.print=function(e){return toffee.__print(f,e)}),null==f.json&&(f.json=function(e){return toffee.__json(f,e)}),null==f.raw&&(f.raw=function(e){return toffee.__raw(f,e)}),null==f.html&&(f.html=function(e){return toffee.__html(f,e)}),null==f.escape&&(f.escape=function(e){return toffee.__escape(f,e)}),null==f.partial&&(f.partial=function(e,n){return toffee.__partial(toffee.templates[""+t],f,e,n)}),null==f.snippet&&(f.snippet=function(e,n){return toffee.__snippet(toffee.templates[""+t],f,e,n)}),null==f.load&&(f.load=function(e,n){return toffee.__load(toffee.templates[""+t],f,e,n)}),n.print=f.print,n.json=f.json,n.raw=f.raw,n.html=f.html,n.escape=f.escape,n.partial=f.partial,n.snippet=f.snippet,n.load=f.load},toffee.__print=function(e,t){return e.__toffee.state===toffee.states.COFFEE?(e.__toffee.out.push(t),""):""+t},toffee.__normalize=function(e){var t,f,n,o,l;if(null==e||"/"===e)return e;for(n=e.split("/"),t=[],n[0]&&t.push(""),o=0,l=n.length;l>o;o++)f=n[o],".."===f?t.length>1?t.pop():t.push(f):"."!==f&&t.push(f);return e=t.join("/"),e||(e="/"),e},toffee.__partial=function(e,t,f,n){return f=toffee.__normalize(e.bundlePath+"/../"+f),toffee.__inlineInclude(f,n,t)},toffee.__snippet=function(e,t,f,n){return f=toffee.__normalize(e.bundlePath+"/../"+f),n=null!=n?n:{},n.__toffee=n.__toffee||{},n.__toffee.noInheritance=!0,toffee.__inlineInclude(f,n,t)},toffee.__load=function(e,t,f,n){return f=toffee.__normalize(e.bundlePath+"/../"+f),n=null!=n?n:{},n.__toffee=n.__toffee||{},n.__toffee.repress=!0,toffee.__inlineInclude(f,n,t)},toffee.__inlineInclude=function(e,t,f){var n,o,l,r,u,_,a,i,p;for(o=t||{},o.passback={},o.__toffee=o.__toffee||{},r={},i=["passback","load","print","partial","snippet","layout","__toffee","postProcess"],_=0,a=i.length;a>_;_++)n=i[_],r[n]=!0;if(!o.__toffee.noInheritance)for(n in f)u=f[n],null==(null!=t?t[n]:void 0)&&null==r[n]&&(o[n]=u);if(toffee.templates[e]){l=toffee.templates[e].pub(o),p=o.passback;for(n in p)u=p[n],f[n]=u;return l}return"Inline toffee include: Could not find "+e};
+;
+(function() {
+  var tmpl;
+
+  tmpl = toffee.templates["test/fixtures/toffee/my_templates-2.toffee"] = {
+    bundlePath: "test/fixtures/toffee/my_templates-2.toffee"
+  };
+
+  tmpl.render = tmpl.pub = function(__locals) {
+    var supply, __repress, _i, _len, _ln, _ref, _to, _ts;
+    __locals = __locals || {};
+    __repress = (_ref = __locals.__toffee) != null ? _ref.repress : void 0;
+    _to = function(x) {
+      return __locals.__toffee.out.push(x);
+    };
+    _ln = function(x) {
+      return __locals.__toffee.lineno = x;
+    };
+    _ts = function(x) {
+      return __locals.__toffee.state = x;
+    };
+    toffee.__augmentLocals(__locals, "test/fixtures/toffee/my_templates-2.toffee");
+    with (__locals) {;
+    __toffee.out = [];
+    _ts(1);
+    _ts(2);
+    for (_i = 0, _len = supplies.length; _i < _len; _i++) {
+      supply = supplies[_i];
+      _ts(1);
+      _ts(1);
+      _ln(2);
+      _to("<li>");
+      _to("" + (supply != null ? escape(supply) : ''));
+      _to("</li>");
+      _ts(2);
+    }
+    _ts(1);
+    _ln(3);
+    _to("\n");
+    _ln(4);
+    _ts(2);
+    __toffee.res = __toffee.out.join("");
+    if (typeof postProcess !== "undefined" && postProcess !== null) {
+      __toffee.res = postProcess(__toffee.res);
+    }
+    if (!__repress) {
+      return __toffee.res;
+    } else {
+      return "";
+    }
+  };
+
+  true; } /* closing JS 'with' */ ;
+
+  if (typeof __toffee_run_input !== "undefined" && __toffee_run_input !== null) {
+    return tmpl.pub(__toffee_run_input);
+  }
+
+}).call(this);

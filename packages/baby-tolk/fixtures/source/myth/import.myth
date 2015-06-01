@@ -1,0 +1,5 @@
+@import "imported.myth";
+
+body {
+  color: red
+}

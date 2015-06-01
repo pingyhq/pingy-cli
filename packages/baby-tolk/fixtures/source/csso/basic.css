@@ -1,0 +1,11 @@
+/*! keep this comment */
+/* wow, such optimize */
+
+.hello {
+  margin: 0px;
+  color: #c0c0c0;
+}
+
+.hello {
+  border: 1px solid;
+}

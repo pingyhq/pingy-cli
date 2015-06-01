@@ -1,0 +1,7 @@
+function template(locals) {
+var buf = [];
+var jade_mixins = {};
+var jade_interp;
+;var locals_for_with = (locals || {});(function (foo) {
+buf.push("<p>look at my browser-compatibility</p><p>" + (jade.escape(null == (jade_interp = foo) ? "" : jade_interp)) + "</p>");}.call(this,"foo" in locals_for_with?locals_for_with.foo:typeof foo!=="undefined"?foo:undefined));;return buf.join("");
+}

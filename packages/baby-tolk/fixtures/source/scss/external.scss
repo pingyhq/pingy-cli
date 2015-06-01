@@ -1,0 +1,5 @@
+@import "_mixin_lib";
+
+.foo {
+  @include set_color('red');
+}
