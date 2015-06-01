@@ -8,7 +8,7 @@ Tolk
 
 Tolk is a "do the right thing" tool for transpiling. It reads a file from the file system, transpiles it with the available transpilers, inlines sourcemaps and autoprefixes css.
 
-Returns a promise that resolves with the result or the file reading and transpiling pipeline.
+Returns a promise that resolves with the resulting transpiler output.
 
 Installing the individual transpilers tolk should use is up to the consumer. There are no transpiler dependencies out of the box. So if you only need babel and sass, install `babel` and `node-sass`.
 
