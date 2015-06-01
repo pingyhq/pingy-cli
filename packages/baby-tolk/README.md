@@ -14,6 +14,8 @@ Installing the individual transpilers tolk should use is up to the consumer. The
 
 Tolk is useful for tools that handle precompiling for you, but might also be used directly in your task runner of preference in order to skip some of the many plugins that do the same but worse.
 
+**Current precompiler support:** `LiveScript`, `babel`, `coco`, `coffee-script`, `dogescript`, `less`, `marked`, `myth`, `node-sass`, `stylus`, `swig`
+
 
 Usage
 -----
