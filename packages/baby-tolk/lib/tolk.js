@@ -4,8 +4,12 @@ var Path = require('path');
 var when = require('when');
 var node = require('when/node');
 var fs = node.liftAll(require('fs'));
+
 var accord = require('accord');
 var inlineSourceMapComment = require('inline-source-map-comment');
+
+var autoprefixer = require('autoprefixer-core')({ browsers: ['last 2 versions'] });
+var postcss = require('postcss')([autoprefixer]);
 
 var extensionMap = {};
 var loadedAdapters = [];
@@ -64,8 +68,6 @@ function inlineSourceMap (isCss, compiled) {
   return when.resolve(result);
 }
 
-var autoprefixer = require('./autoprefix').config({ browsers: ['last 2 versions'] });
-
 module.exports = function (pathName) {
   var adapters = extensionMap[Path.extname(pathName)];
   var adapter = adapters && adapters[0];
@@ -81,7 +83,11 @@ module.exports = function (pathName) {
   }
 
   if (isCss) {
-    continuation = continuation.then(autoprefixer);
+    continuation = continuation.then(function (css) {
+      return postcss.process(css).then(function (result) {
+        return result.css;
+      });
+    });
   }
 
   return continuation;
