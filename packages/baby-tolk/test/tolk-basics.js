@@ -23,9 +23,8 @@ describe('readCompiled', function () {
   });
 
   it('should throw when reading a file that does not exist', function () {
-    return expect(readCompiled(getPath('does-not-exist.txt')), 'when rejected', 'to exhaustively satisfy', {
+    return expect(readCompiled(getPath('does-not-exist.txt')), 'when rejected', 'to satisfy', {
       code: 'ENOENT',
-      errno: 34,
       path: /fixtures\/source\/does-not-exist\.txt$/,
       message: /^ENOENT, open '.+?fixtures\/source\/does-not-exist\.txt'$/
     });
@@ -36,9 +35,8 @@ describe('readCompiled', function () {
   });
 
   it('should throw when compiling a file that does not exist', function () {
-    return expect(readCompiled(getPath('does-not-exist.scss')), 'when rejected', 'to exhaustively satisfy', {
+    return expect(readCompiled(getPath('does-not-exist.scss')), 'when rejected', 'to satisfy', {
       code: 'ENOENT',
-      errno: 34,
       path: /fixtures\/source\/does-not-exist\.scss$/,
       message: /^ENOENT, open '.+?fixtures\/source\/does-not-exist\.scss'$/
     });
