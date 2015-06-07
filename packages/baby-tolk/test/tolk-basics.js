@@ -19,7 +19,9 @@ function getPath(path) {
 
 describe('readCompiled', function () {
   it('should read a file directly if there is no adapter', function () {
-    return expect(readCompiled(getPath('unchanged.txt')), 'to be resolved with', 'I am the same\n');
+    return expect(readCompiled(getPath('unchanged.txt')), 'to be resolved with', {
+      result: 'I am the same\n'
+    });
   });
 
   it('should throw when reading a file that does not exist', function () {
@@ -31,7 +33,9 @@ describe('readCompiled', function () {
   });
 
   it('should compile a file if there is an adapter', function () {
-    return expect(readCompiled(getPath('babel/simplest.jsx')), 'when resolved', 'to begin with', '\'use strict\';\n\nvar foo = \'bar\';\n//# sourceMappingURL=data:application/json;base64,');
+    return expect(readCompiled(getPath('babel/simplest.jsx')), 'to be resolved with', {
+      result: expect.it('to begin with', '\'use strict\';\n\nvar foo = \'bar\';\n//# sourceMappingURL=data:application/json;base64,')
+    });
   });
 
   it('should throw when compiling a file that does not exist', function () {
@@ -54,10 +58,14 @@ describe('readCompiled', function () {
   });
 
   it('should autoprefix uncompiled CSS output', function () {
-    return expect(readCompiled(getPath('basic.css')), 'to be resolved with', 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg);\n}\n');
+    return expect(readCompiled(getPath('basic.css')), 'to be resolved with', {
+      result: 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg);\n}\n'
+    });
   });
 
   it('should autoprefix compiled CSS output', function () {
-    return expect(readCompiled(getPath('scss/autoprefix.scss')), 'when resolved', 'to begin with', 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg); }\n\n/*# sourceMappingURL=data:application/json;base64,');
+    return expect(readCompiled(getPath('scss/autoprefix.scss')), 'to be resolved with', {
+      result: expect.it('to begin with', 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg); }\n\n/*# sourceMappingURL=data:application/json;base64,')
+    });
   });
 });

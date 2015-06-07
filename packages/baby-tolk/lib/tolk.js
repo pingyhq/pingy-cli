@@ -65,7 +65,9 @@ function inlineSourceMap (isCss, compiled) {
     result += '\n' + comment + '\n';
   }
 
-  return when.resolve(result);
+  compiled.result = result;
+
+  return when.resolve(compiled);
 }
 
 module.exports = function (pathName) {
@@ -79,13 +81,18 @@ module.exports = function (pathName) {
     isCss = adapter.output === 'css';
     continuation = adapter.renderFile(pathName, { sourcemap: true }).then(inlineSourceMap.bind(this, isCss));
   } else {
-    continuation = fs.readFile(pathName, 'utf8');
+    continuation = fs.readFile(pathName, 'utf8').then(function (source) {
+      return when.resolve({
+        result: source
+      });
+    });
   }
 
   if (isCss) {
-    continuation = continuation.then(function (css) {
-      return postcss.process(css).then(function (result) {
-        return result.css;
+    continuation = continuation.then(function (compiled) {
+      return postcss.process(compiled.result).then(function (result) {
+        compiled.result = result.css;
+        return compiled;
       });
     });
   }
