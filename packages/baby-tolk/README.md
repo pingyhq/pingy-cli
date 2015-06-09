@@ -35,7 +35,7 @@ Now you are ready to start reading files from the file system. Tolk automaticall
 ```js
 var tolk = require('tolk');
 
-tolk('path/to/stylesheet.scss').done(function (compiled) {
+tolk.read('path/to/stylesheet.scss').done(function (compiled) {
   // compiled.result is compiled, sourcemapped and autoprefixed CSS
   console.log(compiled.result);
 }, function (err) {
@@ -43,7 +43,7 @@ tolk('path/to/stylesheet.scss').done(function (compiled) {
   throw err;
 });
 
-tolk('path/to/Reactcomponent.jsx').done(function (compiled) {
+tolk.read('path/to/Reactcomponent.jsx').done(function (compiled) {
   // compiled.result is compiled ES6 with source maps
   console.log(compiled.result);
 }, function (err) {

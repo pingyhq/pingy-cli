@@ -70,32 +70,36 @@ function inlineSourceMap (isCss, compiled) {
   return when.resolve(compiled);
 }
 
-module.exports = function (pathName) {
-  var adapters = extensionMap[Path.extname(pathName)];
-  var adapter = adapters && adapters[0];
-  var isCss = Path.extname(pathName) === '.css';
+module.exports = {
+  extensions: extensionMap,
+  adapters: loadedAdapters,
+  read: function (pathName) {
+    var adapters = extensionMap[Path.extname(pathName)];
+    var adapter = adapters && adapters[0];
+    var isCss = Path.extname(pathName) === '.css';
 
-  var continuation;
+    var continuation;
 
-  if (adapter) {
-    isCss = adapter.output === 'css';
-    continuation = adapter.renderFile(pathName, { sourcemap: true }).then(inlineSourceMap.bind(this, isCss));
-  } else {
-    continuation = fs.readFile(pathName, 'utf8').then(function (source) {
-      return when.resolve({
-        result: source
+    if (adapter) {
+      isCss = adapter.output === 'css';
+      continuation = adapter.renderFile(pathName, { sourcemap: true }).then(inlineSourceMap.bind(this, isCss));
+    } else {
+      continuation = fs.readFile(pathName, 'utf8').then(function (source) {
+        return when.resolve({
+          result: source
+        });
       });
-    });
-  }
+    }
 
-  if (isCss) {
-    continuation = continuation.then(function (compiled) {
-      return postcss.process(compiled.result).then(function (result) {
-        compiled.result = result.css;
-        return compiled;
+    if (isCss) {
+      continuation = continuation.then(function (compiled) {
+        return postcss.process(compiled.result).then(function (result) {
+          compiled.result = result.css;
+          return compiled;
+        });
       });
-    });
-  }
+    }
 
-  return continuation;
+    return continuation;
+  }
 };
