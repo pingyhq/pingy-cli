@@ -8,8 +8,8 @@ var fs = node.liftAll(require('fs'));
 var accord = require('accord');
 var inlineSourceMapComment = require('inline-source-map-comment');
 
-var autoprefixer = require('autoprefixer-core')({ browsers: ['last 2 versions'] });
-var postcss = require('postcss')([autoprefixer]);
+var autoprefixer = require('autoprefixer-core');
+var postcss = require('postcss');
 
 var extensionMap = {};
 var loadedAdapters = [];
@@ -55,17 +55,17 @@ Object.keys(accord.all()).map(function (engine) {
 });
 
 function inlineSourceMap (isCss, compiled) {
-  var result = compiled.result;
 
   if (compiled.sourcemap) {
+    var result = compiled.result;
     var comment = inlineSourceMapComment(compiled.sourcemap, {
       block: isCss
     });
 
     result += '\n' + comment + '\n';
-  }
 
-  compiled.result = result;
+    compiled.result = result;
+  }
 
   return when.resolve(compiled);
 }
@@ -73,7 +73,19 @@ function inlineSourceMap (isCss, compiled) {
 module.exports = {
   extensions: extensionMap,
   adapters: loadedAdapters,
-  read: function (pathName) {
+  read: function (pathName, options) {
+    options = options || {};
+
+    options.sourceMap = options.sourceMap === false ? false : true;
+    if (options.browsers) {
+      if (typeof options.browsers === 'string') {
+        options.browsers = [options.browsers];
+      }
+    } else {
+      options.browsers = ['last 2 versions'];
+    }
+
+
     var adapters = extensionMap[Path.extname(pathName)];
     var adapter = adapters && adapters[0];
     var isCss = Path.extname(pathName) === '.css';
@@ -82,7 +94,7 @@ module.exports = {
 
     if (adapter) {
       isCss = adapter.output === 'css';
-      continuation = adapter.renderFile(pathName, { sourcemap: true }).then(inlineSourceMap.bind(this, isCss));
+      continuation = adapter.renderFile(pathName, { sourcemap: options.sourceMap }).then(inlineSourceMap.bind(this, isCss));
     } else {
       continuation = fs.readFile(pathName, 'utf8').then(function (source) {
         return when.resolve({
@@ -93,7 +105,7 @@ module.exports = {
 
     if (isCss) {
       continuation = continuation.then(function (compiled) {
-        return postcss.process(compiled.result).then(function (result) {
+        return postcss([autoprefixer(({ browsers: options.browsers }))]).process(compiled.result).then(function (result) {
           compiled.result = result.css;
           return compiled;
         });
