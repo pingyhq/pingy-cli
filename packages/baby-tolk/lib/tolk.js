@@ -94,7 +94,16 @@ module.exports = {
 
     if (adapter) {
       isCss = adapter.output === 'css';
-      continuation = adapter.renderFile(pathName, { sourcemap: options.sourceMap }).then(inlineSourceMap.bind(this, isCss));
+
+      var transpilerOptions = {
+        sourcemap: options.sourceMap
+      };
+
+      if (adapter.engineName === 'node-sass') {
+        transpilerOptions.includePaths = [Path.dirname(pathName)];
+      }
+
+      continuation = adapter.renderFile(pathName, transpilerOptions).then(inlineSourceMap.bind(this, isCss));
     } else {
       continuation = fs.readFile(pathName, 'utf8').then(function (source) {
         return when.resolve({
