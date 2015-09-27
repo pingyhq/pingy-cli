@@ -28,7 +28,7 @@ describe('readCompiled', function () {
     return expect(tolk.read(getPath('does-not-exist.txt')), 'when rejected', 'to satisfy', {
       code: 'ENOENT',
       path: /fixtures\/source\/does-not-exist\.txt$/,
-      message: /^ENOENT, open '.+?fixtures\/source\/does-not-exist\.txt'$/
+      message: /^ENOENT.*?, open '.+?fixtures\/source\/does-not-exist\.txt'$/
     });
   });
 
@@ -42,7 +42,7 @@ describe('readCompiled', function () {
     return expect(tolk.read(getPath('does-not-exist.scss')), 'when rejected', 'to satisfy', {
       code: 'ENOENT',
       path: /fixtures\/source\/does-not-exist\.scss$/,
-      message: /^ENOENT, open '.+?fixtures\/source\/does-not-exist\.scss'$/
+      message: /^ENOENT.*?, open '.+?fixtures\/source\/does-not-exist\.scss'$/
     });
   });
 
