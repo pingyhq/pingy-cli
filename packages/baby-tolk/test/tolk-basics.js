@@ -42,9 +42,8 @@ describe('readCompiled', function () {
       status: 1,
       file: /fixtures\/source\/scss\/syntaxerror\.scss$/,
       line: 2,
-      column: 3,
+      column: 8,
       message: 'property "color" must be followed by a \':\'',
-      code: 1
     });
   });
 
