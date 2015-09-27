@@ -1,5 +1,8 @@
 'use strict';
 
+// Polfill Promise for old node versions
+require('es6-promise');
+
 var Path = require('path');
 var when = require('when');
 var node = require('when/node');
@@ -8,7 +11,7 @@ var fs = node.liftAll(require('fs'));
 var accord = require('accord');
 var inlineSourceMapComment = require('inline-source-map-comment');
 
-var autoprefixer = require('autoprefixer-core');
+var autoprefixer = require('autoprefixer');
 var postcss = require('postcss');
 
 var extensionMap = {};
@@ -114,10 +117,13 @@ module.exports = {
 
     if (isCss) {
       continuation = continuation.then(function (compiled) {
-        return postcss([autoprefixer(({ browsers: options.browsers }))]).process(compiled.result).then(function (result) {
-          compiled.result = result.css;
-          return compiled;
-        });
+        return postcss([ autoprefixer({ browsers: options.browsers }) ])
+          .process(compiled.result)
+          .then(function (result) {
+            compiled.result = result.css;
+
+            return compiled;
+          });
       });
     }
 

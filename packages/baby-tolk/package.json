@@ -35,10 +35,11 @@
   },
   "homepage": "https://github.com/Munter/tolk",
   "dependencies": {
-    "accord": "^0.18.0",
-    "autoprefixer-core": "^5.2.0",
+    "accord": "^0.20.1",
+    "autoprefixer": "^6.0.3",
+    "es6-promise": "^3.0.2",
     "inline-source-map-comment": "^1.0.5",
-    "postcss": "^4.1.11",
+    "postcss": "^5.0.8",
     "when": "^3.7.2"
   },
   "devDependencies": {
