@@ -40,7 +40,12 @@ Object.keys(accord.all()).map(function (engine) {
   try {
     return accord.load(engine);
   } catch (e) {
-    // console.error('Missing adapter:', engine);
+    if (e.code !== 'MODULE_NOT_FOUND') {
+      console.error(e.message.replace(/^error: ?/i, 'Accord Error: ') + '. Try updating to the latest version');
+    }
+    // else {
+    //   console.error('Missing adapter:', engine);
+    // }
   }
 }).filter(function (engine) {
   return engine;
