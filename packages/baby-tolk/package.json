@@ -52,7 +52,7 @@
     "dogescript": "2.3.0",
     "istanbul": "0.3.21",
     "jshint": "2.8.0",
-    "less": "2.4.0",
+    "less": "2.5.3",
     "marked": "0.3.3",
     "mocha": "2.3.3",
     "mocha-lcov-reporter": "0.0.1",
