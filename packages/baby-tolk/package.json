@@ -39,7 +39,7 @@
     "autoprefixer": "6.0.3",
     "es6-promise": "3.0.2",
     "inline-source-map-comment": "1.0.5",
-    "postcss": "5.0.8",
+    "postcss": "5.0.10",
     "when": "3.7.3"
   },
   "devDependencies": {
