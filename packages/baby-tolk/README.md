@@ -1,10 +1,10 @@
 Baby Tolk
 ====
 
-[![NPM version](https://badge.fury.io/js/baby-tolk.svg)](http://badge.baby-fury.io/js/tolk)
+[![npm version](https://badge.fury.io/js/baby-tolk.svg)](https://badge.fury.io/js/baby-tolk)
 [![Build Status](https://travis-ci.org/davej/baby-tolk.svg?branch=master)](https://travis-ci.org/davej/baby-tolk)
 [![Coverage Status](https://img.shields.io/coveralls/davej/baby-tolk.svg)](https://coveralls.io/r/davej/baby-tolk?branch=master)
-[![Dependency Status](https://david-dm.org/davej/baby-tolk)](https://david-dm.org/davej/baby-tolk)
+[![Dependency Status](https://david-dm.org/davej/baby-tolk.svg)](https://david-dm.org/davej/baby-tolk)
 
 Baby Tolk is a "do the right thing" tool for transpiling. It reads a file from the file system, transpiles it (including sourcemaps where supported) with the available transpilers. This is based on the [Tolk](https://github.com/Munter/tolk) but does less things based on the "small modules that do one thing" philosophy.
 
