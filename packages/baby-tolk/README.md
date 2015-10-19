@@ -6,7 +6,7 @@ Baby Tolk
 [![Coverage Status](https://img.shields.io/coveralls/davej/baby-tolk.svg)](https://coveralls.io/r/davej/baby-tolk?branch=master)
 [![Dependency Status](https://david-dm.org/davej/baby-tolk)](https://david-dm.org/davej/baby-tolk)
 
-Baby Tolk is a "do the right thing" tool for transpiling. It reads a file from the file system, transpiles it with the available transpilers and also make sourcemaps available (if supported). This is based on the [Tolk](https://github.com/Munter/tolk) but does less things based on the "small modules that do one thing" philosophy.
+Baby Tolk is a "do the right thing" tool for transpiling. It reads a file from the file system, transpiles it (including sourcemaps where supported) with the available transpilers. This is based on the [Tolk](https://github.com/Munter/tolk) but does less things based on the "small modules that do one thing" philosophy.
 
 Returns a promise that resolves with the resulting transpiler output.
 
