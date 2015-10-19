@@ -2,7 +2,7 @@
 
 var Path = require('path');
 var expect = require('unexpected').clone();
-var tolk = require('../lib/tolk');
+var tolk = require('../lib/baby-tolk');
 
 function getPath(path) {
   return Path.join(process.cwd(), 'fixtures/source', path);
