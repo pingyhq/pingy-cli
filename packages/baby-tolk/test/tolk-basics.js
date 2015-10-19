@@ -25,7 +25,16 @@ describe('readCompiled', function () {
 
   it('should compile a file if there is an adapter', function () {
     return expect(tolk.read(getPath('babel/simplest.jsx')), 'to be fulfilled with', {
-      result: expect.it('to begin with', '\'use strict\';\n\nvar foo = \'bar\';\n//# sourceMappingURL=data:application/json;base64,')
+      result: expect.it('to begin with', '\'use strict\';\n\nvar foo = \'bar\';')
+    });
+  });
+
+  it('should output source map if there is an adapter that supports source maps', function () {
+    return expect(tolk.read(getPath('less/external.less')), 'to be fulfilled with', {
+      sourcemap: {
+        sources: expect.it('to have length', 2),
+        mappings: expect.it('to begin with', 'AAAA;EACE,')
+      }
     });
   });
 
@@ -47,15 +56,4 @@ describe('readCompiled', function () {
     });
   });
 
-  it('should autoprefix uncompiled CSS output', function () {
-    return expect(tolk.read(getPath('basic.css')), 'to be fulfilled with', {
-      result: 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg);\n}\n'
-    });
-  });
-
-  it('should autoprefix compiled CSS output', function () {
-    return expect(tolk.read(getPath('scss/autoprefix.scss')), 'to be fulfilled with', {
-      result: expect.it('to begin with', 'body {\n  -webkit-transform: rotate(-1deg);\n          transform: rotate(-1deg); }\n\n/*# sourceMappingURL=data:application/json;base64,')
-    });
-  });
 });
