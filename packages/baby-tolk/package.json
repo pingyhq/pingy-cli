@@ -51,6 +51,7 @@
     "css-parse": "2.0.0",
     "dogescript": "2.3.0",
     "istanbul": "0.4.0",
+    "jade": "1.11.0",
     "jshint": "2.8.0",
     "less": "2.5.3",
     "marked": "0.3.5",

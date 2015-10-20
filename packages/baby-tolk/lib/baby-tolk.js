@@ -25,7 +25,8 @@ var adapters = [
   'myth',
   'scss',
   'stylus',
-  'swig'
+  'swig',
+  'jade'
 ];
 
 Object.keys(accord.all()).map(function (engine) {
@@ -58,8 +59,27 @@ Object.keys(accord.all()).map(function (engine) {
   });
 });
 
+var targetExtension = {};
+var sourceExtension = {};
+
+Object.keys(extensionMap).forEach(function (sourceExt) {
+  var adapters = extensionMap[sourceExt];
+  var targetExt = '.' + adapters[0].output;
+
+  targetExtension[sourceExt] = targetExt;
+
+
+  if (!sourceExtension[targetExt]) {
+    sourceExtension[targetExt] = [];
+  }
+
+  sourceExtension[targetExt].push(sourceExt);
+});
+
 module.exports = {
   extensions: extensionMap,
+  sourceExtensionMap: sourceExtension,
+  targetExtensionMap: targetExtension,
   adapters: loadedAdapters,
   read: function (pathName, options) {
     options = options || {};
@@ -80,7 +100,12 @@ module.exports = {
         transpilerOptions.includePaths = [Path.dirname(pathName)];
       }
 
-      continuation = adapter.renderFile(pathName, transpilerOptions);
+      var addExtension = function (compiled) {
+        compiled.extension = adapter.output;
+        return when.resolve(compiled);
+      };
+
+      continuation = adapter.renderFile(pathName, transpilerOptions).then(addExtension);
     } else {
       continuation = fs.readFile(pathName, 'utf8').then(function (source) {
         return when.resolve({
