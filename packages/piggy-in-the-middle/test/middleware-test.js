@@ -189,7 +189,7 @@ describe('middleware', function () {
 
   describe('fourth requests', function() {
     // Probably bit pointless doing this again but just in case
-    it('should *not* compile styl file', function() {
+    it('should recompile styl file', function() {
       return expect(app, 'to yield exchange', {
         request: { url: '/styles/main.css' },
         response: {
