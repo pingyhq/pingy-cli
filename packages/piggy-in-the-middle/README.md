@@ -18,8 +18,6 @@ It works a bit like this:
 
 Subsequent requests will not force a recompile file because PITM will cache the output. PITM is smart and will watch the source file(s) for changes, if you change a source file then it will do a recompile on next request.
 
-**Note: You'll need a recent version of Node.js (like `v4.2.1`) because this lib uses ES2015 features (alternatively you can run the lib through babelify).**
-
 
 Try it out
 ----------  

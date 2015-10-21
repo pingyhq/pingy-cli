@@ -16,7 +16,7 @@ function getPath(path) {
   return Path.join(process.cwd(), 'examples/site', path || '');
 }
 
-describe('middleware', function () {
+describe('middleware', function() {
   var app;
   var compileCount = 0;
 
@@ -49,7 +49,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', '<h1>Piggy In The Middle</h1>')
         }
-      }).then(() => expectCompiled());
+      }).then(function() {
+        return expectCompiled();
+      });
     });
 
     it('should compile styl file', function() {
@@ -62,7 +64,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', 'body {')
         }
-      }).then(() => expectCompiled());
+      }).then(function() {
+        return expectCompiled();
+      });
     });
 
     it('should have styl sourcemap', function() {
@@ -78,7 +82,9 @@ describe('middleware', function () {
             mappings: expect.it('to be non-empty')
           }
         }
-      }).then(() => expectCached()); // Loading source files also caches source map
+      }).then(function() {
+        return expectCached();
+      }); // Loading source files also caches source map
     });
 
     it('should compile coffee file', function() {
@@ -91,7 +97,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', 'console.log(')
         }
-      }).then(() => expectCompiled());
+      }).then(function() {
+        return expectCompiled();
+      });
     });
 
     it('should have coffee sourcemap', function() {
@@ -107,9 +115,10 @@ describe('middleware', function () {
             mappings: expect.it('to be non-empty')
           }
         }
-      }).then(() => expectCached()); // Loading source files also caches source map
+      }).then(function() {
+        return expectCached();
+      }); // Loading source files also caches source map
     });
-
   });
 
   describe('second (cached) requests', function() {
@@ -123,7 +132,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', '<h1>Piggy In The Middle</h1>')
         }
-      }).then(() => expectCached());
+      }).then(function() {
+        return expectCached();
+      });
     });
 
     it('should *not* compile styl file', function() {
@@ -136,7 +147,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', 'body {')
         }
-      }).then(() => expectCached());
+      }).then(function() {
+        return expectCached();
+      });
     });
 
     it('should *not* compile coffee file', function() {
@@ -149,28 +162,33 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', 'console.log(')
         }
-      }).then(() => expectCached());
+      }).then(function() {
+        return expectCached();
+      });
     });
-
   });
 
   describe('third requests (after editing a watched file)', function() {
     var pathToCSS = getPath('styles/main.styl');
     var fileContents;
 
-    before(function(done) {
-      fs.readFile(pathToCSS, function(err, contents){
+    before(function (done) {
+      fs.readFile(pathToCSS, function (err, contents) {
         fileContents = contents;
         // Add space to end of file
         // Allow 250ms for chokidar to notice the change
-        fs.writeFile(pathToCSS, contents+' ', () => setTimeout(done, 250));
+        fs.writeFile(pathToCSS, contents + ' ', function() {
+          return setTimeout(done, 250);
+        });
       });
     });
 
-    after(function(done) {
+    after(function (done) {
       // Revert file back to original contents
       // Allow 250ms for chokidar to notice the change
-      fs.writeFile(pathToCSS, fileContents, () => setTimeout(done, 250));
+      fs.writeFile(pathToCSS, fileContents, function() {
+        return setTimeout(done, 250);
+      });
     });
 
     it('should recompile styl file', function() {
@@ -183,7 +201,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', 'body {')
         }
-      }).then(() => expectCompiled());
+      }).then(function() {
+        return expectCompiled();
+      });
     });
   });
 
@@ -199,7 +219,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', 'body {')
         }
-      }).then(() => expectCompiled());
+      }).then(function() {
+        return expectCompiled();
+      });
     });
   });
 
@@ -215,8 +237,9 @@ describe('middleware', function () {
           },
           body: expect.it('to contain', 'body {')
         }
-      }).then(() => expectCached());
+      }).then(function() {
+        return expectCached();
+      });
     });
   });
-
 });
