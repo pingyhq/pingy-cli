@@ -162,7 +162,7 @@ describe('middleware', function () {
       fs.readFile(pathToCSS, function(err, contents){
         fileContents = contents;
         fs.writeFile(pathToCSS, contents+' ', function() {
-          setTimeout(done, 250); // Allow 250ms for chokidar to notice the change
+          setTimeout(done, 1000); // Allow 1 second for chokidar to notice the change
         });
       });
     });
