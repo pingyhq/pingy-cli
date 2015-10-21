@@ -154,22 +154,23 @@ describe('middleware', function () {
 
   });
 
-  describe('third request (after editing a watched file)', function() {
+  describe('third requests (after editing a watched file)', function() {
     var pathToCSS = getPath('styles/main.styl');
     var fileContents;
 
     before(function(done) {
       fs.readFile(pathToCSS, function(err, contents){
         fileContents = contents;
-        fs.writeFile(pathToCSS, contents+' ', function() {
-          setTimeout(done, 1000); // Allow 1 second for chokidar to notice the change
-        });
+        // Add space to end of file
+        // Allow 250ms for chokidar to notice the change
+        fs.writeFile(pathToCSS, contents+' ', () => setTimeout(done, 250));
       });
     });
 
     after(function(done) {
-      // Revert file back to original state
-      fs.writeFile(pathToCSS, fileContents, done);
+      // Revert file back to original contents
+      // Allow 250ms for chokidar to notice the change
+      fs.writeFile(pathToCSS, fileContents, () => setTimeout(done, 250));
     });
 
     it('should recompile styl file', function() {
@@ -186,9 +187,24 @@ describe('middleware', function () {
     });
   });
 
-  describe('fourth (cached) requests', function() {
+  describe('fourth requests', function() {
     // Probably bit pointless doing this again but just in case
+    it('should *not* compile styl file', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/styles/main.css' },
+        response: {
+          headers: {
+            'Content-Type': 'text/css; charset=UTF-8',
+            'X-SourceMap': 'main.css.map'
+          },
+          body: expect.it('to contain', 'body {')
+        }
+      }).then(() => expectCompiled());
+    });
+  });
 
+  describe('fifth (cached) requests', function() {
+    // Probably bit pointless doing this again but just in case
     it('should *not* compile styl file', function() {
       return expect(app, 'to yield exchange', {
         request: { url: '/styles/main.css' },
@@ -201,7 +217,6 @@ describe('middleware', function () {
         }
       }).then(() => expectCached());
     });
-
   });
 
 });
