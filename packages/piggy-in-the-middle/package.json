@@ -1,6 +1,6 @@
 {
   "name": "piggy-in-the-middle",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
   "main": "lib/piggy-in-the-middle.js",
   "scripts": {
