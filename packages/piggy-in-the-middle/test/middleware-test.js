@@ -64,6 +64,22 @@ describe('middleware', function () {
       }).then(() => expectCompiled());
     });
 
+    it('should have styl sourcemap', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/styles/main.css.map' },
+        response: {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: {
+            sources: ['/styles/main.styl'],
+            mappings: expect.it('to be non-empty')
+          }
+        }
+      }).then(() => expectCached()); // Loading source files also caches source map
+    });
+
     it('should compile coffee file', function() {
       return expect(app, 'to yield exchange', {
         request: { url: '/scripts/main.js' },
@@ -76,6 +92,23 @@ describe('middleware', function () {
         }
       }).then(() => expectCompiled());
     });
+
+    it('should have coffee sourcemap', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/scripts/main.js.map' },
+        response: {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: {
+            sources: ['/scripts/main.coffee'],
+            mappings: expect.it('to be non-empty')
+          }
+        }
+      }).then(() => expectCached()); // Loading source files also caches source map
+    });
+
   });
 
   describe('second (cached) requests', function() {
