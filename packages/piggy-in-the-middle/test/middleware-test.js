@@ -17,13 +17,14 @@ function getPath(path) {
 }
 
 describe('middleware', function () {
-
-
   var app;
   var compileCount = 0;
 
   before(function() {
     app = connect().use(pitm(getPath()));
+
+    // babyTolk.read is called on compile so spy on this to see if
+    // compilation has taken place
     babyTolk.read = sinon.spy(babyTolk, 'read');
   });
 
@@ -153,7 +154,7 @@ describe('middleware', function () {
 
   });
 
-  describe('third requests (after editing source)', function() {
+  describe('third request (after editing a watched file)', function() {
     var pathToCSS = getPath('styles/main.styl');
     var fileContents;
 
@@ -182,6 +183,23 @@ describe('middleware', function () {
           body: expect.it('to contain', 'body {')
         }
       }).then(() => expectCompiled());
+    });
+  });
+
+  describe('fourth (cached) requests', function() {
+    // Probably bit pointless doing this again but just in case
+
+    it('should *not* compile styl file', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/styles/main.css' },
+        response: {
+          headers: {
+            'Content-Type': 'text/css; charset=UTF-8',
+            'X-SourceMap': 'main.css.map'
+          },
+          body: expect.it('to contain', 'body {')
+        }
+      }).then(() => expectCached());
     });
 
   });
