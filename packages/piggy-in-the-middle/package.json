@@ -26,10 +26,16 @@
   "devDependencies": {
     "coffee-script": "^1.10.0",
     "connect": "^3.4.0",
+    "express": "^4.13.3",
     "jade": "^1.11.0",
+    "messy": "^6.6.2",
     "mocha": "^2.3.3",
     "serve-static": "^1.10.0",
+    "sinon": "^1.17.1",
     "stylus": "^0.52.4",
-    "unexpected": "^10.0.1"
+    "unexpected": "^10.0.1",
+    "unexpected-express": "^8.0.0",
+    "unexpected-messy": "^5.0.0",
+    "unexpected-sinon": "^8.0.0"
   }
 }
