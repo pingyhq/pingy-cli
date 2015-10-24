@@ -4,7 +4,7 @@ Piggy In The Middle
 [![npm version](https://badge.fury.io/js/piggy-in-the-middle.svg)](https://badge.fury.io/js/piggy-in-the-middle)
 [![Build Status](https://travis-ci.org/davej/piggy-in-the-middle.svg?branch=master)](https://travis-ci.org/davej/piggy-in-the-middle)
 
-Express/Connect middleware for transpiling to html/css/js on-the-fly. Also gives you sourcemaps and caching for unchanged files.
+Express/Connect middleware for transpiling to html/css/js on-the-fly. Also gives you sourcemaps, caching for unchanged files and integrates well with live reload tools like browser-sync and live-reload.
 
 This is a very early version with almost no test coverage but give it a shot and report any issues. Currently supports: `LiveScript`, `babel`, `coco`, `coffee-script`, `dogescript`, `less`, `marked`, `myth`, `jade`, `node-sass`, `stylus`, `swig`.
 
