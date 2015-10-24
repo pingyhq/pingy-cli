@@ -92,7 +92,8 @@ var helpers = {
   },
 
   /**
-   * Removes the '.map' extension to reveal the source file
+   * 1. Removes the '.map' extension to reveal the source file
+   * 2. Removes query params and unescapes
    * @param  {string} pth path/url
    * @return {string}     path/url
    */
@@ -102,7 +103,7 @@ var helpers = {
       // We'll add the extension back at the end.
       pth = pth.slice(0, -4);
     }
-    return pth;
+    return unescape(pth.split('?')[0]);
   },
 
   /**
