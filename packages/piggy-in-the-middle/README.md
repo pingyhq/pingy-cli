@@ -33,11 +33,10 @@ This will start a basic demo site using PITM.
 
 Use as middleware
 -----------------
-Here's a really simple example.
+Here's a really simple example:
 
 ```javascript
 var connect = require('connect');
-var http = require('http');
 var serveStatic = require('serve-static');
 var pitm = require('piggy-in-the-middle');
 
@@ -46,5 +45,18 @@ var app = connect();
 app.use(serveStatic('/path/to/your/site'));
 app.use(pitm('/path/to/your/site'));
 
-http.createServer(app).listen(3000);
+app.listen(3000);
+```
+
+Once initialized PITM will also emit 'fileChanged' events whenever a watched file
+is changed, this is useful for doing live reloading of the browser.
+For example, to integrate PITM with [browser-sync](http://www.browsersync.io/)
+you can do something like this:
+
+```javascript
+var pitm = require('piggy-in-the-middle');
+var browserSync = require('browser-sync').create();
+
+var piggy = pitm('/path/to/your/site');
+piggy.events.on('fileChanged', browserSync.reload);
 ```

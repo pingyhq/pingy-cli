@@ -28,6 +28,7 @@
     "coffee-script": "^1.10.0",
     "connect": "^3.4.0",
     "express": "^4.13.3",
+    "instant": "^1.10.1",
     "jade": "^1.11.0",
     "messy": "^6.6.2",
     "mocha": "^2.3.3",

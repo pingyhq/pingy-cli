@@ -3,11 +3,12 @@
 var chokidar = require('chokidar');
 
 module.exports = (function() {
-  function Cache(mountPath) {
+  function Cache(mountPath, eventEmitter) {
     // Set-up cache and watchers
     this.cache = {};
     this.watchers = [];
     this.mountPath = mountPath;
+    this.events = eventEmitter;
   }
 
   Cache.prototype.exists = function(compiledPath) {
@@ -49,18 +50,18 @@ module.exports = (function() {
   };
 
   Cache.prototype._addWatcher = function(compiledPath, sources) {
-    var _this = this;
+    var fileChanged = function(sourcePath) {
+      this['delete'](compiledPath);
+      this.events.emit('fileChanged', compiledPath, sourcePath);
+    };
 
-    if (!(compiledPath in this.watchers)) {
+    if (this.watchers.indexOf(compiledPath) === -1) {
       chokidar.watch(sources, {
         cwd: this.mountPath
       })
       // TODO: Trigger a browser reload event on change/unlink
-      .on('change', function () {
-        return _this['delete'](compiledPath);
-      }).on('unlink', function () {
-        return _this['delete'](compiledPath);
-      });
+      .on('change', fileChanged.bind(this))
+      .on('unlink', fileChanged.bind(this));
       this.watchers.push(compiledPath);
     }
   };

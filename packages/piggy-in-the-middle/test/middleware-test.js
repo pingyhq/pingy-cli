@@ -19,14 +19,28 @@ function getPath(path) {
 describe('middleware', function() {
   var app;
   var compileCount = 0;
+  var cssFileChanged = 0;
+  var cssFileChangedExpectation = 0;
 
   before(function() {
-    app = connect().use(pitm(getPath()));
+    var pitmInstance = pitm(getPath());
+    app = connect().use(pitmInstance);
+
+    pitmInstance.events.on('fileChanged', function(serverPath, sourcePath) {
+      if (serverPath === '/styles/main.css' && sourcePath === 'styles/main.styl') {
+        cssFileChanged = cssFileChanged + 1;
+      }
+    });
 
     // babyTolk.read is called on compile so spy on this to see if
     // compilation has taken place
     babyTolk.read = sinon.spy(babyTolk, 'read');
   });
+
+  function expectCssFileChangedEvent() {
+    cssFileChangedExpectation = cssFileChangedExpectation + 1;
+    return expect(cssFileChanged, 'to be', cssFileChangedExpectation);
+  }
 
   function expectCompiled() {
     compileCount = compileCount + 1;
@@ -205,9 +219,15 @@ describe('middleware', function() {
         return expectCompiled();
       });
     });
+
+    it('should cause a file change event', function() {
+      return expectCssFileChangedEvent();
+    });
+
   });
 
   describe('fourth requests', function() {
+
     // Probably bit pointless doing this again but just in case
     it('should recompile styl file', function() {
       return expect(app, 'to yield exchange', {
@@ -222,6 +242,10 @@ describe('middleware', function() {
       }).then(function() {
         return expectCompiled();
       });
+    });
+
+    it('should cause a file change event', function() {
+      return expectCssFileChangedEvent();
     });
   });
 
@@ -240,6 +264,10 @@ describe('middleware', function() {
       }).then(function() {
         return expectCached();
       });
+    });
+
+    it('should *not* cause a file change event', function() {
+      return expect(cssFileChangedExpectation, 'to be', cssFileChanged);
     });
   });
 });
