@@ -4,6 +4,9 @@ var babyTolk = require('baby-tolk');
 var helpers = require('./helpers');
 var Cache = require('./cache');
 var events = require('events');
+var csserror = require('csserror');
+var jserror = require('jserror');
+var path = require('path');
 
 
 module.exports = function(mountPath) {
@@ -21,7 +24,7 @@ module.exports = function(mountPath) {
     }
 
     var renderCompiledFile = function renderCompiledFile(compiled) {
-      if (!compiled && compiled.result) {
+      if (!compiled) {
         return next();
       }
       cache.add(sourcePath, compiledPath, compiled);
@@ -38,10 +41,23 @@ module.exports = function(mountPath) {
       return helpers.fixSourceMapLinks(mountPath, compiled);
     };
 
+    var forwardCompilationError = function(err) {
+      if (err && err.toString) {
+        var ext = path.extname(compiledPath);
+        err = err.toString();
+        if (ext === '.css') {
+          err = csserror(err);
+        } else if (ext === '.js') {
+          err = jserror(err);
+        }
+        return helpers.render(200, fullPath, {result: err}, false, rsp);
+      }
+    };
+
     return helpers.findSourceFile(fullCompiledPath)
       .then(setSourcePath)
       .then(babyTolk.read) // Compile source file using babyTolk
-      .then(fixSourceMapLinks)
+      .then(fixSourceMapLinks, forwardCompilationError)
       .then(renderCompiledFile, next); // No specific error handling for the moment
   };
 

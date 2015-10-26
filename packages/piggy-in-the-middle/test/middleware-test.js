@@ -270,4 +270,68 @@ describe('middleware', function() {
       return expect(cssFileChangedExpectation, 'to be', cssFileChanged);
     });
   });
+
+  describe('errors', function() {
+    var pathToCSS = getPath('styles/main.styl');
+    var pathToJS = getPath('scripts/main.coffee');
+    var fileContentsCSS;
+    var fileContentsJS;
+
+    before(function (done) {
+      fs.readFile(pathToCSS, function (err, contents) {
+        fileContentsCSS = contents;
+        // Add space to end of file
+        // Allow 250ms for chokidar to notice the change
+        fs.writeFile(pathToCSS, 'sodifj5ij%$:@', function() {
+          return setTimeout(done, 250);
+        });
+      });
+      fs.readFile(pathToJS, function (err, contents) {
+        fileContentsJS = contents;
+        fs.writeFile(pathToJS, '"sodifj5ij%$:@');
+      });
+    });
+
+    after(function (done) {
+      // Revert file back to original contents
+      // Allow 250ms for chokidar to notice the change
+      fs.writeFile(pathToCSS, fileContentsCSS, function() {
+        return setTimeout(done, 250);
+      });
+      fs.writeFile(pathToJS, fileContentsJS);
+    });
+
+    it('should return 404 when file not found', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/foo/bar.css' },
+        response: {
+          statusCode: 404,
+          body: expect.it('to be undefined')
+        }
+      });
+    });
+
+    it('should output error on css error', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/styles/main.css' },
+        headers: expect.it('to not have keys', 'X-SourceMap'),
+        response: {
+          statusCode: 200,
+          body: expect.it('to contain', 'body * {').and('to contain', 'ParseError')
+        }
+      });
+    });
+
+    it('should output error on js error', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/scripts/main.js' },
+        headers: expect.it('to not have keys', 'X-SourceMap'),
+        response: {
+          statusCode: 200,
+          body: expect.it('to contain', 'body * {').and('to contain', 'error: missing')
+        }
+      });
+    });
+
+  });
 });
