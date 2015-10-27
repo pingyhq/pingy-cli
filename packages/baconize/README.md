@@ -1,5 +1,5 @@
-Piggy In The Middle
-===================
+Baconize
+========
 
 [![npm version](https://badge.fury.io/js/baconize.svg)](https://badge.fury.io/js/baconize)
 [![Build Status](https://travis-ci.org/davej/baconize.svg?branch=master)](https://travis-ci.org/davej/baconize)
