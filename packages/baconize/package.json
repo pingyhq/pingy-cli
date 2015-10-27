@@ -1,0 +1,37 @@
+{
+  "name": "baconize",
+  "version": "0.1.0",
+  "description": "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha",
+    "example": "node examples/compile-site.js"
+  },
+  "keywords": [
+    "compile",
+    "transpile",
+    "precompile",
+    "coffeescript",
+    "jade",
+    "stylus",
+    "less",
+    "sass"
+  ],
+  "author": "Dave Jeffery <dave@davejeffery.com>",
+  "license": "MIT",
+  "dependencies": {
+    "baby-tolk": "^1.1.0",
+    "mkdirp": "^0.5.1",
+    "readdirp": "^2.0.0",
+    "rimraf": "^2.4.3",
+    "through2": "^2.0.0",
+    "when": "^3.7.4"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.10.0",
+    "jade": "^1.11.0",
+    "mocha": "^2.3.3",
+    "stylus": "^0.52.4",
+    "unexpected": "^10.0.2"
+  }
+}
