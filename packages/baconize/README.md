@@ -32,7 +32,7 @@ This library is designed for use alongside [pingy-in-the-middle](https://github.
 Options
 -------
 
-- **compileBlacklist**: filter to blacklist files from being compiled. They will still be copied (without compilation) unless they are negated using the `fileFilter` or `directoryFilter Options below`. This option is useful for vendor directories (like 'bower_components') which already include the compiled versions of files. See [Filters](#filters) for more.
+- **compileBlacklist**: filter to blacklist files from being compiled. They will still be copied (without compilation) unless they are negated using the `fileFilter` or `directoryFilter` options below. This option is useful for vendor directories (like 'bower_components') which already include the compiled versions of files. See [Filters](#filters) for more.
 
 - **fileFilter**: filter to include/exclude files to be copied to target. See [Filters](#filters) for more.
 
@@ -44,14 +44,14 @@ Options
 Filters
 -------
 
-Filters take an array of glob strings:
+Filters take an array of glob strings. `fileFilter` and `directoryFilter` can be a whitelist or blacklist, by default they are whitelist but add the `!` character before entries to turn them into a blacklist instead:
 
-* `compileBlacklist: [ 'bower_components/**' ]` includes bower_components directory but copies the raw directory instead of compiling files within the directory.
+* `compileBlacklist: [ 'bower_components/**' ]` copies the raw 'bower_components' directory instead of compiling files within the directory.
 
-* `fileFilter: [ '*.json', '*.js' ]` includes all JavaScript and Json files.
+* `fileFilter: [ '*.json', '*.js', '*.scss', '*.jade' ]` includes *only* JavaScript, JSON, SCSS and Jade files.
 
 
-* `directoryFilter: [ '!.git', '!node_modules' ]` includes all directories except the '.git' and 'node_modules'.
+* `directoryFilter: [ '!.git', '!node_modules' ]` includes all directories *except* '.git' and 'node_modules'.
 
 See [minimatch](https://github.com/isaacs/minimatch) for some examples of glob strings.
 
