@@ -25,7 +25,7 @@ describe('baconize', function() {
 
   it('should compile compilable files and copy all others', function () {
     var options = {
-      blacklist: ['dont-compile/**'],
+      compileBlacklist: ['dont-compile/**'],
       directoryFilter: ['!dont-copy']
     };
     return expect(baconize(getPathIn(), getPathOut(), options), 'to be fulfilled with', 5);
