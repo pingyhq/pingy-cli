@@ -16,7 +16,7 @@ var baconize = require('baconize');
 
 var source = '/path/to/input/dir';
 var target = '/path/to/output/dir';
-baconize(source, target).then([successFn],[errorFn]);
+baconize(source, target, [options]).then([successFn],[errorFn]);
 ```
 
 How it works:
@@ -26,8 +26,35 @@ How it works:
 
 For example, if you have a coffeescript file in `/path/to/input/dir/my-app/scripts/index.coffee` then it will output the compiled file as `/path/to/output/dir/my-app/scripts/index.js`, and the sourcemap as `/path/to/output/dir/my-app/scripts/index.js.map`.
 
-
 This library is designed for use alongside [pingy-in-the-middle](https://github.com/davej/piggy-in-the-middle).
+
+
+Options
+-------
+
+- **compileBlacklist**: filter to blacklist files from being compiled. They will still be copied (without compilation) unless they are negated using the `fileFilter` or `directoryFilter Options below`. This option is useful for vendor directories (like 'bower_components') which already include the compiled versions of files. See [Filters](#filters) for more.
+
+- **fileFilter**: filter to include/exclude files to be copied to target. See [Filters](#filters) for more.
+
+- **directoryFilter**: filter to include/exclude directories to be copied to target, rules are applied to sub-directories also. See [Filters](#filters) for more.
+
+- **depth**: depth at which to stop recursing even if more subdirectories are found.
+
+
+Filters
+-------
+
+Filters take an array of glob strings:
+
+* `compileBlacklist: [ 'bower_components/**' ]` includes bower_components directory but copies the raw directory instead of compiling files within the directory.
+
+* `fileFilter: [ '*.json', '*.js' ]` includes all JavaScript and Json files.
+
+
+* `directoryFilter: [ '!.git', '!node_modules' ]` includes all directories except the '.git' and 'node_modules'.
+
+See [minimatch](https://github.com/isaacs/minimatch) for some examples of glob strings.
+
 
 Try it out
 ----------

@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "baby-tolk": "^1.1.0",
+    "micromatch": "^2.2.0",
     "mkdirp": "^0.5.1",
     "readdirp": "^2.0.0",
     "rimraf": "^2.4.3",

@@ -4,19 +4,22 @@ var babyTolk = require('baby-tolk');
 var readdirp = require('readdirp');
 var through = require('through2');
 var path = require('path');
-var nodefn = require('when/node');
 var when = require('when');
+var fs = require('fs');
+var mm = require('micromatch');
+var nodefn = require('when/node');
 var rimraf = nodefn.lift(require('rimraf'));
 var mkdirp = nodefn.lift(require('mkdirp'));
-var fs = require('fs');
 var fsp = nodefn.liftAll(require('fs'));
 var filesCopied = 0;
 
 module.exports = function(inputDir, outputDir, options) {
+  options = options || {};
 
   var compileAndCopy = function() {
     return when.promise(function(resolve, reject) {
-      var stream = readdirp({ root: inputDir, options: options });
+      options.root = inputDir;
+      var stream = readdirp(options);
 
       stream.pipe(through.obj(function (file, _, next) {
 
@@ -63,12 +66,15 @@ module.exports = function(inputDir, outputDir, options) {
             ws.on('finish', fileDone).on('error', reject);
           };
 
-          if (!!compileExt) {
+          var doCompile = !mm(file.path, options.compileBlacklist).length;
+
+          if (!!compileExt && doCompile) {
             compile();
           } else {
             copy();
           }
         };
+
         var dir = path.join(outputDir, file.path.replace(file.name, ''));
         mkdirp(dir).then(processFile, reject);
       }, function (next) {

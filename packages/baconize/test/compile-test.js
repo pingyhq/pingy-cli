@@ -24,7 +24,11 @@ describe('baconize', function() {
   after(clearDir);
 
   it('should compile compilable files and copy all others', function () {
-    return expect(baconize(getPathIn(), getPathOut()), 'to be fulfilled with', 4);
+    var options = {
+      blacklist: ['dont-compile/**'],
+      directoryFilter: ['!dont-copy']
+    };
+    return expect(baconize(getPathIn(), getPathOut(), options), 'to be fulfilled with', 5);
   });
 
   describe('after compilation', function() {
@@ -34,13 +38,15 @@ describe('baconize', function() {
         fs.readFile(getPathOut('index.html')),
         fs.readFile(getPathOut('styles/main.css')),
         fs.readFile(getPathOut('scripts/main.js')),
-        fs.readFile(getPathOut('about.html'))
+        fs.readFile(getPathOut('about.html')),
+        fs.readFile(getPathOut('dont-compile/foo.coffee'))
       ]).then(function(results) {
         return expect.promise.all([
           expect(results[0].toString(), 'to contain', '<title>Piggy'),
           expect(results[1].toString(), 'to contain', 'body {'),
           expect(results[2].toString(), 'to contain', 'console.log("H'),
-          expect(results[3].toString(), 'to contain', '<title>Some')
+          expect(results[3].toString(), 'to contain', '<title>Some'),
+          expect(results[4].toString(), 'to contain', 'console.log "T')
         ]);
       });
     });
@@ -74,7 +80,25 @@ describe('baconize', function() {
     it('should not copy pre-compiled files', function() {
       return fs.readFile(getPathOut('index.jade'))
         .then(function() {
-          return expect.fail('index.jade should not have been copied');
+          return expect.fail('`index.jade` should not be copied');
+        }, function(err) {
+          return expect(err.code, 'to be', 'ENOENT');
+        });
+    });
+
+    it('should not compile blacklist matches', function() {
+      return fs.readFile(getPathOut('dont-compile/foo.js'))
+        .then(function() {
+          return expect.fail('`dont-compile/foo.js` should not be copied');
+        }, function(err) {
+          return expect(err.code, 'to be', 'ENOENT');
+        });
+    });
+
+    it('should not copy ignore paths', function() {
+      return fs.stat(getPathOut('dont-copy'))
+        .then(function() {
+          return expect.fail('`dont-copy` directory should not be copied');
         }, function(err) {
           return expect(err.code, 'to be', 'ENOENT');
         });
