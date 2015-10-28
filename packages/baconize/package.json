@@ -1,6 +1,6 @@
 {
   "name": "baconize",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
   "main": "lib/index.js",
   "scripts": {
