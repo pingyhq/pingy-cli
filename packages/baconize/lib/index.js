@@ -22,6 +22,7 @@ module.exports = function(inputDir, outputDir, options) {
       var stream = readdirp(options);
 
       stream.pipe(through.obj(function (file, _, next) {
+        var outputFullPath = path.join(outputDir, file.path);
 
         var fileDone = function() {
           filesCopied = filesCopied + 1;
@@ -31,7 +32,6 @@ module.exports = function(inputDir, outputDir, options) {
         var processFile = function() {
           var ext = path.extname(file.name);
           var compileExt = babyTolk.targetExtensionMap[ext];
-          var outputFullPath = path.join(outputDir, file.path);
 
           var compile = function() {
             babyTolk.read(file.fullPath).then(function(compiled) {
@@ -75,7 +75,8 @@ module.exports = function(inputDir, outputDir, options) {
           }
         };
 
-        var dir = path.join(outputDir, file.path.replace(file.name, ''));
+
+        var dir = outputFullPath.slice(0,-(file.name.length));
         mkdirp(dir).then(processFile, reject);
       }, function (next) {
         resolve(filesCopied);
