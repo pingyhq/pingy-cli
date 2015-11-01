@@ -26,7 +26,7 @@ describe('readCompiled', function () {
   it('should compile a file if there is an adapter', function () {
     return expect(tolk.read(getPath('babel/simplest.jsx')), 'to be fulfilled with', {
       result: expect.it('to begin with', '\'use strict\';\n\nvar foo = \'bar\';'),
-      extension: expect.it('to be', 'js'),
+      extension: expect.it('to be', '.js'),
     });
   });
 
@@ -36,6 +36,59 @@ describe('readCompiled', function () {
         sources: expect.it('to have length', 2),
         mappings: expect.it('to begin with', 'AAAA;EACE,')
       }
+    });
+  });
+
+  it('should support CSS minification (with compilation)', function () {
+    return expect(tolk.read(getPath('less/external.less'), {minify: true}), 'to be fulfilled with', {
+      result: expect.it('to begin with', '.bar{wow:\'foo\'}'),
+      sourcemap: {
+        sources: expect.it('to have length', 2),
+        mappings: expect.it('to begin with', 'AAAA,KACE,')
+      }
+    });
+  });
+
+  it('should support CSS minification (without compilation)', function () {
+    return expect(tolk.read(getPath('csso/basic.css'), {minify: true}), 'to be fulfilled with', {
+      result: expect.it('to begin with', '/*! keep this comment */.hello{margin:0;color:silver'),
+      sourcemap: {
+        sources: expect.it('to have length', 1),
+        mappings: expect.it('to begin with', 'wBAGA,OACE,')
+      }
+    });
+  });
+
+  it('should support JS minification (with compilation)', function () {
+    return expect(tolk.read(getPath('coffee/basic.coffee'), {minify: true}), 'to be fulfilled with', {
+      result: expect.it('to begin with', '(function(){console.log(15)})'),
+      sourcemap: {
+        sources: expect.it('to have length', 1),
+        mappings: expect.it('to begin with', 'AAAA,CAAA,')
+      }
+    });
+  });
+
+  it('should support JS minification (without compilation)', function () {
+    return expect(tolk.read(getPath('minify-js/basic.js'), {minify: true}), 'to be fulfilled with', {
+      result: expect.it('to begin with', 'for(var stuff=[1,2,3,4,5],i=0;i<stuff.length;i++)'),
+      sourcemap: {
+        sources: expect.it('to have length', 1),
+        mappings: expect.it('to begin with', 'AACA,IAAK,')
+      }
+    });
+  });
+
+
+  it('should support HTML minification (with compilation)', function () {
+    return expect(tolk.read(getPath('jade/client-complex.jade'), {minify: true}), 'to be fulfilled with', {
+      result: expect.it('to begin with', '<p>1</p><p>1</p><p>2</p><p>2</p><p>3</p><p>3</p><p>4</p><p>4</p><div class="1">')
+    });
+  });
+
+  it('should support HTML minification (without compilation)', function () {
+    return expect(tolk.read(getPath('minify-html/basic.html'), {minify: true}), 'to be fulfilled with', {
+      result: expect.it('to begin with', '<div class="foobar"><p>wowlaween</p><div>')
     });
   });
 

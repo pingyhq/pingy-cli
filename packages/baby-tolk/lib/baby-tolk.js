@@ -1,14 +1,11 @@
 'use strict';
 
-// Polfill Promise for old node versions
-require('es6-promise');
-
 var Path = require('path');
 var when = require('when');
 var node = require('when/node');
 var fs = node.liftAll(require('fs'));
-
 var accord = require('accord');
+var minify = require('./minify');
 
 var extensionMap = {};
 var loadedAdapters = [];
@@ -86,7 +83,8 @@ module.exports = {
 
     options.sourceMap = options.sourceMap === false ? false : true;
 
-    var adapters = extensionMap[Path.extname(pathName)];
+    var extension = Path.extname(pathName);
+    var adapters = extensionMap[extension];
     var adapter = adapters && adapters[0];
 
     var continuation;
@@ -100,18 +98,26 @@ module.exports = {
         transpilerOptions.includePaths = [Path.dirname(pathName)];
       }
 
-      var addExtension = function (compiled) {
-        compiled.extension = adapter.output;
+      var addInfo = function(compiled) {
+        compiled.extension = '.' + adapter.output;
+        compiled.inputPath = pathName;
         return when.resolve(compiled);
       };
 
-      continuation = adapter.renderFile(pathName, transpilerOptions).then(addExtension);
+      continuation = adapter.renderFile(pathName, transpilerOptions).then(addInfo);
+
     } else {
       continuation = fs.readFile(pathName, 'utf8').then(function (source) {
         return when.resolve({
-          result: source
+          result: source,
+          extension: extension,
+          inputPath: pathName
         });
       });
+    }
+
+    if (options.minify) {
+      continuation = continuation.then(minify);
     }
 
     return continuation;

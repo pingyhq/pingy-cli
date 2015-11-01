@@ -8,7 +8,7 @@ Baby Tolk
 
 This is based on the [Tolk](https://github.com/Munter/tolk) library but does less things based on the "small modules that do one thing" philosophy. Specifically, it doesn't inline sourcemaps and doesn't autoprefix CSS.
 
-Baby Tolk is a "do the right thing" tool for transpiling. It reads a file from the file system, transpiles it (including sourcemaps where supported) with the available transpilers.
+Baby Tolk is a "do the right thing" tool for transpiling. It reads a file from the file system, transpiles it (including sourcemaps where supported) with the available transpilers. It can also optionally minify the output.
 
 Returns a promise that resolves with the resulting transpiler output.
 
@@ -26,18 +26,18 @@ Usage
 npm install baby-tolk
 ```
 
-Out of the box this won't transpile anything. In order to do more, for example babel and sass, also do this:
+Out of the box this won't transpile anything (but it can minify html, css and JS). In order to do more, for example babel and sass, also do this:
 
 ```
 npm install node-sass babel
 ```
 
-Now you are ready to start reading files from the file system. Tolk automatically loads the transpilers it has access to in the scope it is run in.
+Now you are ready to start reading files from the file system. Baby Tolk automatically loads the transpilers it has access to in the scope it is run in.
 
-```js
-var tolk = require('tolk');
+```javascript
+var babyTolk = require('baby-tolk');
 
-tolk.read('path/to/stylesheet.scss').done(function (compiled) {
+babyTolk.read('path/to/stylesheet.scss').then(function (compiled) {
   // compiled.result is the transpiled output as a string
   console.log(compiled.result);
 
@@ -50,6 +50,21 @@ tolk.read('path/to/stylesheet.scss').done(function (compiled) {
 });
 ```
 
+Want the output to be minified?
+
+```javascript
+
+babyTolk.read('path/to/stylesheet.scss', {minify: true}).then([success], [fail]);
+
+```
+
+You can also minify vanilla css/js/html files without the transpilation step.
+
+```javascript
+
+babyTolk.read('path/to/app.js', {minify: true}).then([success], [fail]);
+
+```
 
 License
 -------
