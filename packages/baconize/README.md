@@ -4,7 +4,7 @@ Baconize
 [![npm version](https://badge.fury.io/js/baconize.svg)](https://badge.fury.io/js/baconize)
 [![Build Status](https://travis-ci.org/davej/baconize.svg?branch=master)](https://travis-ci.org/davej/baconize)
 
-Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`.
+Compile/minify static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`.
 
 This is a very early version with almost no test coverage but give it a shot and report any issues. Currently supports: `LiveScript`, `babel`, `coco`, `coffee-script`, `dogescript`, `less`, `marked`, `myth`, `jade`, `node-sass`, `stylus`, `swig`. To use any of these you must do `npm install x` as needed (where `x` is the name of the lib), baconize does not install them by default.
 
@@ -32,13 +32,19 @@ This library is designed for use alongside [pingy-in-the-middle](https://github.
 Options
 -------
 
-- **compileBlacklist**: filter to blacklist files from being compiled. They will still be copied (without compilation) unless they are negated using the `fileFilter` or `directoryFilter` options below. This option is useful for vendor directories (like 'bower_components') which already include the compiled versions of files. See [Filters](#filters) for more.
+- **compile** (Boolean, default = true): should baconize try to compile files where possible?
 
-- **fileFilter**: filter to include/exclude files to be copied to target. See [Filters](#filters) for more.
+- **sourcemaps** (Boolean, default = true): should baconize copy corresponding sourcemaps and source files for the minified/compiled files?
 
-- **directoryFilter**: filter to include/exclude directories to be copied to target, rules are applied to sub-directories also. See [Filters](#filters) for more.
+- **minify** (Boolean, default = false): should baconize minify javascript, css and html files? Will also minify post-compilation files.
 
-- **depth**: depth at which to stop recursing even if more subdirectories are found.
+- **blacklist** (Array): filter to blacklist files from being compiled or minifed. They will still be copied (without compilation/minifiction) unless they are negated using the `fileFilter` or `directoryFilter` options below. This option is useful for vendor directories (like 'bower_components') which already include the compiled versions of files. See [Filters](#filters) for more.
+
+- **fileFilter** (Array): filter to include/exclude files to be copied to target. See [Filters](#filters) for more.
+
+- **directoryFilter** (Array): filter to include/exclude directories to be copied to target, rules are applied to sub-directories also. Useful for directories like '.git'. See [Filters](#filters) for more.
+
+- **depth** (Number): depth at which to stop recursing even if more subdirectories are found.
 
 
 Filters
@@ -49,7 +55,6 @@ Filters take an array of glob strings. `fileFilter` and `directoryFilter` can be
 * `compileBlacklist: [ 'bower_components/**' ]` copies the raw 'bower_components' directory instead of compiling files within the directory.
 
 * `fileFilter: [ '*.json', '*.js', '*.scss', '*.jade' ]` includes *only* JavaScript, JSON, SCSS and Jade files.
-
 
 * `directoryFilter: [ '!.git', '!node_modules' ]` includes all directories *except* '.git' and 'node_modules'.
 
