@@ -78,6 +78,7 @@ module.exports = {
   sourceExtensionMap: sourceExtension,
   targetExtensionMap: targetExtension,
   adapters: loadedAdapters,
+  isMinifiable: minify.isMinifiable,
   read: function (pathName, options) {
     options = options || {};
 
@@ -117,7 +118,9 @@ module.exports = {
     }
 
     if (options.minify) {
-      continuation = continuation.then(minify);
+      continuation = continuation.then(function(compiled) {
+        return minify(compiled, options);
+      });
     }
 
     return continuation;

@@ -66,6 +66,14 @@ babyTolk.read('path/to/app.js', {minify: true}).then([success], [fail]);
 
 ```
 
+It's also possible to turn source-maps off.
+
+```javascript
+
+babyTolk.read('path/to/app.js', {sourceMaps: false}).then([success], [fail]);
+
+```
+
 License
 -------
 (The MIT License)
