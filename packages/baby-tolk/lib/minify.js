@@ -37,7 +37,15 @@ var js = function(compiled) {
   if (compiled.sourcemap) {
     options.inSourceMap = compiled.sourcemap;
   }
-  var ug = UglifyJS.minify(compiled.result, options);
+
+  var ug;
+  try {
+    ug = UglifyJS.minify(compiled.result, options);
+  } catch (err) {
+    err.filename = compiled.inputPath;
+    throw err;
+  }
+
   // Remove sourceMappingURL comment line
   ug.code = ug.code.substring(0, ug.code.lastIndexOf('\n'));
   compiled.sourcemap = JSON.parse(ug.map);
