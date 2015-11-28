@@ -44,6 +44,9 @@ Object.keys(accord.all()).map(function (engine) {
 }).filter(function (engine) {
   return engine;
 }).forEach(function (adapter) {
+  if (adapter.engineName === 'babel') {
+    adapter.extensions = adapter.extensions.concat(['es6', 'babel']);
+  }
   loadedAdapters.push(adapter);
   var extensions = adapter.extensions.map(function (extension) { return '.' + extension; });
 
