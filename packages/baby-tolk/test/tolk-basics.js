@@ -71,10 +71,10 @@ describe('readCompiled', function () {
 
   it('should support JS minification (without compilation)', function () {
     return expect(tolk.read(getPath('minify-js/basic.js'), {minify: true}), 'to be fulfilled with', {
-      result: expect.it('to begin with', 'for(var stuff=[1,2,3,4,5],i=0;i<stuff.length;i++)'),
+      result: expect.it('to begin with', '"use strict";for(var stuff=[1,2,3,4,5],i=0;i<stuff.length;i++)'),
       sourcemap: {
         sources: expect.it('to have length', 1),
-        mappings: expect.it('to begin with', 'AACA,IAAK,')
+        mappings: expect.it('to begin with', 'YACA,KAAK,')
       }
     });
   });
