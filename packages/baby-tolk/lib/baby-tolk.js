@@ -81,7 +81,7 @@ var dontCompile = function (pathName) {
   // This is by convention.
   var baseName = Path.basename(pathName);
   return baseName[0] === '_';
-}
+};
 
 module.exports = {
   extensions: extensionMap,

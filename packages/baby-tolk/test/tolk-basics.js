@@ -92,6 +92,12 @@ describe('readCompiled', function () {
     });
   });
 
+  it('should not compile files beginning with underscore', function () {
+    return expect(tolk.read(getPath('scss/_mixin_lib.scss'), {minify: true}), 'to be fulfilled with', {
+      result: expect.it('to begin with', '@mixin set_color($color) {\n  color: $color;')
+    });
+  });
+
   it('should throw when compiling a file that does not exist', function () {
     return expect(tolk.read(getPath('does-not-exist.scss')), 'when rejected', 'to satisfy', {
       code: 'ENOENT',
