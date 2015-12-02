@@ -76,6 +76,13 @@ Object.keys(extensionMap).forEach(function (sourceExt) {
   sourceExtension[targetExt].push(sourceExt);
 });
 
+var dontCompile = function (pathName) {
+  // Baby Tolk wont compile files that begin with a dot ('.').
+  // This is by convention.
+  var baseName = Path.basename(pathName);
+  return baseName[0] === '_';
+}
+
 module.exports = {
   extensions: extensionMap,
   sourceExtensionMap: sourceExtension,
@@ -89,7 +96,7 @@ module.exports = {
 
     var extension = Path.extname(pathName);
     var adapters = extensionMap[extension];
-    var adapter = adapters && adapters[0];
+    var adapter = !dontCompile(pathName) && adapters && adapters[0];
 
     var continuation;
 
