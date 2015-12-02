@@ -77,7 +77,7 @@ Object.keys(extensionMap).forEach(function (sourceExt) {
 });
 
 var dontCompile = function (pathName) {
-  // Baby Tolk wont compile files that begin with a dot ('.').
+  // Baby Tolk wont compile files that begin with an underscore `_`.
   // This is by convention.
   var baseName = Path.basename(pathName);
   return baseName[0] === '_';

@@ -32,7 +32,7 @@ Out of the box this won't transpile anything (but it can minify html, css and JS
 npm install node-sass babel
 ```
 
-Now you are ready to start reading files from the file system. Baby Tolk automatically loads the transpilers it has access to in the scope it is run in.
+Now you are ready to start reading files from the file system. Baby Tolk automatically loads the transpilers it has access to in the scope it is run in. By convention Baby Tolk won't compile any files if the filename begins with an underscore `_` character.
 
 ```javascript
 var babyTolk = require('baby-tolk');
