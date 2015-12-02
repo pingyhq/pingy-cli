@@ -45,7 +45,8 @@ Object.keys(accord.all()).map(function (engine) {
   return engine;
 }).forEach(function (adapter) {
   if (adapter.engineName === 'babel') {
-    adapter.extensions = adapter.extensions.concat(['es6', 'babel']);
+    // Monkey-patching Babel adapter so that it doesn't try and compile all .js files
+    adapter.extensions = ['jsx', 'es6', 'babel'];
   }
   loadedAdapters.push(adapter);
   var extensions = adapter.extensions.map(function (extension) { return '.' + extension; });
