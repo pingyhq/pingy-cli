@@ -40,6 +40,6 @@
     "unexpected": "^10.0.1",
     "unexpected-express": "^8.0.0",
     "unexpected-messy": "^5.0.0",
-    "unexpected-sinon": "^8.0.0"
+    "unexpected-sinon": "^9.0.4"
   }
 }
