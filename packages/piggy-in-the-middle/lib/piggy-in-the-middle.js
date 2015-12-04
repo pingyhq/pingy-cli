@@ -13,7 +13,7 @@ module.exports = function(mountPath) {
   var eventEmitter = new events.EventEmitter();
   var cache = new Cache(mountPath, eventEmitter);
 
-  var middleware = function middleware(req, rsp, next) {
+  var middleware = function piggyMiddleware(req, rsp, next) {
     var isSrcMap = helpers.isSourceMap(req.url);
     var fullPath = helpers.getFullPath(mountPath, req.url);
     var compiledPath = helpers.getCompiledPath(req.url);
