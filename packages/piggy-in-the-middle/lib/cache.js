@@ -6,7 +6,7 @@ module.exports = (function() {
   function Cache(mountPath, eventEmitter) {
     // Set-up cache and watchers
     this.cache = {};
-    this.watchers = [];
+    this.watchers = {};
     this.mountPath = mountPath;
     this.events = eventEmitter;
   }
@@ -29,7 +29,7 @@ module.exports = (function() {
   Cache.prototype.add = function (sourcePath, compiledPath, compiled) {
     this._add(compiledPath, compiled);
     var sources = this._getSources(compiled, sourcePath);
-    this._addWatcher(compiledPath, sources);
+    this._preAddWatcher(compiledPath, sources);
   };
 
   Cache.prototype._getSources = function(compiled, sourcePath) {
@@ -49,20 +49,33 @@ module.exports = (function() {
     }
   };
 
+  Cache.prototype._preAddWatcher = function(compiledPath, sources) {
+    if (!this.watchers[compiledPath]) {
+      this._addWatcher(compiledPath, sources);
+     } else {
+      var newSources = sources.filter(function(src) {
+        return this.watchers[compiledPath].indexOf(src) === -1;
+      }.bind(this));
+      this._addWatcher(compiledPath, newSources);
+    }
+  };
+
   Cache.prototype._addWatcher = function(compiledPath, sources) {
     var fileChanged = function(sourcePath) {
       this['delete'](compiledPath);
       this.events.emit('fileChanged', compiledPath, sourcePath);
     };
 
-    if (this.watchers.indexOf(compiledPath) === -1) {
-      chokidar.watch(sources, {
-        cwd: this.mountPath
-      })
-      // TODO: Trigger a browser reload event on change/unlink
-      .on('change', fileChanged.bind(this))
-      .on('unlink', fileChanged.bind(this));
-      this.watchers.push(compiledPath);
+    chokidar.watch(sources, {
+      cwd: this.mountPath
+    })
+    // TODO: Trigger a browser reload event on change/unlink
+    .on('change', fileChanged.bind(this))
+    .on('unlink', fileChanged.bind(this));
+    if (!this.watchers[compiledPath]) {
+      this.watchers[compiledPath] = sources;
+    } else {
+      this.watchers[compiledPath] = this.watchers[compiledPath].concat(sources);
     }
   };
 

@@ -22,15 +22,20 @@ describe('middleware', function() {
   var cssFileChanged = 0;
   var cssFileChangedExpectation = 0;
 
-  before(function() {
+  var startup = function() {
     var pitmInstance = pitm(getPath());
     app = connect().use(pitmInstance);
 
     pitmInstance.events.on('fileChanged', function(serverPath, sourcePath) {
-      if (serverPath === '/styles/main.css' && sourcePath === 'styles/main.styl') {
+      if ((serverPath === '/styles/main.css') &&
+          (sourcePath === 'styles/main.styl' || sourcePath === 'styles/headings.styl')) {
         cssFileChanged = cssFileChanged + 1;
       }
     });
+  };
+
+  before(function() {
+    startup();
 
     // babyTolk.read is called on compile so spy on this to see if
     // compilation has taken place
@@ -50,6 +55,158 @@ describe('middleware', function() {
   function expectCached() {
     return expect(babyTolk.read, 'was called times', compileCount);
   }
+
+  describe('inner source file added after startup', function() {
+    var pathToCSS = getPath('styles/main.styl');
+    var fileContentsCSS;
+    var importRemovedCSS;
+
+    before(function(done) {
+      fs.readFile(pathToCSS, function (err, contents) {
+        fileContentsCSS = contents;
+
+        importRemovedCSS = fileContentsCSS.toString().split('\n'); // split into lines
+        importRemovedCSS.shift(); // remove first line
+        importRemovedCSS = importRemovedCSS.join('\n'); // join up the string again
+        fs.writeFile(pathToCSS, importRemovedCSS, function() {
+          done();
+        });
+      });
+    });
+
+    it('should compile styl file', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/styles/main.css' },
+        response: {
+          headers: {
+            'Content-Type': 'text/css; charset=UTF-8',
+            'X-SourceMap': 'main.css.map'
+          },
+          body: expect.it('not to contain', 'h1 {')
+        }
+      }).then(function() {
+        return expectCompiled();
+      });
+    });
+
+    it('should have styl sourcemap', function() {
+      return expect(app, 'to yield exchange', {
+        request: { url: '/styles/main.css.map' },
+        response: {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: {
+            sources: ['/styles/main.styl'],
+            mappings: expect.it('to be non-empty')
+          }
+        }
+      }).then(function() {
+        return expectCached();
+      }); // Loading source files also caches source map
+    });
+
+    describe('add inner import', function() {
+      before(function (done) {
+        // Revert file back to original contents with import
+        // Allow 250ms for chokidar to notice the change
+        fs.writeFile(pathToCSS, fileContentsCSS, function() {
+          return setTimeout(done, 250);
+        });
+      });
+
+      it('should compile styl file', function() {
+        return expect(app, 'to yield exchange', {
+          request: { url: '/styles/main.css' },
+          response: {
+            headers: {
+              'Content-Type': 'text/css; charset=UTF-8',
+              'X-SourceMap': 'main.css.map'
+            },
+            body: expect.it('to contain', 'h1 {')
+          }
+        }).then(function() {
+          return expectCompiled();
+        });
+      });
+
+      it('should have styl sourcemap', function() {
+        return expect(app, 'to yield exchange', {
+          request: { url: '/styles/main.css.map' },
+          response: {
+            statusCode: 200,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: {
+              sources: ['/styles/headings.styl', '/styles/main.styl'],
+              mappings: expect.it('to be non-empty')
+            }
+          }
+        }).then(function() {
+          return expectCached();
+        });
+      });
+
+      it('should cause a file change event', function() {
+        return expectCssFileChangedEvent();
+      });
+
+      describe('edit inner import file', function() {
+        var pathToInnerCSS = getPath('styles/headings.styl');
+        var fileContentsInnerCSS;
+
+        before(function(done) {
+          fs.readFile(pathToInnerCSS, function (err, contents) {
+            fileContentsInnerCSS = contents;
+            var newContents = contents + '\nh2\n  color blue';
+
+            fs.writeFile(pathToInnerCSS, newContents, function() {
+              return setTimeout(done, 250);
+            });
+          });
+        });
+
+        after(function (done) {
+          // Revert file back to original contents with import
+          // Allow 250ms for chokidar to notice the change
+          fs.writeFile(pathToInnerCSS, fileContentsInnerCSS, function() {
+            return setTimeout(done, 250);
+          });
+        });
+
+        it('should compile styl file', function() {
+          return expect(app, 'to yield exchange', {
+            request: { url: '/styles/main.css' },
+            response: {
+              headers: {
+                'Content-Type': 'text/css; charset=UTF-8',
+                'X-SourceMap': 'main.css.map'
+              },
+              body: expect.it('to contain', 'h2 {')
+            }
+          }).then(function() {
+            return expectCompiled();
+          });
+        });
+
+        it('should cause a file change event', function() {
+          return expectCssFileChangedEvent();
+        });
+
+      });
+
+      describe('after cleanup', function() {
+        it('should cause a file change event', function() {
+          return expectCssFileChangedEvent();
+        });
+      });
+
+    });
+
+  });
+
 
   describe('first requests', function() {
 
@@ -76,7 +233,7 @@ describe('middleware', function() {
             'Content-Type': 'text/css; charset=UTF-8',
             'X-SourceMap': 'main.css.map'
           },
-          body: expect.it('to contain', 'body {')
+          body: expect.it('to contain', 'h1 {')
         }
       }).then(function() {
         return expectCompiled();
@@ -92,7 +249,7 @@ describe('middleware', function() {
             'Content-Type': 'application/json'
           },
           body: {
-            sources: ['/styles/main.styl'],
+            sources: ['/styles/headings.styl', '/styles/main.styl'],
             mappings: expect.it('to be non-empty')
           }
         }
@@ -334,4 +491,5 @@ describe('middleware', function() {
     });
 
   });
+
 });
