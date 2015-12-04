@@ -107,11 +107,11 @@ describe('readCompiled', function () {
   });
 
   it('should throw when compiling a file with syntax errors', function () {
-    return expect(tolk.read(getPath('scss/syntaxerror.scss')), 'when rejected', 'to exhaustively satisfy', {
+    return expect(tolk.read(getPath('scss/syntaxerror.scss')), 'when rejected', 'to satisfy', {
       status: 1,
       file: /fixtures\/source\/scss\/syntaxerror\.scss$/,
       line: 2,
-      column: 8,
+      column: 3,
       message: 'property "color" must be followed by a \':\'',
     });
   });
