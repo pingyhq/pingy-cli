@@ -61,6 +61,36 @@ Filters take an array of glob strings. `fileFilter` and `directoryFilter` can be
 See [minimatch](https://github.com/isaacs/minimatch) for some examples of glob strings.
 
 
+Events
+------
+
+You can listen to `chdir` and `compile-start` and `compile-finised` events emitted by baconize.
+```javascript
+var bacon = baconize(source, target, [options]);
+
+bacon.on('chdir', function(folder) {
+  // `folder` (string) is the current folder path that is being processed by baconize
+});
+
+bacon.on('compile-start', function(file) {
+  // compile has started on `file` (object).
+  //
+  // {
+  //    name: 'typography.css',
+  //    path: 'styles/typography.css',
+  //    fullPath: '/Users/dave/Sites/my-site/styles/typography.css',
+  //    parentDir: 'styles',
+  //    fullParentDir: '/Users/dave/Sites/my-site/styles/',
+  //    stat: {object} See: https://nodejs.org/api/fs.html#fs_class_fs_stats
+  // }
+});
+
+bacon.on('compile-done', function(file) {
+  // compile has finished successfully on `file` (object, see above).
+});
+
+```
+
 Try it out
 ----------
 The easiest way to try this out is to `clone` the repo, `cd` into it and do:

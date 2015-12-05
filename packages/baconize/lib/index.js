@@ -7,6 +7,8 @@ var path = require('path');
 var when = require('when');
 var fs = require('fs');
 var mm = require('micromatch');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 var nodefn = require('when/node');
 var rimraf = nodefn.lift(require('rimraf'));
 var mkdirp = nodefn.lift(require('mkdirp'));
@@ -25,6 +27,7 @@ var addSrcExtension = function(filePath) {
 module.exports = function(inputDir, outputDir, options) {
   var filesCopied = 0;
   options = options || {};
+  var previousDir = null;
 
   // Default compile and minify options to `true`
   options.compile = options.compile === false ? false : true;
@@ -44,6 +47,10 @@ module.exports = function(inputDir, outputDir, options) {
         var doCompile = !mm(file.path, options.blacklist).length;
 
         var fileDone = function() {
+          if (previousDir !== file.parentDir) {
+            eventEmitter.emit('chdir', file.parentDir);
+            previousDir = file.parentDir;
+          }
           filesCopied = filesCopied + 1;
           next();
         };
@@ -53,6 +60,7 @@ module.exports = function(inputDir, outputDir, options) {
           var compileExt = babyTolk.targetExtensionMap[ext];
 
           var compile = function() {
+            eventEmitter.emit('compile-start', file);
             return babyTolk.read(file.fullPath, babyTolkOptions).then(function(compiled) {
               var writeFiles = [];
 
@@ -81,6 +89,7 @@ module.exports = function(inputDir, outputDir, options) {
               }
 
               writeFiles.push(fsp.writeFile(compiledOutputFullPath, compiled.result));
+              eventEmitter.emit('compile-done', file);
               return when.all(writeFiles);
             });
           };
@@ -127,7 +136,7 @@ module.exports = function(inputDir, outputDir, options) {
     });
   };
 
-  return rimraf(outputDir)
+  var promise = rimraf(outputDir)
     .then(compileAndCopy)
     .catch(function(err) {
       // If there was an error then back out, delete the output dir and forward
@@ -135,4 +144,7 @@ module.exports = function(inputDir, outputDir, options) {
       rimraf(outputDir);
       return when.reject(err);
     });
+
+  promise.events = eventEmitter;
+  return promise;
 };

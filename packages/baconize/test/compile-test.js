@@ -34,7 +34,33 @@ describe('baconize', function() {
         compile: true,
         sourcemaps: false
       };
-      return expect(baconize(getPathIn(), getPathOut(), options), 'to be fulfilled with', 7);
+      var bacon = baconize(getPathIn(), getPathOut(), options);
+
+      var dirs = [];
+      bacon.events.on('chdir', function(dir) { dirs.push(dir); });
+
+      var compiledFiles = [];
+      var lastStartedFile;
+      bacon.events.on('compile-start', function(file) {
+        lastStartedFile = file.path;
+      });
+      bacon.events.on('compile-done', function(file) {
+        if (lastStartedFile === file.path) {
+          compiledFiles.push(file.path);
+        } else {
+          expect.fail('Unexpected compile-done event');
+        }
+      });
+
+      return bacon.then(function(num) {
+        return expect.promise.all([
+          expect(num, 'to be', 7),
+          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
+          expect(compiledFiles, 'to contain', 'index.jade', 'scripts/main.coffee', 'styles/main.styl')
+            .and('not to contain', 'about.html', 'styles/typography.css', 'styles/typography.css')
+            .and('to have length', 3)
+        ]);
+      });
     });
 
     describe('after compilation', function() {
@@ -103,7 +129,33 @@ describe('baconize', function() {
         compile: true,
         sourcemaps: true
       };
-      return expect(baconize(getPathIn(), getPathOut(), options), 'to be fulfilled with', 7);
+      var bacon = baconize(getPathIn(), getPathOut(), options);
+
+      var dirs = [];
+      bacon.events.on('chdir', function(dir) { dirs.push(dir); });
+
+      var compiledFiles = [];
+      var lastStartedFile;
+      bacon.events.on('compile-start', function(file) {
+        lastStartedFile = file.path;
+      });
+      bacon.events.on('compile-done', function(file) {
+        if (lastStartedFile === file.path) {
+          compiledFiles.push(file.path);
+        } else {
+          expect.fail('Unexpected compile-done event');
+        }
+      });
+
+      return bacon.then(function(num) {
+        return expect.promise.all([
+          expect(num, 'to be', 7),
+          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
+          expect(compiledFiles, 'to contain', 'index.jade', 'scripts/main.coffee', 'styles/main.styl')
+            .and('not to contain', 'about.html', 'styles/typography.css', 'styles/typography.css')
+            .and('to have length', 3)
+        ]);
+      });
     });
 
     describe('after compilation', function() {
@@ -197,7 +249,35 @@ describe('baconize', function() {
         sourcemaps: false,
         minify: true
       };
-      return expect(baconize(getPathIn(), getPathOut(), options), 'to be fulfilled with', 7);
+      var bacon = baconize(getPathIn(), getPathOut(), options);
+
+      var dirs = [];
+      bacon.events.on('chdir', function(dir) { dirs.push(dir); });
+
+      var compiledFiles = [];
+      var lastStartedFile;
+      bacon.events.on('compile-start', function(file) {
+        lastStartedFile = file.path;
+      });
+      bacon.events.on('compile-done', function(file) {
+        if (lastStartedFile === file.path) {
+          compiledFiles.push(file.path);
+        } else {
+          expect.fail('Unexpected compile-done event');
+        }
+      });
+
+
+      return bacon.then(function(num) {
+        return expect.promise.all([
+          expect(num, 'to be', 7),
+          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
+          expect(compiledFiles, 'to contain',
+                    'about.html', 'index.jade',
+                    'styles/main.styl', 'styles/typography.css',
+                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 6),
+        ]);
+      });
     });
 
     describe('after compilation', function() {
@@ -267,7 +347,35 @@ describe('baconize', function() {
         minify: true,
         sourcemaps: true
       };
-      return expect(baconize(getPathIn(), getPathOut(), options), 'to be fulfilled with', 7);
+      var bacon = baconize(getPathIn(), getPathOut(), options);
+
+      var dirs = [];
+      bacon.events.on('chdir', function(dir) { dirs.push(dir); });
+
+      var compiledFiles = [];
+      var lastStartedFile;
+      bacon.events.on('compile-start', function(file) {
+        lastStartedFile = file.path;
+      });
+      bacon.events.on('compile-done', function(file) {
+        if (lastStartedFile === file.path) {
+          compiledFiles.push(file.path);
+        } else {
+          expect.fail('Unexpected compile-done event');
+        }
+      });
+
+
+      return bacon.then(function(num) {
+        return expect.promise.all([
+          expect(num, 'to be', 7),
+          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
+          expect(compiledFiles, 'to contain',
+                    'about.html', 'index.jade',
+                    'styles/main.styl', 'styles/typography.css',
+                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 6),
+        ]);
+      });
     });
 
     describe('after compilation', function() {
