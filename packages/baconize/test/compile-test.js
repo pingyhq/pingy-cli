@@ -477,4 +477,41 @@ describe('baconize', function() {
     });
   });
 
+  describe('aborted compile', function() {
+
+    before(clearDir);
+    after(clearDir);
+
+    it('should abort during compile process', function () {
+      var options = {
+        blacklist: ['dont-compile/**'],
+        directoryFilter: ['!dont-copy'],
+        compile: true,
+        sourcemaps: false
+      };
+      var bacon = baconize(getPathIn(), getPathOut(), options);
+
+      setTimeout(function() { bacon.abort(); }, 10);
+
+      return bacon.then(function() {
+        return expect.fail('Baconize should not have completed, should have been aborted');
+      }, function(err) {
+        return expect(err.code, 'to be', 'ABORT');
+      });
+    });
+
+    describe('after aborted compilation', function() {
+
+      it('should have removed all files', function() {
+        return when.all(fs.readdir(getPathOut())).then(function() {
+          return expect.fail('Output dir should not exist after abort');
+        }, function(err) {
+          return expect(err.code, 'to be', 'ENOENT');
+        });
+      });
+
+    });
+
+  });
+
 });

@@ -28,6 +28,7 @@ module.exports = function(inputDir, outputDir, options) {
   var filesCopied = 0;
   options = options || {};
   var previousDir = null;
+  var abortRequested = false;
 
   // Default compile and minify options to `true`
   options.compile = options.compile === false ? false : true;
@@ -43,6 +44,11 @@ module.exports = function(inputDir, outputDir, options) {
       var stream = readdirp(options);
 
       stream.pipe(through.obj(function (file, _, next) {
+        if (abortRequested) {
+          var err = new Error('Manually aborted by user');
+          err.code = 'ABORT';
+          return reject(err);
+        }
         var outputFullPath = path.join(outputDir, file.path);
         var doCompile = !mm(file.path, options.blacklist).length;
 
@@ -141,10 +147,12 @@ module.exports = function(inputDir, outputDir, options) {
     .catch(function(err) {
       // If there was an error then back out, delete the output dir and forward
       // the error up the promise chain
-      rimraf(outputDir);
-      return when.reject(err);
+      return rimraf(outputDir).then(function() {
+        return when.reject(err);
+      });
     });
 
+  promise.abort = function() { abortRequested = true; };
   promise.events = eventEmitter;
   return promise;
 };

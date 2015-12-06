@@ -88,7 +88,27 @@ bacon.on('compile-start', function(file) {
 bacon.on('compile-done', function(file) {
   // compile has finished successfully on `file` (object, see above).
 });
+```
 
+Aborting while in progress
+--------------------------
+
+You can abort baconize while it's in progress.
+If you do this then the promise will reject and the output directory will be removed.
+
+```javascript
+var bacon = baconize(source, target, [options]);
+
+// abort baconize while in progress
+setTimeout(function() { bacon.abort(); }, 10);
+
+bacon.then(function(){}, function(err) {
+  // err (Error)
+  // {
+  //    message: 'Manually aborted by user',
+  //    code: 'ABORT'
+  // }
+})
 ```
 
 Try it out
