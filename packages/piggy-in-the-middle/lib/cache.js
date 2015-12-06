@@ -2,37 +2,33 @@
 
 var chokidar = require('chokidar');
 
-module.exports = (function() {
-  function Cache(mountPath, eventEmitter) {
-    // Set-up cache and watchers
-    this.cache = {};
-    this.watchers = {};
-    this.mountPath = mountPath;
-    this.events = eventEmitter;
+module.exports = function Cache(mountPath, events) {
+  // Set-up cache and watchers
+  var cache = {};
+  var watchers = {};
+
+  function exists(compiledPath) {
+    return compiledPath in cache;
   }
 
-  Cache.prototype.exists = function(compiledPath) {
-    return compiledPath in this.cache;
-  };
+  function get(compiledPath) {
+    return cache[compiledPath];
+  }
 
-  Cache.prototype.get = function (compiledPath) {
-    return this.cache[compiledPath];
-  };
-
-  Cache.prototype['delete'] = function(compiledPath) {
-    if (compiledPath in this.cache) {
-      this.cache[compiledPath] = null;
-      delete this.cache[compiledPath];
+  function del(compiledPath) {
+    if (compiledPath in cache) {
+      cache[compiledPath] = null;
+      delete cache[compiledPath];
     }
-  };
+  }
 
-  Cache.prototype.add = function (sourcePath, compiledPath, compiled) {
-    this._add(compiledPath, compiled);
-    var sources = this._getSources(compiled, sourcePath);
-    this._preAddWatcher(compiledPath, sources);
-  };
+  function add(sourcePath, compiledPath, compiled) {
+    _add(compiledPath, compiled);
+    var sources = _getSources(compiled, sourcePath);
+    _preAddWatcher(compiledPath, sources);
+  }
 
-  Cache.prototype._getSources = function(compiled, sourcePath) {
+  function _getSources(compiled, sourcePath) {
     var sources;
     if (compiled.sourcemap) {
       // Remove preceeding slash to make the path relative (instead of absolute)
@@ -41,43 +37,48 @@ module.exports = (function() {
       });
     }
     return sources || [sourcePath];
-  };
+  }
 
-  Cache.prototype._add = function(compiledPath, contents) {
+  function _add(compiledPath, contents) {
     if (contents) {
-      this.cache[compiledPath] = contents;
+      cache[compiledPath] = contents;
     }
-  };
+  }
 
-  Cache.prototype._preAddWatcher = function(compiledPath, sources) {
-    if (!this.watchers[compiledPath]) {
-      this._addWatcher(compiledPath, sources);
+   function _preAddWatcher(compiledPath, sources) {
+    if (!watchers[compiledPath]) {
+      _addWatcher(compiledPath, sources);
      } else {
       var newSources = sources.filter(function(src) {
-        return this.watchers[compiledPath].indexOf(src) === -1;
-      }.bind(this));
-      this._addWatcher(compiledPath, newSources);
+        return watchers[compiledPath].indexOf(src) === -1;
+      });
+      _addWatcher(compiledPath, newSources);
     }
-  };
+  }
 
-  Cache.prototype._addWatcher = function(compiledPath, sources) {
+   function _addWatcher(compiledPath, sources) {
     var fileChanged = function(sourcePath) {
-      this['delete'](compiledPath);
-      this.events.emit('fileChanged', compiledPath, sourcePath);
+      del(compiledPath);
+      events.emit('fileChanged', compiledPath, sourcePath);
     };
 
     chokidar.watch(sources, {
-      cwd: this.mountPath
+      cwd: mountPath
     })
     // TODO: Trigger a browser reload event on change/unlink
-    .on('change', fileChanged.bind(this))
-    .on('unlink', fileChanged.bind(this));
-    if (!this.watchers[compiledPath]) {
-      this.watchers[compiledPath] = sources;
+    .on('change', fileChanged)
+    .on('unlink', fileChanged);
+    if (!watchers[compiledPath]) {
+      watchers[compiledPath] = sources;
     } else {
-      this.watchers[compiledPath] = this.watchers[compiledPath].concat(sources);
+      watchers[compiledPath] = watchers[compiledPath].concat(sources);
     }
-  };
+  }
 
-  return Cache;
-})();
+  return {
+    exists: exists,
+    get: get,
+    del: del,
+    add: add
+  };
+};

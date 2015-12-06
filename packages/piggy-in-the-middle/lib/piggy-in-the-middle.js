@@ -11,7 +11,7 @@ var path = require('path');
 
 module.exports = function(mountPath) {
   var eventEmitter = new events.EventEmitter();
-  var cache = new Cache(mountPath, eventEmitter);
+  var cache = Cache(mountPath, eventEmitter);
 
   var middleware = function piggyMiddleware(req, rsp, next) {
     var isSrcMap = helpers.isSourceMap(req.url);
