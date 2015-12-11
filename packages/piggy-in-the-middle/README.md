@@ -6,7 +6,7 @@ Piggy In The Middle
 
 Express/Connect middleware for transpiling to html/css/js on-the-fly. Also gives you sourcemaps, caching for unchanged files and integrates well with live reload tools like browser-sync and live-reload.
 
-This is a very early version with almost no test coverage but give it a shot and report any issues. Currently supports: `LiveScript`, `babel`, `coco`, `coffee-script`, `dogescript`, `less`, `marked`, `myth`, `jade`, `node-sass`, `stylus`, `swig`.
+Currently supports: `LiveScript`, `babel`, `coco`, `coffee-script`, `dogescript`, `less`, `marked`, `myth`, `jade`, `node-sass`, `stylus`, `swig`.
 
 It works a bit like this:
   1. A request comes in for `app.js`
