@@ -50,7 +50,7 @@
     "babel": "5.8.29",
     "coco": "0.9.1",
     "coffee-script": "1.10.0",
-    "coveralls": "2.11.4",
+    "coveralls": "2.11.6",
     "css-parse": "2.0.0",
     "dogescript": "2.3.0",
     "istanbul": "0.4.1",
