@@ -6,7 +6,7 @@ Baconize
 
 Compile/minify static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`.
 
-This is a very early version with almost no test coverage but give it a shot and report any issues. Currently supports: `LiveScript`, `babel`, `coco`, `coffee-script`, `dogescript`, `less`, `marked`, `myth`, `jade`, `node-sass`, `stylus`, `swig`. To use any of these you must do `npm install x` as needed (where `x` is the name of the lib), baconize does not install them by default.
+Currently supports: `LiveScript`, `babel`, `coco`, `coffee-script`, `dogescript`, `less`, `marked`, `myth`, `jade`, `node-sass`, `stylus`, `swig`. To use any of these you must do `npm install x` as needed (where `x` is the name of the lib), baconize does not install them by default.
 
 Example
 -------
