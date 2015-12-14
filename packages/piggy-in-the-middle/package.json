@@ -36,7 +36,7 @@
     "mocha": "^2.3.3",
     "serve-static": "^1.10.0",
     "sinon": "^1.17.1",
-    "stylus": "^0.52.4",
+    "stylus": "^0.53.0",
     "unexpected": "^10.0.1",
     "unexpected-express": "^8.0.0",
     "unexpected-messy": "^5.0.0",
