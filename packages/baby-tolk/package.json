@@ -39,7 +39,7 @@
   "homepage": "https://github.com/davej/baby-tolk",
   "dependencies": {
     "accord": "davej/accord#patch-1-build",
-    "clean-css": "3.4.8",
+    "clean-css": "3.4.9",
     "es6-promise": "3.0.2",
     "html-minifier": "1.0.0",
     "uglify-js": "2.6.1",
