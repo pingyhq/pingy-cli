@@ -32,10 +32,14 @@ Out of the box this won't transpile anything (but it can minify html, css and JS
 npm install node-sass babel
 ```
 
-Now you are ready to start reading files from the file system. Baby Tolk automatically loads the transpilers it has access to in the scope it is run in. By convention Baby Tolk won't compile any files if the filename begins with an underscore `_` character.
+Now you are ready to start reading files from the file system. Baby Tolk automatically loads the transpilers it has access to in the scope it is run in. You can change the scope by passing a custom path to the `loadAdapters` method. By convention Baby Tolk won't compile any files if the filename begins with an underscore `_` character.
 
 ```javascript
 var babyTolk = require('baby-tolk');
+
+babyTolk.loadAdapters();
+// Alternatively, you can pass a `customPath` to the node_modules folder if desired
+// babyTolk.loadAdapters('/some/folder/node_modules');
 
 babyTolk.read('path/to/stylesheet.scss').then(function (compiled) {
   // compiled.result is the transpiled output as a string
