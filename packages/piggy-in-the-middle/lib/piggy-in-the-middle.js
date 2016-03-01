@@ -10,7 +10,6 @@ var path = require('path');
 
 
 module.exports = function(mountPath, modulesPath) {
-  babyTolk.loadAdapters(modulesPath);
   var eventEmitter = new events.EventEmitter();
   var cache = Cache(mountPath, eventEmitter);
 

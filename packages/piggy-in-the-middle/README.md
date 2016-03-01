@@ -65,8 +65,9 @@ Custom Path To `node_modules`
 -----------------------------
 
 ```js
-pitm('/path/to/your/site', '/some/other/dir/node_modules');
+global.babyTolkCompilerModulePath = '/some/folder/node_modules';
+pitm('/path/to/your/site');
 ```
 
 By default PITM will look for compatible modules in the `node_modules` dir inside of `/path/to/your/site`.
-You can optionally pass a different path to look for compatible node modules, like in the example above: `/some/other/dir/node_modules`.
+You can set `global.babyTolkCompilerModulePath` to look for compatible node modules in a different dir, like in the example above: `/some/other/dir/node_modules`.
