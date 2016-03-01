@@ -8,8 +8,6 @@ function getPath(path) {
   return Path.join(process.cwd(), 'fixtures/source', path);
 }
 
-tolk.loadAdapters();
-
 describe('readCompiled', function () {
   it('should read a file directly if there is no adapter', function () {
     return expect(tolk.read(getPath('unchanged.txt')), 'to be fulfilled with', {

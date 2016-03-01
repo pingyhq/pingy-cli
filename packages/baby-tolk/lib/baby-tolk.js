@@ -26,41 +26,39 @@ var adapters = [
   'jade'
 ];
 
-var loadAdapters = function(customPath) {
-  Object.keys(accord.all()).map(function (engine) {
-    if (adapters.indexOf(engine) === -1) {
-      return undefined;
+Object.keys(accord.all()).map(function (engine) {
+  if (adapters.indexOf(engine) === -1) {
+    return undefined;
+  }
+
+  try {
+    return accord.load(engine, global.babyTolkCompilerModulePath);
+  } catch (e) {
+    if (e.code !== 'MODULE_NOT_FOUND') {
+      console.error(e.message.replace(/^error: ?/i, 'Accord Error: ') + '. Try updating to the latest version');
+    }
+    // else {
+    //   console.error('Missing adapter:', engine);
+    // }
+  }
+}).filter(function (engine) {
+  return engine;
+}).forEach(function (adapter) {
+  if (adapter.engineName === 'babel') {
+    // Monkey-patching Babel adapter so that it doesn't try and compile all .js files
+    adapter.extensions = ['jsx', 'es6', 'babel'];
+  }
+  loadedAdapters.push(adapter);
+  var extensions = adapter.extensions.map(function (extension) { return '.' + extension; });
+
+  extensions.forEach(function (extension) {
+    if (!Array.isArray(extensionMap[extension])) {
+      extensionMap[extension] = [];
     }
 
-    try {
-      return accord.load(engine, customPath);
-    } catch (e) {
-      if (e.code !== 'MODULE_NOT_FOUND') {
-        console.error(e.message.replace(/^error: ?/i, 'Accord Error: ') + '. Try updating to the latest version');
-      }
-      // else {
-      //   console.error('Missing adapter:', engine);
-      // }
-    }
-  }).filter(function (engine) {
-    return engine;
-  }).forEach(function (adapter) {
-    if (adapter.engineName === 'babel') {
-      // Monkey-patching Babel adapter so that it doesn't try and compile all .js files
-      adapter.extensions = ['jsx', 'es6', 'babel'];
-    }
-    loadedAdapters.push(adapter);
-    var extensions = adapter.extensions.map(function (extension) { return '.' + extension; });
-
-    extensions.forEach(function (extension) {
-      if (!Array.isArray(extensionMap[extension])) {
-        extensionMap[extension] = [];
-      }
-
-      extensionMap[extension].push(adapter);
-    });
+    extensionMap[extension].push(adapter);
   });
-};
+});
 
 var targetExtension = {};
 var sourceExtension = {};
@@ -92,7 +90,6 @@ module.exports = {
   targetExtensionMap: targetExtension,
   adapters: loadedAdapters,
   isMinifiable: minify.isMinifiable,
-  loadAdapters: loadAdapters,
   read: function (pathName, options) {
     options = options || {};
 
