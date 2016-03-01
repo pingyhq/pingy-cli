@@ -60,3 +60,13 @@ var browserSync = require('browser-sync').create();
 var piggy = pitm('/path/to/your/site');
 piggy.events.on('fileChanged', browserSync.reload);
 ```
+
+Custom Path To `node_modules`
+-----------------------------
+
+```js
+pitm('/path/to/your/site', '/some/other/dir/node_modules');
+```
+
+By default PITM will look for compatible modules in the `node_modules` dir inside of `/path/to/your/site`.
+You can optionally pass a different path to look for compatible node modules, like in the example above: `/some/other/dir/node_modules`.
