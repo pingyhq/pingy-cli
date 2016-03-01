@@ -6,6 +6,7 @@ var fs = node.liftAll(require('fs'));
 var path = require('path');
 var babyTolk = require('baby-tolk');
 var mime = require('mime');
+var urlLib = require('url');
 require('array.prototype.find'); // Polyfill
 
 var helpers = {
@@ -78,6 +79,7 @@ var helpers = {
    * @return {string}           Full path to compiled file
    */
   getFullPath: function getFullPath(mountPath, url) {
+    if (url.indexOf('://')) { url = urlLib.parse(url).pathname; }
     var base = unescape(url.split('?')[0]);
     var fullPath = path.join(mountPath, base);
 

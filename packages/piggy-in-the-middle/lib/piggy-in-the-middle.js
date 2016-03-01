@@ -9,7 +9,7 @@ var jserror = require('jserror');
 var path = require('path');
 
 
-module.exports = function(mountPath, modulesPath) {
+module.exports = function(mountPath) {
   var eventEmitter = new events.EventEmitter();
   var cache = Cache(mountPath, eventEmitter);
 
