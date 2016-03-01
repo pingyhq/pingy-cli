@@ -64,7 +64,7 @@ describe('readCompiled', function () {
       result: expect.it('to begin with', '(function(){console.log(15)})'),
       sourcemap: {
         sources: expect.it('to have length', 1),
-        mappings: expect.it('to begin with', 'AAAA,CAAA,')
+        mappings: expect.it('to begin with', 'CAAA,WAAAA')
       }
     });
   });
