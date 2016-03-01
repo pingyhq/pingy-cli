@@ -34,7 +34,7 @@ Object.keys(accord.all()).map(function (engine) {
   try {
     return accord.load(engine, global.babyTolkCompilerModulePath);
   } catch (e) {
-    if (e.code !== 'MODULE_NOT_FOUND') {
+    if (e.code !== 'MODULE_NOT_FOUND' && e.message.indexOf('Cannot find module') === -1) {
       console.error(e.message.replace(/^error: ?/i, 'Accord Error: ') + '. Try updating to the latest version');
     }
     // else {
