@@ -7,8 +7,10 @@ var fs = node.liftAll(require('fs'));
 var accord = require('accord');
 var minify = require('./minify');
 
-var extensionMap = {};
-var loadedAdapters = [];
+var extensionMap;
+var loadedAdapters;
+var targetExtension;
+var sourceExtension;
 
 // Whitelisted adapters
 var adapters = [
@@ -26,56 +28,63 @@ var adapters = [
   'jade'
 ];
 
-Object.keys(accord.all()).map(function (engine) {
-  if (adapters.indexOf(engine) === -1) {
-    return undefined;
-  }
 
-  try {
-    return accord.load(engine, global.babyTolkCompilerModulePath);
-  } catch (e) {
-    if (e.code !== 'MODULE_NOT_FOUND' && e.message.indexOf('Cannot find module') === -1) {
-      console.error(e.message.replace(/^error: ?/i, 'Accord Error: ') + '. Try updating to the latest version');
-    }
-    // else {
-    //   console.error('Missing adapter:', engine);
-    // }
-  }
-}).filter(function (engine) {
-  return engine;
-}).forEach(function (adapter) {
-  if (adapter.engineName === 'babel') {
-    // Monkey-patching Babel adapter so that it doesn't try and compile all .js files
-    adapter.extensions = ['jsx', 'es6', 'babel'];
-  }
-  loadedAdapters.push(adapter);
-  var extensions = adapter.extensions.map(function (extension) { return '.' + extension; });
+function load() {
+  extensionMap = {};
+  loadedAdapters = [];
 
-  extensions.forEach(function (extension) {
-    if (!Array.isArray(extensionMap[extension])) {
-      extensionMap[extension] = [];
+  Object.keys(accord.all()).map(function (engine) {
+    if (adapters.indexOf(engine) === -1) {
+      return undefined;
     }
 
-    extensionMap[extension].push(adapter);
+    try {
+      return accord.load(engine, global.babyTolkCompilerModulePath);
+    } catch (e) {
+      if (e.code !== 'MODULE_NOT_FOUND' && e.message.indexOf('Cannot find module') === -1) {
+        console.error(e.message.replace(/^error: ?/i, 'Accord Error: ') + '. Try updating to the latest version');
+      }
+      // else {
+      //   console.error('Missing adapter:', engine);
+      // }
+    }
+  }).filter(function (engine) {
+    return engine;
+  }).forEach(function (adapter) {
+    if (adapter.engineName === 'babel') {
+      // Monkey-patching Babel adapter so that it doesn't try and compile all .js files
+      adapter.extensions = ['jsx', 'es6', 'babel'];
+    }
+    loadedAdapters.push(adapter);
+    var extensions = adapter.extensions.map(function (extension) { return '.' + extension; });
+
+    extensions.forEach(function (extension) {
+      if (!Array.isArray(extensionMap[extension])) {
+        extensionMap[extension] = [];
+      }
+
+      extensionMap[extension].push(adapter);
+    });
   });
-});
 
-var targetExtension = {};
-var sourceExtension = {};
+  targetExtension = {};
+  sourceExtension = {};
 
-Object.keys(extensionMap).forEach(function (sourceExt) {
-  var adapters = extensionMap[sourceExt];
-  var targetExt = '.' + adapters[0].output;
+  Object.keys(extensionMap).forEach(function (sourceExt) {
+    var adapters = extensionMap[sourceExt];
+    var targetExt = '.' + adapters[0].output;
 
-  targetExtension[sourceExt] = targetExt;
+    targetExtension[sourceExt] = targetExt;
 
 
-  if (!sourceExtension[targetExt]) {
-    sourceExtension[targetExt] = [];
-  }
+    if (!sourceExtension[targetExt]) {
+      sourceExtension[targetExt] = [];
+    }
 
-  sourceExtension[targetExt].push(sourceExt);
-});
+    sourceExtension[targetExt].push(sourceExt);
+  });
+}
+load();
 
 var dontCompile = function (pathName) {
   // Baby Tolk wont compile files that begin with an underscore `_`.
@@ -85,9 +94,16 @@ var dontCompile = function (pathName) {
 };
 
 module.exports = {
-  extensions: extensionMap,
-  sourceExtensionMap: sourceExtension,
-  targetExtensionMap: targetExtension,
+  get extensions() {
+    return extensionMap;
+  },
+  get sourceExtensionMap() {
+    return sourceExtension;
+  },
+  get targetExtensionMap() {
+    return targetExtension;
+  },
+  reload: load,
   adapters: loadedAdapters,
   isMinifiable: minify.isMinifiable,
   read: function (pathName, options) {
