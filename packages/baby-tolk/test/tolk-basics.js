@@ -39,11 +39,11 @@ describe('readCompiled', function () {
     });
   });
 
-  it('should output source map if there is an adapter that supports source maps', function () {
-    return expect(tolk.read(getPath('coffee/basic.coffee')), 'to be fulfilled with', {
+  it('should have a fix for issue #1 (buggy uglifyJS2)', function () {
+    return expect(tolk.read(getPath('coffee/basic.coffee'), {minify: true}), 'to be fulfilled with', {
       sourcemap: {
         sources: expect.it('to have length', 1),
-        mappings: expect.it('to begin with', 'AAAA;EAAA,'),
+        mappings: expect.it('to begin with', 'CAAA,WAAAA'),
         file: expect.it('to be', 'basic.js')
       }
     });
