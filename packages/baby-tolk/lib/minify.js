@@ -53,7 +53,13 @@ var js = function(compiled) {
     compiled.sourcemap.sources[0] = compiled.inputPath;
   }
   if (compiled.sourcemap.file) {
-    compiled.sourcemap.file = path.basename(compiled.sourcemap.file.replace('.map', ''));
+    // Bugfix for: https://github.com/mishoo/UglifyJS2/issues/764
+    var nFileName = path.basename(compiled.sourcemap.file, '.map');
+    var ext = path.extname(nFileName);
+    if (ext !== '.js') {
+      nFileName = path.basename(nFileName, ext) + '.js';
+    }
+    compiled.sourcemap.file = nFileName;
   }
   compiled.result = ug.code;
   return compiled;

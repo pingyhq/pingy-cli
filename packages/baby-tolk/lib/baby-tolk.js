@@ -51,7 +51,7 @@ function load() {
   }).filter(function (engine) {
     return engine;
   }).forEach(function (adapter) {
-    if (adapter.engineName === 'babel') {
+    if (adapter.engineName === 'babel' || adapter.engineName === 'babel-core') {
       // Monkey-patching Babel adapter so that it doesn't try and compile all .js files
       adapter.extensions = ['jsx', 'es6', 'babel'];
     }
