@@ -24,6 +24,28 @@ var addSrcExtension = function(filePath) {
   return replaceExtension(filePath, '.src' + ext);
 };
 
+var useExclusionsApi = function(options) {
+  options.directoryFilter = options.exclusions.filter(
+    excl => excl.action === 'exclude' && excl.type === 'dir'
+  ).map(excl => '!' + excl.path);
+  options.fileFilter = options.exclusions.filter(
+    excl => excl.action === 'exclude' && excl.type === 'file'
+  ).map(excl => '!' + excl.path);
+
+  options.blacklist = options.exclusions.filter(
+    excl => excl.action === 'dontCompile' && excl.type === 'dir'
+  ).map(excl => excl.path + '/**').concat(
+    options.exclusions.filter(
+      excl => excl.action === 'dontCompile' && excl.type === 'file'
+    ).map(excl => excl.path)
+  )
+
+  options.directoryFilter = options.directoryFilter.length ? options.directoryFilter : null;
+  options.fileFilter = options.fileFilter.length ? options.fileFilter : null;
+  options.blacklist = options.blacklist.length ? options.blacklist : null;
+  return options;
+}
+
 module.exports = function(inputDir, outputDir, options) {
   var filesCopied = 0;
   options = options || {};
@@ -37,6 +59,9 @@ module.exports = function(inputDir, outputDir, options) {
   var babyTolkOptions = {};
   babyTolkOptions.minify = options.minify;
   babyTolkOptions.sourceMap = options.sourcemaps;
+
+  if (options.exclusions) { useExclusionsApi(options); }
+
 
   var compileAndCopy = function() {
     return when.promise(function(resolve, reject) {

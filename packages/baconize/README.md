@@ -46,6 +46,8 @@ Options
 
 - **depth** (Number): depth at which to stop recursing even if more subdirectories are found.
 
+- **exclusions** (Object): Instead of `blacklist`, `fileFilter` and `directoryFilter` you can use the new exclusions api, this is undocumented for the moment.
+
 
 Filters
 -------
