@@ -39,6 +39,16 @@ describe('readCompiled', function () {
     });
   });
 
+  it('should output source map if there is an adapter that supports source maps', function () {
+    return expect(tolk.read(getPath('coffee/basic.coffee')), 'to be fulfilled with', {
+      sourcemap: {
+        sources: expect.it('to have length', 1),
+        mappings: expect.it('to begin with', 'AAAA;EAAA,'),
+        file: expect.it('to be', 'basic.js')
+      }
+    });
+  });
+
   it('should support CSS minification (with compilation)', function () {
     return expect(tolk.read(getPath('less/external.less'), {minify: true}), 'to be fulfilled with', {
       result: expect.it('to begin with', '.bar{wow:\'foo\'}'),
