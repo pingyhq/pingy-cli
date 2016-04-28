@@ -40,7 +40,6 @@
   "dependencies": {
     "accord": "0.22.3",
     "clean-css": "3.4.12",
-    "es6-promise": "^3.0.2",
     "html-minifier": "2.1.0",
     "uglify-js": "^2.6.1",
     "when": "^3.7.5"
