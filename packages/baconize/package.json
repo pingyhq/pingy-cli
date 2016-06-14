@@ -28,7 +28,7 @@
     "url": "https://github.com/davej/baconize.git"
   },
   "dependencies": {
-    "baby-tolk": "^3.0.1",
+    "baby-tolk": "^4.0.1",
     "micromatch": "^2.2.0",
     "mkdirp": "^0.5.1",
     "readdirp": "^2.0.0",
@@ -39,8 +39,8 @@
   "devDependencies": {
     "coffee-script": "^1.10.0",
     "jade": "^1.11.0",
-    "mocha": "^2.3.3",
+    "mocha": "^2.5.3",
     "stylus": "^0.54.5",
-    "unexpected": "^10.0.2"
+    "unexpected": "^10.13.3"
   }
 }

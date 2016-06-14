@@ -62,7 +62,6 @@ module.exports = function(inputDir, outputDir, options) {
 
   if (options.exclusions) { useExclusionsApi(options); }
 
-
   var compileAndCopy = function() {
     return when.promise(function(resolve, reject) {
       options.root = inputDir;
