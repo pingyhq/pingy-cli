@@ -54,7 +54,7 @@ var helpers = {
   /**
    * Sourcemap sources seem to have full filesystem paths, which isn't useful
    * when served from a web server this makes them relative to the mount path.
-   * 		/User/John/foo/bar/my-site/styles/main.scss => /styles/main.scss
+   *   /User/John/foo/bar/my-site/styles/main.scss => /styles/main.scss
    * @param  {string} mountPath
    * @param  {Object} compiled
    * @return {Object}           Modified compiled object with fixed sourcemap sources
@@ -62,7 +62,13 @@ var helpers = {
   fixSourceMapLinks: function fixSourceMapLinks(mountPath, compiled) {
     if (compiled && compiled.sourcemap) {
       compiled.sourcemap.sources = compiled.sourcemap.sources.map(function(source) {
-        return '/' + path.relative(mountPath, source);
+        var newSource;
+        // HACK: This is because Babel gives us sources that are relative to the inputPath
+        // TODO: Fix this upstream in Accord instead
+        if (source.indexOf('/') === -1 && compiled.inputPath) {
+          newSource = path.join(path.dirname(compiled.inputPath), source)
+        }
+        return '/' + path.relative(mountPath, newSource || source);
       });
     }
     return compiled;
