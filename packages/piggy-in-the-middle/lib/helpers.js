@@ -6,7 +6,6 @@ var fs = node.liftAll(require('fs'));
 var path = require('path');
 var mime = require('mime');
 var urlLib = require('url');
-require('array.prototype.find'); // Polyfill
 
 var helpers = {
 
@@ -137,9 +136,8 @@ var helpers = {
 
     return fs.readdir(dir).then(function(files) {
       // Find the first source file match in dir
-      var sourceFile = files.map(
-      // Give files their full path
-      function(file) {
+      var sourceFile = files.map(function(file) {
+        // Give files their full path
         return path.join(dir, file);
       }).find(function(file) {
         return potentialSourceFiles.find(function(potentialSource) {
