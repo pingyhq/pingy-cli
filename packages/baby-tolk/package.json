@@ -1,6 +1,6 @@
 {
   "name": "baby-tolk",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "A file reader that promises to translate non-web assets to web assets given the available transpilers, sourcemaps and all",
   "main": "lib/baby-tolk.js",
   "files": [
