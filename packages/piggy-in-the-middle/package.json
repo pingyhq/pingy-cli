@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "array.prototype.find": "^2.0.0",
-    "baby-tolk": "^4.0.0",
+    "baby-tolk": "^4.0.1",
     "chokidar": "^1.5.2",
     "csserror": "^2.0.0",
     "jserror": "^1.0.0",
