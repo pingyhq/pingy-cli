@@ -24,7 +24,7 @@ describe('readCompiled', function () {
   });
 
   it('should compile a file if there is an adapter', function () {
-    return expect(tolk.read(getPath('babel/simplest.jsx')), 'to be fulfilled with', {
+    return expect(tolk.read(getPath('babel/simplest.jsx'), { presets: ['es2015'] }), 'to be fulfilled with', {
       result: expect.it('to begin with', '\'use strict\';\n\nvar foo = \'bar\';'),
       extension: expect.it('to be', '.js'),
     });

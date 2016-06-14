@@ -118,9 +118,9 @@ module.exports = {
     var continuation;
 
     if (adapter) {
-      var transpilerOptions = {
+      var transpilerOptions = Object.assign({}, options, {
         sourcemap: options.sourceMap
-      };
+      });
 
       if (adapter.engineName === 'node-sass') {
         transpilerOptions.includePaths = [Path.dirname(pathName)];
