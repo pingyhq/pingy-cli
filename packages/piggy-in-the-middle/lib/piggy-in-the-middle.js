@@ -8,8 +8,7 @@ var csserror = require('csserror');
 var jserror = require('jserror');
 var path = require('path');
 
-
-module.exports = function(mountPath) {
+module.exports = function piggy(mountPath) {
   var eventEmitter = new events.EventEmitter();
   var cache = Cache(mountPath, eventEmitter);
 
@@ -54,14 +53,20 @@ module.exports = function(mountPath) {
       }
     };
 
-    return helpers.findSourceFile(fullCompiledPath)
+    return helpers.findSourceFile(fullCompiledPath, babyTolk)
       .then(setSourcePath)
       .then(babyTolk.read) // Compile source file using babyTolk
       .then(fixSourceMapLinks, forwardCompilationError)
       .then(renderCompiledFile, next); // No specific error handling for the moment
   };
 
+  middleware.reload = function reload() {
+    babyTolk.reload();
+    cache.delAll();
+  }
   middleware.events = eventEmitter;
 
   return middleware;
 };
+
+module.exports.reloadCompilers = babyTolk.reload;

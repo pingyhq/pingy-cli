@@ -4,7 +4,6 @@ var when = require('when');
 var node = require('when/node');
 var fs = node.liftAll(require('fs'));
 var path = require('path');
-var babyTolk = require('baby-tolk');
 var mime = require('mime');
 var urlLib = require('url');
 require('array.prototype.find'); // Polyfill
@@ -113,7 +112,7 @@ var helpers = {
    * @param  {string} compiledFile
    * @return {Array}               paths to potential source files
    */
-  listPotentialSourceFiles: function listPotentialSourceFiles(compiledFile) {
+  listPotentialSourceFiles: function listPotentialSourceFiles(compiledFile, babyTolk) {
     var compiledExtension = path.extname(compiledFile);
     var targetExtensions = babyTolk.sourceExtensionMap[compiledExtension] || [];
 
@@ -127,9 +126,9 @@ var helpers = {
    * @param  {string}                compiledFile path
    * @return {Promise<string, null>}              path to source file or reject with null
    */
-  findSourceFile: function findSourceFile(compiledFile) {
+  findSourceFile: function findSourceFile(compiledFile, babyTolk) {
     var dir = path.dirname(compiledFile);
-    var potentialSourceFiles = this.listPotentialSourceFiles(compiledFile);
+    var potentialSourceFiles = this.listPotentialSourceFiles(compiledFile, babyTolk);
 
     if (!potentialSourceFiles.length) {
       // Exit early instead of doing pointless IO

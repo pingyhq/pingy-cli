@@ -1,6 +1,7 @@
 'use strict';
 
 var chokidar = require('chokidar');
+var e = require('events');
 
 module.exports = function Cache(mountPath, events) {
   // Set-up cache and watchers
@@ -13,6 +14,17 @@ module.exports = function Cache(mountPath, events) {
 
   function get(compiledPath) {
     return cache[compiledPath];
+  }
+
+  function delAll() {
+    Object.keys(cache).forEach(c => {
+      cache[c] = null;
+      delete cache[c];
+    });
+    Object.keys(watchers).forEach(w => {
+      watchers[w] = null;
+      delete watchers[w];
+    });
   }
 
   function del(compiledPath) {
@@ -79,6 +91,7 @@ module.exports = function Cache(mountPath, events) {
     exists: exists,
     get: get,
     del: del,
+    delAll: delAll,
     add: add
   };
 };
