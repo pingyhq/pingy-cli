@@ -61,7 +61,7 @@
     "mocha": "^2.3.4",
     "mocha-lcov-reporter": "^1.0.0",
     "myth": "^1.5.0",
-    "node-sass": "3.7.0",
+    "node-sass": "3.8.0",
     "stylus": "0.54.5",
     "swig": "^1.4.2",
     "unexpected": "10.13.3"
