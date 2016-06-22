@@ -8,6 +8,7 @@ var when = require('when');
 var fs = require('fs');
 var mm = require('micromatch');
 var events = require('events');
+var checkDir = require('checkdir');
 var eventEmitter = new events.EventEmitter();
 var nodefn = require('when/node');
 var rimraf = nodefn.lift(require('rimraf'));
@@ -180,3 +181,21 @@ module.exports = function(inputDir, outputDir, options) {
   promise.events = eventEmitter;
   return promise;
 };
+
+module.exports.preflight = function preflight(dir) {
+  return Promise.all([
+    checkDir(dir),
+    checkDir(path.join(dir, 'node_modules')),
+    checkDir(path.join(dir, 'bower_components')),
+  ]).then(info => {
+    var mainDir = info[0];
+    var nodeModules = info[1];
+    var bowerComponents = info[2];
+    return Object.assign(
+      {},
+      mainDir,
+      { nodeModules: nodeModules.exists },
+      { bowerComponents: bowerComponents.exists }
+    )
+  })
+}
