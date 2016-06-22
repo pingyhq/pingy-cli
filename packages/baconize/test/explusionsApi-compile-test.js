@@ -557,10 +557,9 @@ describe('baconize', function() {
   describe('preflight', function() {
     it('should work (basic test)', function() {
       return baconize.preflight(process.cwd()).then(function(info) {
-        return expect(info, 'to equal', {
+        return expect(info, 'to have properties', {
           empty: false,
           exists: true,
-          files: 11,
           nodeModules: true,
           bowerComponents: false
         })
