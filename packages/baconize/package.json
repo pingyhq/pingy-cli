@@ -32,7 +32,7 @@
     "checkdir": "^1.0.0",
     "micromatch": "^2.3.11",
     "mkdirp": "^0.5.1",
-    "readdirp": "^2.1.0",
+    "readdirp": "2.0.1",
     "rimraf": "^2.5.3",
     "through2": "^2.0.0",
     "when": "^3.7.4"
