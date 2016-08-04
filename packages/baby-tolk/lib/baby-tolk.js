@@ -1,5 +1,9 @@
 'use strict';
 
+if (global && global.babyTolkCompilerModulePath) {
+  require('app-module-path').addPath(global.babyTolkCompilerModulePath);
+}
+
 var Path = require('path');
 var when = require('when');
 var node = require('when/node');
@@ -39,7 +43,7 @@ function load() {
     }
 
     try {
-      return accord.load(engine, global.babyTolkCompilerModulePath);
+      return accord.load(engine, global && global.babyTolkCompilerModulePath || null);
     } catch (e) {
       if (e.code !== 'MODULE_NOT_FOUND' && e.message.indexOf('Cannot find module') === -1) {
         console.error(e.message.replace(/^error: ?/i, 'Accord Error: ') + '. Try updating to the latest version');
