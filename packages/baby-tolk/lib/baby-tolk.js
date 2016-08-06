@@ -9,6 +9,7 @@ var when = require('when');
 var node = require('when/node');
 var fs = node.liftAll(require('fs'));
 var accord = require('accord');
+var pathCompleteExtname = require('path-complete-extname');
 var minify = require('./minify');
 
 var extensionMap;
@@ -115,7 +116,7 @@ module.exports = {
 
     options.sourceMap = options.sourceMap === false ? false : true;
 
-    var extension = Path.extname(pathName);
+    var extension = pathCompleteExtname(pathName);
     var adapters = extensionMap[extension];
     var adapter = !dontCompile(pathName) && adapters && adapters[0];
 
