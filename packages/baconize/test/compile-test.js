@@ -54,11 +54,13 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 7),
+          expect(num, 'to be', 9),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
-          expect(compiledFiles, 'to contain', 'index.jade', 'scripts/main.coffee', 'styles/main.styl')
-            .and('not to contain', 'about.html', 'styles/typography.css', 'styles/typography.css')
-            .and('to have length', 3)
+          expect(compiledFiles, 'to contain',
+              'index.jade', 'scripts/main.coffee', 'styles/main.styl', 'scripts/log.babel.js'
+             )
+            .and('not to contain', 'about.html', 'styles/typography.css')
+            .and('to have length', 4)
         ]);
       });
     });
@@ -73,7 +75,8 @@ describe('baconize', function() {
           fs.readFile(getPathOut('scripts/iterate.js')),
           fs.readFile(getPathOut('about.html')),
           fs.readFile(getPathOut('dont-compile/foo.coffee')),
-          fs.readFile(getPathOut('styles/typography.css'))
+          fs.readFile(getPathOut('styles/typography.css')),
+          fs.readFile(getPathOut('scripts/log.js'))
         ]).then(function(results) {
           return expect.promise.all([
             expect(results[0].toString(), 'to contain', 'saying \'hello\'.\n'),
@@ -82,7 +85,8 @@ describe('baconize', function() {
             expect(results[3].toString(), 'to contain', 'for (var i = 0; i < stuff.length; i++) {'),
             expect(results[4].toString(), 'to contain', '  <head>'),
             expect(results[5].toString(), 'to contain', 'console.log "T'),
-            expect(results[6].toString(), 'to contain', '  font-family: arial;')
+            expect(results[6].toString(), 'to contain', '  font-family: arial;'),
+            expect(results[7].toString(), 'to contain', 'var foo = function foo() {')
           ]);
         });
       });
@@ -149,11 +153,13 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 7),
+          expect(num, 'to be', 9),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
-          expect(compiledFiles, 'to contain', 'index.jade', 'scripts/main.coffee', 'styles/main.styl')
+          expect(compiledFiles, 'to contain',
+              'index.jade', 'scripts/main.coffee', 'styles/main.styl', 'scripts/log.babel.js'
+             )
             .and('not to contain', 'about.html', 'styles/typography.css', 'styles/typography.css')
-            .and('to have length', 3)
+            .and('to have length', 4)
         ]);
       });
     });
@@ -270,12 +276,12 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 7),
+          expect(num, 'to be', 9),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
-                    'about.html', 'index.jade',
+                    'about.html', 'index.jade', 'scripts/log.babel.js',
                     'styles/main.styl', 'styles/typography.css',
-                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 6),
+                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 7),
         ]);
       });
     });
@@ -368,12 +374,12 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 7),
+          expect(num, 'to be', 9),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
-                    'about.html', 'index.jade',
+                    'about.html', 'index.jade', 'scripts/log.babel.js',
                     'styles/main.styl', 'styles/typography.css',
-                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 6),
+                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 7),
         ]);
       });
     });

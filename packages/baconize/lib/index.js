@@ -4,6 +4,7 @@ var babyTolk = require('baby-tolk');
 var readdirp = require('readdirp');
 var through = require('through2');
 var path = require('path');
+var pathCompleteExtname = require('path-complete-extname');
 var when = require('when');
 var fs = require('fs');
 var mm = require('micromatch');
@@ -15,13 +16,19 @@ var rimraf = nodefn.lift(require('rimraf'));
 var mkdirp = nodefn.lift(require('mkdirp'));
 var fsp = nodefn.liftAll(require('fs'));
 
-var replaceExtension = function(filePath, newExtension) {
+var extname = function(filePath) {
   var ext = path.extname(filePath);
+  if (babyTolk.targetExtensionMap[ext]) return ext;
+  return pathCompleteExtname(filePath);
+}
+
+var replaceExtension = function(filePath, newExtension) {
+  var ext = extname(filePath);
   return filePath.slice(0,-(ext.length)) + newExtension;
 };
 
 var addSrcExtension = function(filePath) {
-  var ext = path.extname(filePath);
+  var ext = extname(filePath);
   return replaceExtension(filePath, '.src' + ext);
 };
 
@@ -87,7 +94,7 @@ module.exports = function(inputDir, outputDir, options) {
         };
 
         var processFile = function() {
-          var ext = path.extname(file.name);
+          var ext = extname(file.name);
           var compileExt = babyTolk.targetExtensionMap[ext];
 
           var compile = function() {
