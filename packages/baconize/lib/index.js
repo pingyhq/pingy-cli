@@ -105,13 +105,20 @@ module.exports = function(inputDir, outputDir, options) {
         babyTolk.getTransformId(getInputFile(sha), babyTolkOptions) === sha.type
       );
 
-      var files = existingShas.map(sha =>
+      var outFiles = existingShas.map(sha =>
         sha && fsp.readFile(getMainFile(sha), 'utf8').then(contents => contents, noop)
       );
 
-      return when.all(files).then(filesContents =>
+      var inFiles = existingShas.map(sha =>
+        sha && fsp.readFile(getInputFile(sha), 'utf8').then(contents => contents, noop)
+      );
+
+      return when.all([when.all(inFiles), when.all(outFiles)])
+      .then(fileContents =>
         matchingCompilerShas.filter(
-          (sha, i) => filesContents[i] && (sha.outputSha === createHash(filesContents[i]))
+          (sha, i) => fileContents[0][i] && (sha.inputSha === createHash(fileContents[0][i]))
+        ).filter(
+          (sha, i) => fileContents[1][i] && (sha.outputSha === createHash(fileContents[1][i]))
         )
       );
     })
