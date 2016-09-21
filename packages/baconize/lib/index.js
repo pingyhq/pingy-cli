@@ -10,17 +10,20 @@ var fs = require('fs');
 var mm = require('micromatch');
 var events = require('events');
 var checkDir = require('checkdir');
-var eventEmitter = new events.EventEmitter();
 var nodefn = require('when/node');
+var crypto = require('crypto');
 var rimraf = nodefn.lift(require('rimraf'));
 var mkdirp = nodefn.lift(require('mkdirp'));
 var fsp = nodefn.liftAll(require('fs'));
 
+// TODO: Consider using node-glob module instead of readdirp + through2
+// I think that will simplify the code.
+
 var extname = function(filePath) {
   var ext = path.extname(filePath);
-  if (babyTolk.targetExtensionMap[ext]) return ext;
+  if (babyTolk.targetExtensionMap[ext]) { return ext; }
   return pathCompleteExtname(filePath);
-}
+};
 
 var replaceExtension = function(filePath, newExtension) {
   var ext = extname(filePath);
@@ -46,31 +49,84 @@ var useExclusionsApi = function(options) {
     options.exclusions.filter(
       excl => excl.action === 'dontCompile' && excl.type === 'file'
     ).map(excl => excl.path)
-  )
+  );
 
   options.directoryFilter = options.directoryFilter.length ? options.directoryFilter : null;
   options.fileFilter = options.fileFilter.length ? options.fileFilter : null;
   options.blacklist = options.blacklist.length ? options.blacklist : null;
   return options;
-}
+};
+
+var createHash = function(data) {
+  var shasum = crypto.createHash('sha1');
+  shasum.update(data);
+  return shasum.digest('hex');
+};
+
+var noop = () => null
 
 module.exports = function(inputDir, outputDir, options) {
+  var eventEmitter = new events.EventEmitter();
+  var shasFilename = '.shas.json';
+  var fileWhitelist = [shasFilename];
   var filesCopied = 0;
   options = options || {};
   var previousDir = null;
   var abortRequested = false;
+  var shas = [];
+  var shasPath = path.join(outputDir, shasFilename);
+  var existingShas;
 
   // Default compile and minify options to `true`
   options.compile = options.compile === false ? false : true;
   options.sourcemaps = options.sourcemaps === false ? false : true;
 
-  var babyTolkOptions = {};
-  babyTolkOptions.minify = options.minify;
-  babyTolkOptions.sourceMap = options.sourcemaps;
+  var babyTolkOptions = {
+    minify: options.minify,
+    sourceMap: options.sourcemaps,
+    inputSha: true,
+  };
 
   if (options.exclusions) { useExclusionsApi(options); }
 
-  var compileAndCopy = function() {
+  var readAndValidateShas = function() {
+    var getMainFile = sha => {
+      var files = sha.output;
+      var mainFile = files[files.length - 1];
+      return path.join(outputDir, mainFile);
+    };
+
+    var getInputFile = sha => path.join(inputDir, sha.input);
+
+    return fsp.readFile(shasPath, 'utf8').then(contents => {
+      existingShas = JSON.parse(contents);
+
+      var matchingCompilerShas = existingShas.filter(sha =>
+        babyTolk.getTransformId(getInputFile(sha), babyTolkOptions) === sha.type
+      );
+
+      var files = existingShas.map(sha =>
+        sha && fsp.readFile(getMainFile(sha), 'utf8').then(contents => contents, noop)
+      );
+
+      return when.all(files).then(filesContents =>
+        matchingCompilerShas.filter(
+          (sha, i) => filesContents[i] && (sha.outputSha === createHash(filesContents[i]))
+        )
+      );
+    })
+    .then(filtered => {
+      if (!Array.isArray(filtered)) { return; }
+      return {
+        input: filtered.map(x => x.input),
+        // Flatten output files to single array
+        output: [].concat.apply([], filtered.map(x => x.output))
+      };
+    }, noop // ignore errors (shas are not required, just good for perf)
+    );
+  };
+
+  var compileAndCopy = function(reusableFiles) {
     return when.promise(function(resolve, reject) {
       options.root = inputDir;
       var stream = readdirp(options);
@@ -83,6 +139,8 @@ module.exports = function(inputDir, outputDir, options) {
         }
         var outputFullPath = path.join(outputDir, file.path);
         var doCompile = !mm(file.path, options.blacklist).length;
+
+        var addFileToWhitelist = filePath => { fileWhitelist.push(filePath); };
 
         var fileDone = function() {
           if (previousDir !== file.parentDir) {
@@ -98,9 +156,23 @@ module.exports = function(inputDir, outputDir, options) {
           var compileExt = babyTolk.targetExtensionMap[ext];
 
           var compile = function() {
+
+            if (reusableFiles && Array.isArray(reusableFiles.input)) {
+              var reuseExistingFile = reusableFiles.input.indexOf(file.path) > -1;
+              if (reuseExistingFile) {
+                var previousSha = existingShas.find(sha => sha.input === file.path);
+                if (previousSha) { shas.push(previousSha); }
+                eventEmitter.emit('compile-reuse', file);
+                previousSha.output.forEach(addFileToWhitelist);
+                return when.resolve(false);
+              }
+            }
+
             eventEmitter.emit('compile-start', file);
+
             return babyTolk.read(file.fullPath, babyTolkOptions).then(function(compiled) {
-              var writeFiles = [];
+              var relativePath = path.relative(inputDir, compiled.inputPath);
+              var writeFiles = [], fileNames = [];
 
               var fileName = file.name;
               var compiledOutputFullPath = outputFullPath;
@@ -116,7 +188,9 @@ module.exports = function(inputDir, outputDir, options) {
                 compiled.sourcemap.sources = compiled.sourcemap.sources.map(function(source) {
                   return path.basename(extensionChanged ? source : addSrcExtension(source));
                 });
-                writeFiles.push(fsp.writeFile(compiledOutputFullPath + '.map', JSON.stringify(compiled.sourcemap)));
+                var srcMapFileName = compiledOutputFullPath + '.map';
+                writeFiles.push(fsp.writeFile(srcMapFileName, JSON.stringify(compiled.sourcemap)));
+                fileNames.push(path.relative(outputDir, srcMapFileName));
                 if (compiled.extension === '.css') {
                   /*# sourceMappingURL=screen.css.map */
                   compiled.result = compiled.result + '\n/*# ' + sourcemapStr + '*/';
@@ -127,15 +201,27 @@ module.exports = function(inputDir, outputDir, options) {
               }
 
               writeFiles.push(fsp.writeFile(compiledOutputFullPath, compiled.result));
+              fileNames.push(path.relative(outputDir, compiledOutputFullPath));
+
+              shas.push({
+                type: compiled.transformId,
+                inputSha: compiled.inputSha,
+                outputSha: createHash(compiled.result),
+                input: relativePath,
+                output: fileNames
+              });
               eventEmitter.emit('compile-done', file);
-              return when.all(writeFiles);
+              return when.all(writeFiles).then(() => {
+                fileNames.forEach(addFileToWhitelist);
+              });
             });
-          };
+          }; // End compile Fn
 
           var copy = function(renameToSrc) {
             var rs = fs.createReadStream(file.fullPath);
             var writePath = renameToSrc ? addSrcExtension(outputFullPath) : outputFullPath;
             var ws = fs.createWriteStream(writePath);
+            addFileToWhitelist(path.relative(outputDir, writePath));
             rs.pipe(ws).on('error', reject);
             ws.on('finish', fileDone).on('error', reject);
           };
@@ -171,11 +257,27 @@ module.exports = function(inputDir, outputDir, options) {
         resolve(filesCopied);
         next();
       })).on('error', reject);
+    }).then(filesCopied => {
+      eventEmitter.emit('cleaning-up');
+      return when.promise((resolve, reject) => {
+        readdirp({
+          root: outputDir,
+          fileFilter: file => fileWhitelist.indexOf(file.path) === -1
+        }).pipe(through.obj((file, _, next) => {
+          fs.unlink(file.fullPath);
+          next();
+        }, (finish) => {resolve(filesCopied); finish();})).on('error', reject);
+      });
     });
   };
 
-  var promise = rimraf(outputDir)
-    .then(compileAndCopy)
+  var promise =
+    readAndValidateShas()
+      .then(compileAndCopy)
+      .then(numFiles =>
+        fsp.writeFile(shasPath, JSON.stringify(shas, null, 2)).then(() => numFiles)
+      )
+      // TODO: Don't delete dir after abort. Leave as is instead.
     .catch(function(err) {
       // If there was an error then back out, delete the output dir and forward
       // the error up the promise chain
@@ -203,6 +305,6 @@ module.exports.preflight = function preflight(dir) {
       mainDir,
       { nodeModules: nodeModules.exists },
       { bowerComponents: bowerComponents.exists }
-    )
-  })
-}
+    );
+  });
+};

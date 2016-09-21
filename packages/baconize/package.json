@@ -28,7 +28,7 @@
     "url": "https://github.com/davej/baconize.git"
   },
   "dependencies": {
-    "baby-tolk": "^4.1.1",
+    "baby-tolk": "^4.5.0",
     "checkdir": "^1.0.0",
     "micromatch": "^2.3.11",
     "mkdirp": "^0.5.1",
