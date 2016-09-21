@@ -14,7 +14,7 @@ describe('readCompiled', function () {
       result: 'I am the same\n',
       inputSha: expect.it('to be undefined'),
       outputSha: expect.it('to be undefined'),
-      transformId: expect.it('to be null')
+      transformId: '::map'
     });
   });
 
@@ -23,7 +23,7 @@ describe('readCompiled', function () {
       result: 'I am the same\n',
       inputSha: '0bafeaaee1ee07b2dd609aa0079bb1a6d07cb696',
       outputSha: '0bafeaaee1ee07b2dd609aa0079bb1a6d07cb696',
-      transformId: expect.it('to be null')
+      transformId: '::map'
     });
   });
 
@@ -149,7 +149,7 @@ describe('readCompiled', function () {
 
 
   it('should support HTML minification (with compilation)', function () {
-    return expect(tolk.read(getPath('jade/client-complex.jade'), {minify: true, sha: true}), 'to be fulfilled with', {
+    return expect(tolk.read(getPath('jade/client-complex.jade'), {minify: true, sourceMap:false, sha: true}), 'to be fulfilled with', {
       result: expect.it('to begin with', '<p>1</p><p>1</p><p>2</p><p>2</p><p>3</p><p>3</p><p>4</p><p>4</p><div class="1">'),
       inputSha: '77415ca761f1ff0bff8ce547f99722690a2e2ad1',
       outputSha: expect.it('to have length', 40).and('not to equal', '77415ca761f1ff0bff8ce547f99722690a2e2ad1'),
@@ -162,7 +162,7 @@ describe('readCompiled', function () {
       result: expect.it('to begin with', '<div class="foobar"><p>wowlaween</p><div>'),
       inputSha: '5ef84517d625346bc90acee44a909377b7b48267',
       outputSha: expect.it('to have length', 40).and('not to equal', '5ef84517d625346bc90acee44a909377b7b48267'),
-      transformId: '::minify'
+      transformId: '::map::minify'
     });
   });
 
@@ -171,7 +171,7 @@ describe('readCompiled', function () {
       result: expect.it('to begin with', '@mixin set_color($color) {\n  color: $color;'),
       inputSha: '203b01f13b963eb5ec2f60a8e9a3364681c58b86',
       outputSha: '203b01f13b963eb5ec2f60a8e9a3364681c58b86',
-      transformId: expect.it('to be null')
+      transformId: '::map::minify'
     });
   });
 

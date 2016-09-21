@@ -104,6 +104,38 @@ var createHash = function(data) {
   return shasum.digest('hex');
 };
 
+var sanitizeOptions = function(options) {
+  options = options || {};
+  options.sourceMap = options.sourceMap === false ? false : true;
+  if (options.sha) {
+    options.inputSha = true;
+    options.outputSha = true;
+  }
+  return options;
+};
+
+var getAdapter = function(extension) {
+  var adapters = extensionMap[extension];
+  return adapters && adapters[0];
+};
+
+var _getTransformId = function(adapter, options) {
+  var transformId = '';
+  if (adapter) {
+    transformId = adapter.engineName + '@' + adapter.engine.version;
+  }
+  if (options.sourceMap) { transformId += '::map'; }
+  if (options.minify) { transformId += '::minify'; }
+  return transformId;
+};
+
+var getTransformId = function(pathName, options) {
+  options = sanitizeOptions(options);
+  var extension = pathCompleteExtname(pathName);
+  var adapter = !dontCompile(pathName) && getAdapter(extension);
+  return _getTransformId(adapter, options);
+};
+
 module.exports = {
   get extensions() {
     return extensionMap;
@@ -117,18 +149,12 @@ module.exports = {
   reload: load,
   adapters: loadedAdapters,
   isMinifiable: minify.isMinifiable,
+  getTransformId: getTransformId,
   read: function (pathName, options) {
-    options = options || {};
-
-    options.sourceMap = options.sourceMap === false ? false : true;
-    if (options.sha) {
-      options.inputSha = true;
-      options.outputSha = true;
-    }
+    options = sanitizeOptions(options);
 
     var extension = pathCompleteExtname(pathName);
-    var adapters = extensionMap[extension];
-    var adapter = !dontCompile(pathName) && adapters && adapters[0];
+    var adapter = !dontCompile(pathName) && getAdapter(extension);
 
     var file = fs.readFile(pathName, 'utf8');
 
@@ -139,9 +165,8 @@ module.exports = {
     });
 
 
-    var transformId = '';
+    var transformId = _getTransformId(adapter, options);
     if (adapter) {
-      transformId = adapter.engineName + '@' + adapter.engine.version;
       var transpilerOptions = Object.assign({}, options, {
         sourcemap: options.sourceMap,
         filename: pathName
@@ -172,8 +197,6 @@ module.exports = {
     continuation.then(function(compiled) {
       if (options.minify) { compiled = minify(compiled, options); }
       if (options.outputSha) { compiled.outputSha = createHash(compiled.result); }
-      if (compiled.sourcemap) { transformId += '::map'; }
-      if (compiled.minified) { transformId += '::minify'; }
       compiled.transformId = transformId === '' ? null : transformId;
       return compiled;
     });
