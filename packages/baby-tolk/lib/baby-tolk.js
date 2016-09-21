@@ -5,11 +5,11 @@ if (global && global.babyTolkCompilerModulePath) {
 }
 
 var Path = require('path');
-var when = require('when');
 var node = require('when/node');
 var fs = node.liftAll(require('fs'));
 var accord = require('accord');
 var pathCompleteExtname = require('path-complete-extname');
+var crypto = require('crypto');
 var minify = require('./minify');
 
 var extensionMap;
@@ -98,6 +98,12 @@ var dontCompile = function (pathName) {
   return baseName[0] === '_';
 };
 
+var createHash = function(data) {
+  var shasum = crypto.createHash('sha1');
+  shasum.update(data);
+  return shasum.digest('hex');
+};
+
 module.exports = {
   get extensions() {
     return extensionMap;
@@ -115,45 +121,62 @@ module.exports = {
     options = options || {};
 
     options.sourceMap = options.sourceMap === false ? false : true;
+    if (options.sha) {
+      options.inputSha = true;
+      options.outputSha = true;
+    }
 
     var extension = pathCompleteExtname(pathName);
     var adapters = extensionMap[extension];
     var adapter = !dontCompile(pathName) && adapters && adapters[0];
 
-    var continuation;
+    var file = fs.readFile(pathName, 'utf8');
 
+    var continuation = file.then(function(result) {
+      var obj = { result: result };
+      if (options.inputSha) { obj.inputSha = createHash(result); }
+      return obj;
+    });
+
+
+    var transformId = '';
     if (adapter) {
+      transformId = adapter.engineName + '@' + adapter.engine.version;
       var transpilerOptions = Object.assign({}, options, {
-        sourcemap: options.sourceMap
+        sourcemap: options.sourceMap,
+        filename: pathName
       });
 
       if (adapter.engineName === 'node-sass') {
         transpilerOptions.includePaths = [Path.dirname(pathName)];
       }
 
-      var addInfo = function(compiled) {
-        compiled.extension = '.' + adapter.output;
-        compiled.inputPath = pathName;
-        return when.resolve(compiled);
-      };
-
-      continuation = adapter.renderFile(pathName, transpilerOptions).then(addInfo);
+      continuation = continuation.then(function(source) {
+        return adapter.render(source.result, transpilerOptions)
+          .then(function(compiled) {
+            compiled.extension = '.' + adapter.output;
+            compiled.inputPath = pathName;
+            if (options.inputSha) { compiled.inputSha = source.inputSha; }
+            return compiled;
+          });
+      });
 
     } else {
-      continuation = fs.readFile(pathName, 'utf8').then(function (source) {
-        return when.resolve({
-          result: source,
-          extension: extension,
-          inputPath: pathName
-        });
+      continuation = continuation.then(function(source) {
+        source.extension = extension;
+        source.inputPath = pathName;
+        return source;
       });
     }
 
-    if (options.minify) {
-      continuation = continuation.then(function(compiled) {
-        return minify(compiled, options);
-      });
-    }
+    continuation.then(function(compiled) {
+      if (options.minify) { compiled = minify(compiled, options); }
+      if (options.outputSha) { compiled.outputSha = createHash(compiled.result); }
+      if (compiled.sourcemap) { transformId += '::map'; }
+      if (compiled.minified) { transformId += '::minify'; }
+      compiled.transformId = transformId === '' ? null : transformId;
+      return compiled;
+    });
 
     return continuation;
   }

@@ -104,7 +104,10 @@ module.exports = function(compiled, options) {
     compiled = js(compiled);
   } else if (isHtml(compiled.extension)) {
     compiled = html(compiled);
+  } else {
+    return compiled;
   }
+  compiled.minified = true;
   if (!options.sourceMap) {
     compiled.sourcemap = null;
     delete compiled.sourcemap;
