@@ -123,6 +123,18 @@ module.exports = function(inputDir, outputDir, options) {
       );
     })
     .then(filtered => {
+      return filtered.filter(sha => {
+        if (!sha.sourceChildren.length) { return sha; }
+        var allSourcesAreUnchanged = true;
+        sha.sourceChildren.forEach(source => {
+          var sourceRelativePath = path.join(path.dirname(sha.input), source);
+          var sourceExists = filtered.findIndex(x => sourceRelativePath === x.input) !== -1;
+          if (!sourceExists) { allSourcesAreUnchanged = false; }
+        });
+        return allSourcesAreUnchanged;
+      });
+    })
+    .then(filtered => {
       if (!Array.isArray(filtered)) { return; }
       return {
         input: filtered.map(x => x.input),
@@ -190,11 +202,12 @@ module.exports = function(inputDir, outputDir, options) {
                 fileName = replaceExtension(file.name, compiled.extension);
               }
 
+              var sources = [];
               if (compiled.sourcemap) {
                 var sourcemapStr = 'sourceMappingURL=' + fileName + '.map';
-                compiled.sourcemap.sources = compiled.sourcemap.sources.map(function(source) {
-                  return path.basename(extensionChanged ? source : addSrcExtension(source));
-                });
+                sources = compiled.sourcemap.sources.map(source => path.basename(source));
+                compiled.sourcemap.sources =
+                  sources.map(source => extensionChanged ? source : addSrcExtension(source));
                 var srcMapFileName = compiledOutputFullPath + '.map';
                 writeFiles.push(fsp.writeFile(srcMapFileName, JSON.stringify(compiled.sourcemap)));
                 fileNames.push(path.relative(outputDir, srcMapFileName));
@@ -215,7 +228,8 @@ module.exports = function(inputDir, outputDir, options) {
                 inputSha: compiled.inputSha,
                 outputSha: createHash(compiled.result),
                 input: relativePath,
-                output: fileNames
+                output: fileNames,
+                sourceChildren: sources
               });
               eventEmitter.emit('compile-done', file);
               return when.all(writeFiles).then(() => {

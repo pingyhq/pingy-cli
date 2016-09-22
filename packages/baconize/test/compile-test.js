@@ -54,13 +54,13 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 9),
+          expect(num, 'to be', 10),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
-              'index.jade', 'scripts/main.coffee', 'styles/main.styl', 'scripts/log.babel.js'
+              'index.jade', 'scripts/main.coffee', 'styles/main.styl', 'styles/_inner.styl', 'scripts/log.babel.js'
              )
             .and('not to contain', 'about.html', 'styles/typography.css')
-            .and('to have length', 4)
+            .and('to have length', 5)
         ]);
       });
     });
@@ -153,13 +153,13 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 9),
+          expect(num, 'to be', 10),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
-              'index.jade', 'scripts/main.coffee', 'styles/main.styl', 'scripts/log.babel.js'
+              'index.jade', 'scripts/main.coffee', 'styles/main.styl', 'styles/_inner.styl', 'scripts/log.babel.js'
              )
             .and('not to contain', 'about.html', 'styles/typography.css', 'styles/typography.css')
-            .and('to have length', 4)
+            .and('to have length', 5)
         ]);
       });
     });
@@ -207,7 +207,7 @@ describe('baconize', function() {
         ]).then(function(results) {
           return expect.promise.all([
             expect(results[0].toString(), 'to contain', '"file":"main.css"')
-              .and('to contain', '"sources":["main.styl"]'),
+              .and('to contain', '"sources":["main.styl","_inner.styl"]'),
             expect(results[1].toString(), 'to contain', '"file":"main.js"')
               .and('to contain', '"sources":["main.coffee"]'),
           ]);
@@ -276,12 +276,12 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 9),
+          expect(num, 'to be', 10),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
                     'about.html', 'index.jade', 'scripts/log.babel.js',
                     'styles/main.styl', 'styles/typography.css',
-                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 7),
+                    'scripts/iterate.js', 'scripts/main.coffee', 'styles/_inner.styl').and('to have length', 8),
         ]);
       });
     });
@@ -374,12 +374,12 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 9),
+          expect(num, 'to be', 10),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
                     'about.html', 'index.jade', 'scripts/log.babel.js',
                     'styles/main.styl', 'styles/typography.css',
-                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 7),
+                    'scripts/iterate.js', 'scripts/main.coffee', 'styles/_inner.styl').and('to have length', 8),
         ]);
       });
     });
@@ -435,7 +435,7 @@ describe('baconize', function() {
         ]).then(function(results) {
           return expect.promise.all([
             expect(results[0].toString(), 'to contain', '"file":"main.css"')
-              .and('to contain', '"sources":["main.styl"]'),
+              .and('to contain', '"sources":["main.styl","_inner.styl"]'),
             expect(results[1].toString(), 'to contain', '"file":"main.js"')
               .and('to contain', '"sources":["main.coffee"]'),
             expect(results[2].toString(), 'to contain', '"file":"iterate.js"')
@@ -485,29 +485,27 @@ describe('baconize', function() {
 
 
   describe('compile minified with sourcemaps (SHA test)', function() {
-    var originalCoffeeContents;
+    var originalStylContents;
     before(() => {
       // Mess up the dir a bit to make sure we recompile files as needed.
-      var styl = fs.readFile(getPathOut('styles/main.css'), 'utf8').then(content =>
-        fs.writeFile(getPathOut('styles/main.css'), content + ' ')
+      var coffee = fs.readFile(getPathOut('scripts/main.js'), 'utf8').then(content =>
+        fs.writeFile(getPathOut('scripts/main.js'), content + ' ')
       );
       var html = fs.unlink(getPathOut('index.html'));
       var randomFile = fs.writeFile(getPathOut('bla.html'), 'SHOULD BE REMOVED');
 
       // TODO: write a test where the input file is changed.
-      var coffee = fs.readFile(getPathIn('scripts/main.coffee'), 'utf8').then(content => {
-        originalCoffeeContents = content;
-        return fs.writeFile(getPathIn('scripts/main.coffee'), content + ' ');
+      var styl = fs.readFile(getPathIn('styles/_inner.styl'), 'utf8').then(content => {
+        originalStylContents = content;
+        return fs.writeFile(getPathIn('styles/_inner.styl'), content + ' ');
       });
 
       return when.all([styl, html, randomFile, coffee]);
     });
 
     after(done => {
-      var coffee = fs.writeFile(getPathIn('scripts/main.coffee'), originalCoffeeContents);
-      coffee.then(() => {
-        clearDir(done);
-      });
+      var coffee = fs.writeFile(getPathIn('styles/_inner.styl'), originalStylContents);
+      coffee.then(() => { clearDir(done); });
     });
 
 
@@ -544,13 +542,12 @@ describe('baconize', function() {
 
       return bacon.then(function(num) {
         return expect.promise.all([
-          expect(num, 'to be', 9),
+          expect(num, 'to be', 10),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
-            'index.jade', 'styles/main.styl', 'scripts/main.coffee').and('to have length', 3),
+            'index.jade', 'styles/main.styl', 'styles/_inner.styl', 'scripts/main.coffee').and('to have length', 4),
           expect(compilationReuseFiles, 'to contain',
-            'about.html', 'scripts/log.babel.js', 'styles/typography.css',
-            'scripts/iterate.js').and('to have length', 4),
+            'about.html', 'scripts/log.babel.js', 'styles/typography.css', 'scripts/iterate.js').and('to have length', 4),
         ]);
       });
     });
@@ -566,8 +563,8 @@ describe('baconize', function() {
           fs.readFile(getPathOut('about.html')),
           fs.readFile(getPathOut('dont-compile/foo.coffee')),
           fs.readFile(getPathOut('styles/typography.css'))
-        ]).then(function(results) {
-          return expect.promise.all([
+        ]).then(results =>
+          expect.promise.all([
             expect(results[0].toString(), 'to contain', 'saying \'hello\'.</p>'),
             expect(results[1].toString(), 'to contain', 'body{'),
             expect(results[2].toString(), 'to contain', 'console.log("H'),
@@ -575,8 +572,8 @@ describe('baconize', function() {
             expect(results[4].toString(), 'to contain', '<html><head>'),
             expect(results[5].toString(), 'to contain', 'console.log "T'),
             expect(results[6].toString(), 'to contain', 'font-family:arial}')
-          ]);
-        });
+          ])
+        );
       });
 
       it('should URL link to source maps', function() {
@@ -606,7 +603,7 @@ describe('baconize', function() {
         ]).then(function(results) {
           return expect.promise.all([
             expect(results[0].toString(), 'to contain', '"file":"main.css"')
-              .and('to contain', '"sources":["main.styl"]'),
+              .and('to contain', '"sources":["main.styl","_inner.styl"]'),
             expect(results[1].toString(), 'to contain', '"file":"main.js"')
               .and('to contain', '"sources":["main.coffee"]'),
             expect(results[2].toString(), 'to contain', '"file":"iterate.js"')
@@ -622,13 +619,17 @@ describe('baconize', function() {
           fs.readFile(getPathOut('index.jade')),
           fs.readFile(getPathOut('about.src.html')),
           fs.readFile(getPathOut('scripts/iterate.src.js')),
-          fs.readFile(getPathOut('styles/typography.src.css'))
+          fs.readFile(getPathOut('styles/typography.src.css')),
+          fs.readFile(getPathOut('styles/main.styl')),
+          fs.readFile(getPathOut('styles/_inner.styl'))
         ]).then(function(results) {
             return expect.promise.all([
               expect(results[0].toString(), 'to contain', 'html(lang="en")'),
               expect(results[1].toString(), 'to contain', '  <meta charset="utf-8">'),
               expect(results[2].toString(), 'to contain', 'for (var i = 0; i < stuff.length; i++) {'),
-              expect(results[3].toString(), 'to contain', '  font-family: arial;')
+              expect(results[3].toString(), 'to contain', '  font-family: arial;'),
+              expect(results[4].toString(), 'to contain', '@import \'_inner\''),
+              expect(results[5].toString(), 'to contain', 'h1\n  color: darkgreen')
             ]);
           });
       });
@@ -656,6 +657,17 @@ describe('baconize', function() {
           .then(function() {
             return expect.fail(
               '`bla.html` should *not* be copied because it\'s not in src directory'
+            );
+          }, function(err) {
+            return expect(err.code, 'to be', 'ENOENT');
+          });
+      });
+
+      it('should not compile files prefixed with `_`', function() {
+        return fs.readFile(getPathOut('styles/_inner.css'))
+          .then(function() {
+            return expect.fail(
+              '`_inner.styl` should *not* be compiled because it begins with `_` char'
             );
           }, function(err) {
             return expect(err.code, 'to be', 'ENOENT');
