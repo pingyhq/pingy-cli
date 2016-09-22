@@ -116,9 +116,9 @@ module.exports = function(inputDir, outputDir, options) {
       return when.all([when.all(inFiles), when.all(outFiles)])
       .then(fileContents =>
         matchingCompilerShas.filter(
-          (sha, i) => fileContents[0][i] && (sha.inputSha === createHash(fileContents[0][i]))
-        ).filter(
-          (sha, i) => fileContents[1][i] && (sha.outputSha === createHash(fileContents[1][i]))
+          (sha, i) =>
+            (fileContents[0][i] && (sha.inputSha === createHash(fileContents[0][i]))) &&
+            (fileContents[1][i] && (sha.outputSha === createHash(fileContents[1][i])))
         )
       );
     })

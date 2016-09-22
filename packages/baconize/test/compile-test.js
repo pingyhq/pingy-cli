@@ -485,10 +485,7 @@ describe('baconize', function() {
 
 
   describe('compile minified with sourcemaps (SHA test)', function() {
-    //
-    // before(clearDir);
-    after(clearDir);
-
+    var originalCoffeeContents;
     before(() => {
       // Mess up the dir a bit to make sure we recompile files as needed.
       var styl = fs.readFile(getPathOut('styles/main.css'), 'utf8').then(content =>
@@ -497,8 +494,22 @@ describe('baconize', function() {
       var html = fs.unlink(getPathOut('index.html'));
       var randomFile = fs.writeFile(getPathOut('bla.html'), 'SHOULD BE REMOVED');
 
-      return when.all([styl, html, randomFile]);
+      // TODO: write a test where the input file is changed.
+      var coffee = fs.readFile(getPathIn('scripts/main.coffee'), 'utf8').then(content => {
+        originalCoffeeContents = content;
+        return fs.writeFile(getPathIn('scripts/main.coffee'), content + ' ');
+      });
+
+      return when.all([styl, html, randomFile, coffee]);
     });
+
+    after(done => {
+      var coffee = fs.writeFile(getPathIn('scripts/main.coffee'), originalCoffeeContents);
+      coffee.then(() => {
+        clearDir(done);
+      });
+    });
+
 
     it('should compile compilable files and copy all others', function () {
       var options = {
@@ -535,10 +546,11 @@ describe('baconize', function() {
         return expect.promise.all([
           expect(num, 'to be', 9),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
-          expect(compiledFiles, 'to contain', 'index.jade', 'styles/main.styl').and('to have length', 2),
+          expect(compiledFiles, 'to contain',
+            'index.jade', 'styles/main.styl', 'scripts/main.coffee').and('to have length', 3),
           expect(compilationReuseFiles, 'to contain',
-                    'about.html','scripts/log.babel.js', 'styles/typography.css',
-                    'scripts/iterate.js', 'scripts/main.coffee').and('to have length', 5),
+            'about.html', 'scripts/log.babel.js', 'styles/typography.css',
+            'scripts/iterate.js').and('to have length', 4),
         ]);
       });
     });
