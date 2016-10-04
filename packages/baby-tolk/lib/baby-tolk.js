@@ -5,6 +5,7 @@ if (global && global.babyTolkCompilerModulePath) {
 }
 
 var Path = require('path');
+var when = require('when');
 var node = require('when/node');
 var fs = node.liftAll(require('fs'));
 var accord = require('accord');
@@ -156,11 +157,13 @@ module.exports = {
     var extension = pathCompleteExtname(pathName);
     var adapter = !dontCompile(pathName) && getAdapter(extension);
 
-    var file = fs.readFile(pathName, 'utf8');
+    var sourceFile = fs.readFile(pathName, 'utf8');
+    var sourceFileContents = null;
 
-    var continuation = file.then(function(result) {
+    var continuation = sourceFile.then(function(result) {
       var obj = { result: result };
-      if (options.inputSha) { obj.inputSha = createHash(result); }
+      sourceFileContents = result;
+      // if (options.inputSha) { obj.inputSha = createHash(result); }
       return obj;
     });
 
@@ -194,10 +197,39 @@ module.exports = {
       });
     }
 
-    continuation.then(function(compiled) {
+    continuation = continuation.then(function(compiled) {
       if (options.minify) { compiled = minify(compiled, options); }
       if (options.outputSha) { compiled.outputSha = createHash(compiled.result); }
       compiled.transformId = transformId === '' ? null : transformId;
+      if (options.inputSha) {
+        var inputSha;
+        if (compiled.sourcemap) {
+          inputSha = compiled.sourcemap.sources.map(function(path) {
+            if (path === pathName) {
+              return {
+                file: pathName,
+                sha: createHash(sourceFileContents)
+              };
+            } else {
+              return fs.readFile(path, 'utf8').then(function(content) {
+                return {
+                  file: path,
+                  sha: createHash(content)
+                };
+              });
+            }
+          });
+        } else {
+          inputSha = [{
+            file: pathName,
+            sha: createHash(sourceFileContents)
+          }];
+        }
+        return when.all(inputSha).then(function(inputSha) {
+          compiled.inputSha = inputSha;
+          return compiled;
+        });
+      }
       return compiled;
     });
 
