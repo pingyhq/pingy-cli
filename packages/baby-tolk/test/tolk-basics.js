@@ -19,13 +19,11 @@ describe('readCompiled', function () {
   });
 
   it('should read a file directly with same shas', function () {
+    var sha = '0bafeaaee1ee07b2dd609aa0079bb1a6d07cb696';
     return expect(tolk.read(getPath('unchanged.txt'), {sha:true}), 'to be fulfilled with', {
       result: 'I am the same\n',
-      inputSha: [{
-        file: getPath('unchanged.txt'),
-        sha: '0bafeaaee1ee07b2dd609aa0079bb1a6d07cb696'
-      }],
-      outputSha: '0bafeaaee1ee07b2dd609aa0079bb1a6d07cb696',
+      inputSha: [{ file: getPath('unchanged.txt'), sha: sha }],
+      outputSha: sha,
       transformId: '::map'
     });
   });
@@ -72,13 +70,13 @@ describe('readCompiled', function () {
       },
       inputSha: [
         {
+          file: expect.it('to contain', 'external.less'),
+          sha: sha
+        },
+        {
           file: expect.it('to contain', '_import.less'),
           sha: 'a7a12083a1422a1d0eaaa30859061f0ed17d5fc3'
         },
-        {
-          file: expect.it('to contain', 'external.less'),
-          sha: sha
-        }
       ],
       outputSha: expect.it('to have length', 40).and('not to equal', sha),
       transformId: expect.it('to contain', 'less').and('to contain', 'map')
@@ -108,8 +106,8 @@ describe('readCompiled', function () {
         mappings: expect.it('to begin with', 'AAAA,KACE,')
       },
       inputSha: [
+        { file: expect.it('to contain', 'external.less'), sha: sha },
         { file: expect.it('to contain', '_import.less'), sha: 'a7a12083a1422a1d0eaaa30859061f0ed17d5fc3' },
-        { file: expect.it('to contain', 'external.less'), sha: sha }
       ],
       outputSha: expect.it('to have length', 40).and('not to equal', sha),
       transformId: expect.it('to contain', 'less').and('to contain', 'map').and('to contain', 'minify')

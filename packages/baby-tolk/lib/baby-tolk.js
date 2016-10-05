@@ -202,28 +202,20 @@ module.exports = {
       if (options.outputSha) { compiled.outputSha = createHash(compiled.result); }
       compiled.transformId = transformId === '' ? null : transformId;
       if (options.inputSha) {
-        var inputSha;
+        var inputSha = [{
+          file: pathName,
+          sha: createHash(sourceFileContents)
+        }];
         if (compiled.sourcemap) {
-          inputSha = compiled.sourcemap.sources.map(function(path) {
-            if (path === pathName) {
+          inputSha = inputSha.concat(compiled.sourcemap.sources.map(function(path) {
+            if (path === pathName) { return null; }
+            return fs.readFile(path, 'utf8').then(function(content) {
               return {
-                file: pathName,
-                sha: createHash(sourceFileContents)
+                file: path,
+                sha: createHash(content)
               };
-            } else {
-              return fs.readFile(path, 'utf8').then(function(content) {
-                return {
-                  file: path,
-                  sha: createHash(content)
-                };
-              });
-            }
-          });
-        } else {
-          inputSha = [{
-            file: pathName,
-            sha: createHash(sourceFileContents)
-          }];
+            });
+          }).filter(function(x) { return Boolean(x); }));
         }
         return when.all(inputSha).then(function(inputSha) {
           compiled.inputSha = inputSha;
