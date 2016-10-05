@@ -14,7 +14,7 @@ var nodefn = require('when/node');
 var crypto = require('crypto');
 var rimraf = nodefn.lift(require('rimraf'));
 var mkdirp = nodefn.lift(require('mkdirp'));
-var fsp = nodefn.liftAll(require('fs'));
+var fsp = nodefn.liftAll(fs);
 
 // TODO: Consider using node-glob module instead of readdirp + through2
 // I think that will simplify the code.
@@ -63,7 +63,7 @@ var createHash = function(data) {
   return shasum.digest('hex');
 };
 
-var noop = () => null
+var noop = () => null;
 
 module.exports = function(inputDir, outputDir, options) {
   var eventEmitter = new events.EventEmitter();
@@ -109,31 +109,30 @@ module.exports = function(inputDir, outputDir, options) {
         sha && fsp.readFile(getMainFile(sha), 'utf8').then(contents => contents, noop)
       );
 
-      var inFiles = existingShas.map(sha =>
-        sha && fsp.readFile(getInputFile(sha), 'utf8').then(contents => contents, noop)
-      );
-
-      return when.all([when.all(inFiles), when.all(outFiles)])
-      .then(fileContents =>
-        matchingCompilerShas.filter(
-          (sha, i) =>
-            (fileContents[0][i] && (sha.inputSha === createHash(fileContents[0][i]))) &&
-            (fileContents[1][i] && (sha.outputSha === createHash(fileContents[1][i])))
-        )
-      );
+      // Verify that the output file hasn't changed
+      return when.all(outFiles)
+        .then(fileContents =>
+          matchingCompilerShas.filter((sha, i) =>
+            (fileContents[i] && (sha.outputSha === createHash(fileContents[i])))
+          )
+        );
     })
-    .then(filtered => {
-      return filtered.filter(sha => {
-        if (!sha.sourceChildren.length) { return sha; }
-        var allSourcesAreUnchanged = true;
-        sha.sourceChildren.forEach(source => {
-          var sourceRelativePath = path.join(path.dirname(sha.input), source);
-          var sourceExists = filtered.findIndex(x => sourceRelativePath === x.input) !== -1;
-          if (!sourceExists) { allSourcesAreUnchanged = false; }
-        });
-        return allSourcesAreUnchanged;
-      });
-    })
+    .then(filtered =>
+      // Verify that the input files haven't changed
+      when.all(filtered.map(sha =>
+        when.all(sha.inputSha.map(input =>
+          fsp.readFile(path.join(inputDir, input.file), 'utf8').then(contents =>
+            input.sha === createHash(contents)
+          )
+        ))
+      )).then(equalShaBoolArr => {
+        var filterBools = equalShaBoolArr.map(
+          // i.e.. [true, true, false] => false
+          x => x.reduce((prev, curr) => prev && curr, true)
+        );
+        return filtered.filter((el, i) => filterBools[i]);
+      })
+    )
     .then(filtered => {
       if (!Array.isArray(filtered)) { return; }
       return {
@@ -146,6 +145,7 @@ module.exports = function(inputDir, outputDir, options) {
   };
 
   var compileAndCopy = function(reusableFiles) {
+    babyTolk.reload();
     return when.promise(function(resolve, reject) {
       options.root = inputDir;
       var stream = readdirp(options);
@@ -202,12 +202,15 @@ module.exports = function(inputDir, outputDir, options) {
                 fileName = replaceExtension(file.name, compiled.extension);
               }
 
-              var sources = [];
               if (compiled.sourcemap) {
                 var sourcemapStr = 'sourceMappingURL=' + fileName + '.map';
-                sources = compiled.sourcemap.sources.map(source => path.basename(source));
-                compiled.sourcemap.sources =
-                  sources.map(source => extensionChanged ? source : addSrcExtension(source));
+
+                compiled.sourcemap.sources = compiled.sourcemap.sources
+                  .map(source => path.resolve(process.cwd(), source))
+                  .map(source => source.replace(inputDir, outputDir))
+                  .map(source => path.relative(path.dirname(compiledOutputFullPath), source))
+                  .map(source => extensionChanged ? source : addSrcExtension(source));
+
                 var srcMapFileName = compiledOutputFullPath + '.map';
                 writeFiles.push(fsp.writeFile(srcMapFileName, JSON.stringify(compiled.sourcemap)));
                 fileNames.push(path.relative(outputDir, srcMapFileName));
@@ -225,11 +228,13 @@ module.exports = function(inputDir, outputDir, options) {
 
               shas.push({
                 type: compiled.transformId,
-                inputSha: compiled.inputSha,
+                inputSha: compiled.inputSha.map(x => ({
+                  file: path.relative(inputDir, x.file),
+                  sha: x.sha
+                })),
                 outputSha: createHash(compiled.result),
                 input: relativePath,
                 output: fileNames,
-                sourceChildren: sources
               });
               eventEmitter.emit('compile-done', file);
               return when.all(writeFiles).then(() => {
@@ -249,26 +254,11 @@ module.exports = function(inputDir, outputDir, options) {
 
           if (options.compile && compileExt && doCompile) {
             // compile
-            compile().then(function() {
-              if (options.sourcemaps) {
-                copy();
-              } else {
-                fileDone();
-              }
-            }, reject);
+            compile().then(() => options.sourcemaps ? copy() : fileDone(), reject);
           } else if (babyTolk.isMinifiable(ext) && options.minify && doCompile) {
             // minify
-            compile().then(function() {
-              if (options.sourcemaps) {
-                copy(true);
-              } else {
-                fileDone();
-              }
-            }, reject);
-          } else {
-            // copy
-            copy();
-          }
+            compile().then(() => options.sourcemaps ? copy(true) : fileDone(), reject);
+          } else { copy(); }
         };
 
 
