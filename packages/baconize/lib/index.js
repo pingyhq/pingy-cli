@@ -257,7 +257,7 @@ module.exports = function(inputDir, outputDir, options) {
             compile().then(() => options.sourcemaps ? copy() : fileDone(), reject);
           } else if (babyTolk.isMinifiable(ext) && options.minify && doCompile) {
             // minify
-            compile().then(() => options.sourcemaps ? copy(true) : fileDone(), reject);
+            compile().then(() => options.sourcemaps ? copy(true) : fileDone(), () => copy());
           } else { copy(); }
         };
 
