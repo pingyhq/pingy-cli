@@ -4,7 +4,7 @@
   "description": "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --timeout 5000",
+    "test": "mocha --timeout 15000",
     "example": "node examples/compile-site.js"
   },
   "keywords": [
