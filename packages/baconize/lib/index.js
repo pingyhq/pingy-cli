@@ -302,20 +302,24 @@ module.exports = function(inputDir, outputDir, options) {
   return promise;
 };
 
-module.exports.preflight = function preflight(dir) {
-  return Promise.all([
-    checkDir(dir),
-    checkDir(path.join(dir, 'node_modules')),
-    checkDir(path.join(dir, 'bower_components')),
-  ]).then(info => {
+module.exports.preflight = function preflight(inputDir, outputDir) {
+  var checks = [
+    checkDir(inputDir),
+    checkDir(path.join(inputDir, 'node_modules')),
+    checkDir(path.join(inputDir, 'bower_components')),
+  ];
+  if (outputDir) checks.push(checkDir(outputDir))
+  return Promise.all(checks).then(info => {
     var mainDir = info[0];
     var nodeModules = info[1];
     var bowerComponents = info[2];
+    var outputDir = info[3];
     return Object.assign(
       {},
       mainDir,
       { nodeModules: nodeModules.exists },
-      { bowerComponents: bowerComponents.exists }
+      { bowerComponents: bowerComponents.exists },
+      { outputDir: outputDir || null }
     );
   });
 };

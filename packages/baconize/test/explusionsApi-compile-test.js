@@ -565,10 +565,50 @@ describe('baconize', function() {
           empty: false,
           exists: true,
           nodeModules: true,
-          bowerComponents: false
-        })
-      })
-    })
+          bowerComponents: false,
+          outputDir: null
+        });
+      });
+    });
+
+    it('should have enoent output dir', function() {
+      var enoent = Path.join(process.cwd(), 'enoent');
+      return baconize.preflight(process.cwd(), enoent).then(function(info) {
+        return expect(info, 'to have properties', {
+          empty: false,
+          exists: true,
+          nodeModules: true,
+          bowerComponents: false,
+          outputDir: { empty: true, exists: false, files: 0 }
+        });
+      });
+    });
+
+    it('should have existing non-empty output dir', function() {
+      var existingDir = Path.join(process.cwd(), 'examples');
+      return baconize.preflight(process.cwd(), existingDir).then(function(info) {
+        return expect(info, 'to have properties', {
+          empty: false,
+          exists: true,
+          nodeModules: true,
+          bowerComponents: false,
+          outputDir: { empty: false, exists: true, files: 3 }
+        });
+      });
+    });
+
+    it('should have existing empty output dir', function() {
+      var existingDir = Path.join(process.cwd(), 'examples', 'site', 'stylesheets');
+      return baconize.preflight(process.cwd(), existingDir).then(function(info) {
+        return expect(info, 'to have properties', {
+          empty: false,
+          exists: true,
+          nodeModules: true,
+          bowerComponents: false,
+          outputDir: { empty: true, exists: true, files: 0 }
+        });
+      });
+    });
 
   });
 
