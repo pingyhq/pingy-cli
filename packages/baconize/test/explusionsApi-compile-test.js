@@ -559,6 +559,13 @@ describe('baconize', function() {
   });
 
   describe('preflight', function() {
+    var emptyDir = Path.join(process.cwd(), 'empty-dir');
+    var existingDir = Path.join(process.cwd(), 'examples');
+    var enoentDir = Path.join(process.cwd(), 'enoent');
+
+    before(function() { fs.mkdirSync(emptyDir) });
+    after(function() { fs.rmdirSync(emptyDir) });
+
     it('should work (basic test)', function() {
       return baconize.preflight(process.cwd()).then(function(info) {
         return expect(info, 'to have properties', {
@@ -572,8 +579,7 @@ describe('baconize', function() {
     });
 
     it('should have enoent output dir', function() {
-      var enoent = Path.join(process.cwd(), 'enoent');
-      return baconize.preflight(process.cwd(), enoent).then(function(info) {
+      return baconize.preflight(process.cwd(), enoentDir).then(function(info) {
         return expect(info, 'to have properties', {
           empty: false,
           exists: true,
@@ -585,21 +591,21 @@ describe('baconize', function() {
     });
 
     it('should have existing non-empty output dir', function() {
-      var existingDir = Path.join(process.cwd(), 'examples');
       return baconize.preflight(process.cwd(), existingDir).then(function(info) {
-        return expect(info, 'to have properties', {
+        expect(info, 'to have properties', {
           empty: false,
           exists: true,
           nodeModules: true,
           bowerComponents: false,
-          outputDir: { empty: false, exists: true, files: 3 }
         });
+        expect(info.outputDir.empty, 'to be false');
+        expect(info.outputDir.exists, 'to be true');
+        expect(info.outputDir.files, 'to be greater than', 0);
       });
     });
 
     it('should have existing empty output dir', function() {
-      var existingDir = Path.join(process.cwd(), 'examples', 'site', 'stylesheets');
-      return baconize.preflight(process.cwd(), existingDir).then(function(info) {
+      return baconize.preflight(process.cwd(), emptyDir).then(function(info) {
         return expect(info, 'to have properties', {
           empty: false,
           exists: true,
