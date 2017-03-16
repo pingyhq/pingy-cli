@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/davej/baby-tolk",
   "dependencies": {
-    "accord": "^0.26.0",
+    "accord": "^0.26.4",
     "app-module-path": "1.1.0",
     "clean-css": "^3.4.18",
     "html-minifier": "3.0.3",
@@ -63,7 +63,7 @@
     "mocha": "3.0.2",
     "mocha-lcov-reporter": "^1.0.0",
     "myth": "^1.5.0",
-    "node-sass": "^3.8.0",
+    "node-sass": "^4.5.0",
     "stylus": "^0.54.5",
     "swig": "^1.4.2",
     "unexpected": "10.17.2"
