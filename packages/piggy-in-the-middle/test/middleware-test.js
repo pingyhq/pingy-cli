@@ -435,27 +435,37 @@ describe('middleware', function() {
     var fileContentsJS;
 
     before(function (done) {
+      var numDone = 0;
+      function halfDone() {
+        numDone++;
+        if (numDone === 2) done()
+      }
       fs.readFile(pathToCSS, function (err, contents) {
         fileContentsCSS = contents;
         // Add space to end of file
         // Allow 250ms for chokidar to notice the change
         fs.writeFile(pathToCSS, 'sodifj5ij%$:@', function() {
-          return setTimeout(done, 250);
+          return setTimeout(halfDone, 250);
         });
       });
       fs.readFile(pathToJS, function (err, contents) {
         fileContentsJS = contents;
-        fs.writeFile(pathToJS, '"sodifj5ij%$:@');
+        fs.writeFile(pathToJS, '"sodifj5ij%$:@', halfDone);
       });
     });
 
     after(function (done) {
+      var numDone = 0;
+      function halfDone() {
+        numDone++;
+        if (numDone === 2) done()
+      }
       // Revert file back to original contents
       // Allow 250ms for chokidar to notice the change
       fs.writeFile(pathToCSS, fileContentsCSS, function() {
         return setTimeout(done, 250);
       });
-      fs.writeFile(pathToJS, fileContentsJS);
+      fs.writeFile(pathToJS, fileContentsJS, halfDone);
     });
 
     it('should return 404 when file not found', function() {
