@@ -1,0 +1,14 @@
+{
+  "name": "pingy-core",
+  "version": "1.0.0",
+  "description": "Handles serving and exporting Pingy sites",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dave Jeffery <dave@davejeffery.com>",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "lerna": "2.0.0-beta.38"
+  }
+}
