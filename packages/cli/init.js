@@ -55,8 +55,10 @@ function prepare() {
       css: nameToModule('CSS', answers.styles),
       js: nameToModule('JS', answers.scripts),
     }
-    // TODO: add '@pingy/cli' below
-    const deps = [modules.html, modules.css, modules.js].filter(x => !!x);
+
+    const deps = [
+      '@pingy/cli', modules.html, modules.css, modules.js
+    ].filter(x => !!x);
 
     const pkgJsonPath = path.join(process.cwd(), 'package.json')
     const pkgJsonExists = fs.existsSync(pkgJsonPath);
