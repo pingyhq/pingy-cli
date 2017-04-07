@@ -3,7 +3,7 @@
 var connect = require('connect');
 var path = require('path');
 var pitm = require('../');
-var instant = require('instant');
+var instant = require('@pingy/instant');
 
 var app = connect();
 

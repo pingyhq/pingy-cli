@@ -1,6 +1,6 @@
 'use strict';
 
-var babyTolk = require('baby-tolk');
+var babyTolk = require('@pingy/compile');
 var helpers = require('./helpers');
 var Cache = require('./cache');
 var events = require('events');

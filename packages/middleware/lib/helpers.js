@@ -13,7 +13,7 @@ var helpers = {
    * Render a response
    * @param  {number}  statusCode     HTTP status code (e.g. 200)
    * @param  {string}  pth            Path used for guessing mime-type from extension
-   * @param  {string}  body           Compiled object passed from baby-tolk
+   * @param  {string}  body           Compiled object passed from @pingy/compile
    * @param  {boolean} isSrcMap       `true` is this a sourcemap
    * @param  {Object}  rsp            Connect/Express response Object
    */

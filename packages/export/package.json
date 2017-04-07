@@ -1,5 +1,5 @@
 {
-  "name": "baconize",
+  "name": "@pingy/export",
   "version": "2.5.0",
   "description": "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
   "main": "lib/index.js",
@@ -28,7 +28,7 @@
     "url": "https://github.com/davej/baconize.git"
   },
   "dependencies": {
-    "baby-tolk": "^5.0.1",
+    "@pingy/compile": "^5.0.1",
     "checkdir": "^1.0.0",
     "micromatch": "^2.3.11",
     "mkdirp": "^0.5.1",

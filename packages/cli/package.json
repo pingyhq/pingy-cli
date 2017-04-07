@@ -1,0 +1,35 @@
+{
+  "name": "pingy-cli",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@pingy/export": "^2.5.0",
+    "@pingy/instant": "^2.0.0",
+    "@pingy/middleware": "^2.0.4",
+    "chalk": "^1.1.3",
+    "commander": "^2.9.0",
+    "connect": "^3.6.0",
+    "get-port": "^3.1.0",
+    "inquirer": "^3.0.6",
+    "ora": "^1.2.0",
+    "serve-static": "^1.12.1",
+    "server-destroy": "^1.0.1",
+    "turbo-logo": "^0.3.1",
+    "valid-filename": "^2.0.1"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "marked": "^0.3.6",
+    "node-sass": "^4.5.2",
+    "lerna": "2.0.0-beta.38"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "pingy": "./cli.js"
+  },
+  "author": "Dave Jeffery <dave@davejeffery.com>",
+  "license": "ISC"
+}

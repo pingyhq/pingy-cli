@@ -34,7 +34,6 @@ var adapters = [
   'jade'
 ];
 
-
 function load() {
   extensionMap = {};
   loadedAdapters = [];

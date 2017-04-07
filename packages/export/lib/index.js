@@ -1,6 +1,6 @@
 'use strict';
 
-var babyTolk = require('baby-tolk');
+var babyTolk = require('@pingy/compile');
 var readdirp = require('readdirp');
 var through = require('through2');
 var path = require('path');

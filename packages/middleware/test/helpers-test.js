@@ -3,7 +3,7 @@
 var Path = require('path');
 var expect = require('unexpected').clone();
 var helpers = require('../lib/helpers');
-var babyTolk = require('baby-tolk');
+var babyTolk = require('@pingy/compile');
 
 function getPath(path) {
   return Path.join(process.cwd(), 'examples/site', path);

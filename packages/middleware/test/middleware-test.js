@@ -7,8 +7,8 @@ var expect = require('unexpected')
   .installPlugin(require('unexpected-sinon'));
 var connect = require('connect');
 var sinon = require('sinon');
-var pitm = require('../lib/piggy-in-the-middle');
-var babyTolk = require('baby-tolk');
+var pitm = require('../lib/middleware');
+var babyTolk = require('@pingy/compile');
 var fs = require('fs');
 
 

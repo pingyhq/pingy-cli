@@ -1,0 +1,47 @@
+{
+  "HTML": [
+    {
+      "name": "Pug (formerly Jade)",
+      "module": "pug"
+    }, {
+      "name": "Markdown",
+      "module": "marked"
+    }, {
+      "name": "ejs",
+      "module": "ejs"
+    }, {
+      "name": "Handlebars",
+      "module": "handlebars"
+    }
+  ],
+  "CSS": [
+    {
+      "name": "Sass",
+      "module": "node-sass"
+    }, {
+      "name": "Less",
+      "module": "less"
+    }, {
+      "name": "Stylus",
+      "module": "stylus"
+    }
+  ],
+  "JS" : [
+    {
+      "name": "CoffeeScript",
+      "module": "coffee-script"
+    }, {
+      "name": "Babel",
+      "module": "babel"
+    }, {
+      "name": "Bublé",
+      "module": "buble"
+    }, {
+      "name": "LiveScript",
+      "module": "livescript"
+    }, {
+      "name": "DogeScript",
+      "module": "dogescript"
+    }
+  ]
+}

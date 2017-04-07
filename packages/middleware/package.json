@@ -1,8 +1,8 @@
 {
-  "name": "piggy-in-the-middle",
+  "name": "@pingy/middleware",
   "version": "2.0.4",
   "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
-  "main": "lib/piggy-in-the-middle.js",
+  "main": "lib/middleware.js",
   "scripts": {
     "test": "mocha",
     "example": "node examples/basic-connect-server.js"
@@ -18,7 +18,7 @@
     "url": "https://github.com/davej/piggy-in-the-middle.git"
   },
   "dependencies": {
-    "baby-tolk": "^5.0.2",
+    "@pingy/compile": "^5.0.2",
     "chokidar": "^1.6.0",
     "csserror": "^2.0.2",
     "jserror": "^1.0.0",
@@ -26,7 +26,7 @@
     "when": "^3.7.3"
   },
   "devDependencies": {
-    "@davej/instant": "^2.0.0",
+    "@pingy/instant": "^2.0.0",
     "coffee-script": "^1.10.0",
     "connect": "^3.4.0",
     "express": "^4.13.3",
