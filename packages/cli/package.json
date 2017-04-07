@@ -1,12 +1,12 @@
 {
   "name": "pingy-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@pingy/export": "^2.5.0",
-    "@pingy/instant": "^2.0.0",
-    "@pingy/middleware": "^2.0.4",
+    "@pingy/export": "^3.0.0",
+    "@pingy/instant": "^3.0.0",
+    "@pingy/middleware": "^3.0.0",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "connect": "^3.6.0",
