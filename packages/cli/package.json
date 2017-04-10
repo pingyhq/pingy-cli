@@ -1,5 +1,5 @@
 {
-  "name": "pingy-cli",
+  "name": "@pingy/cli",
   "version": "0.2.1",
   "description": "",
   "main": "index.js",
