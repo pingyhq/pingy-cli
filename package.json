@@ -4,11 +4,9 @@
   "author": "Dave Jeffery <dave@davejeffery.com>",
   "license": "MIT",
   "scripts": {
-    "test": "npm run test-export && npm run test-middleware && npm run test-compile && npm run test-instant && npm run test-cli",
-    "test-export": "cd packages/export && npm test",
-    "test-middleware": "cd packages/middleware && npm test",
-    "test-compile": "cd packages/compile && npm test",
-    "test-instant": "cd packages/instant && npm test",
-    "test-cli": "cd packages/cli && npm test"
+    "test": "lerna run test"
+  },
+  "devDependencies": {
+    "lerna": "^2.0.0-rc.1"
   }
 }
