@@ -7,7 +7,7 @@ const rimraf = require('rimraf');
 
 describe('cli', function() {
   const pingyJsonPath = path.join(__dirname, 'fixtures', '.pingy.json')
-  this.timeout(5000);
+  this.timeout(10000);
 
   it('should display help text when called with no args', () => {
     const promise = spawn('node', ['cli.js'], { capture: [ 'stdout', 'stderr' ]});
