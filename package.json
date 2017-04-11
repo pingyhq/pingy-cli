@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "test": "lerna run test",
-    "install": "lerna boostrap"
+    "install": "lerna bootstrap"
   },
   "devDependencies": {
     "lerna": "^2.0.0-rc.1"
