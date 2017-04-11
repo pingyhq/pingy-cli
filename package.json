@@ -4,7 +4,8 @@
   "author": "Dave Jeffery <dave@davejeffery.com>",
   "license": "MIT",
   "scripts": {
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "install": "lerna boostrap"
   },
   "devDependencies": {
     "lerna": "^2.0.0-rc.1"

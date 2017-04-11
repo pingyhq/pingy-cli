@@ -1,5 +1,4 @@
 language: node_js
 sudo: false
-after_install: lerna bootstrap
 node_js:
   - "node"
