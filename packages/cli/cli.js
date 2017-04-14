@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 'use strict';
 
 const program = require('commander');
@@ -15,19 +16,15 @@ const getPingyJson = require('./getPingyJson');
 logo('Pingy');
 console.log('\n');
 
-program
-  .version(pkgJson.version)
+program.version(pkgJson.version);
 
-program
-  .command('serve')
-  .description('Serve Pingy project')
-  .action(() => {
-    getPort().then(port => {
-      if (!getPingyJson()) return;
-      pingy.serveSite(process.cwd(), port);
-      console.log(`Serving at http://localhost:${port}`);
-    });
+program.command('serve').description('Serve Pingy project').action(() => {
+  getPort().then((port) => {
+    if (!getPingyJson()) return;
+    pingy.serveSite(process.cwd(), port);
+    console.log(`Serving at http://localhost:${port}`);
   });
+});
 
 program
   .command('export')
@@ -43,18 +40,16 @@ program
       {
         path: pingyJson.exportDir,
         action: 'exclude',
-        type: 'dir'
+        type: 'dir',
       }
     ];
 
-    const exportingSpinner = ora(
-      `${pingyJson.name} exported to ${chalk.bold(outputDir)}`
-    ).start();
+    const exportingSpinner = ora(`${pingyJson.name} exported to ${chalk.bold(outputDir)}`).start();
     const exporting = pingy.exportSite(inputDir, outputDir, { exclusions });
-    exporting.then((a, b) => {
+    exporting.then(() => {
       exportingSpinner.succeed();
     });
-    const spinners = {}
+    const spinners = {};
     exporting.events.on('compile-start', (file) => {
       spinners[file.path] = ora(`Compiling ${file.name}`).start();
     });

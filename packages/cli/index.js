@@ -4,13 +4,10 @@ const connect = require('connect');
 const serveStatic = require('serve-static');
 const pingyMiddleware = require('@pingy/middleware');
 const instant = require('@pingy/instant');
-const EventEmitter = require('events');
 const enableDestroy = require('server-destroy');
-const export_ = require('@pingy/export');
+const pingyExport = require('@pingy/export');
 
 function serveSite(sitePath, port) {
-  const events = new EventEmitter();
-
   const server = connect();
   enableDestroy(server);
 
@@ -32,8 +29,9 @@ function serveSite(sitePath, port) {
   };
 }
 
-const exportSite = export_.bind(export_);
+const exportSite = pingyExport.bind(pingyExport);
 
-module.exports = exports = {
-  serveSite, exportSite
-}
+module.exports = {
+  serveSite,
+  exportSite,
+};
