@@ -1,0 +1,16 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		title
+		meta(name='description', content='')
+		meta(name='viewport', content='width=device-width')
+{{if normalizeCss}}
+		link(rel='stylesheet', href='{{styles.folder}}/normalize.css'){{/if}}
+		link(rel='stylesheet', href='{{styles.folder}}/{{styles.file}}.css')
+	body
+		h1 Hello world!
+		p We are ready to go.
+{{if babelPolyfill}}
+		script(src='{{scripts.folder}}/polyfill.js'){{/if}}
+		script(src='{{scripts.folder}}/{{scripts.file}}.js')
