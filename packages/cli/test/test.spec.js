@@ -8,7 +8,8 @@ const fetch = require('node-fetch');
 const rimraf = require('rimraf');
 
 describe('cli', function cli() {
-  const pingyJsonPath = path.join(__dirname, 'fixtures', '.pingy.json');
+  const fixturesPath = path.join(__dirname, 'fixtures');
+  const pingyJsonPath = path.join(fixturesPath, '.pingy.json');
   this.timeout(10000);
 
   it('should display help text when called with no args', () => {
@@ -24,7 +25,7 @@ describe('cli', function cli() {
     });
   });
 
-  it('should create .pingy.json using init command', () => {
+  it('should create .pingy.json and scaffold using init command', () => {
     before(() => fs.unlinkSync(pingyJsonPath));
 
     const promise = spawn('node', ['../../cli.js', 'init'], {
@@ -37,6 +38,7 @@ describe('cli', function cli() {
         let i = count;
         stdin.write(write);
         stdout.on('data', (data) => {
+          // console.log(data.toString());
           if (data.toString().startsWith('? ')) {
             i += 1;
             if (i === 2) resolve();
@@ -62,15 +64,35 @@ describe('cli', function cli() {
         nextStep()
       )
       .then(() =>
+        // scaffold
+        nextStep('y\n')
+      )
+      .then(() =>
+        // 2 spaces
+        nextStep()
+      )
+      .then(() =>
         // don't install deps
         nextStep('n\n')
       );
 
-    return promise.then(() => expect(fs.existsSync(pingyJsonPath), 'to be true'));
+    return promise.then(() => {
+      const exists = file => expect(fs.existsSync(file), 'to be true');
+      const indexHtml = path.join(fixturesPath, 'index.html');
+      const scripts = path.join(fixturesPath, 'scripts', 'main.js');
+      const styles = path.join(fixturesPath, 'styles', 'main.css');
+
+      return expect.promise.all({
+        dir: exists(pingyJsonPath),
+        indexHtml: exists(indexHtml),
+        scripts: exists(scripts),
+        styles: exists(styles),
+      });
+    });
   });
 
   it('should serve site', () => {
-    const promise = spawn('node', ['../../cli.js', 'serve'], {
+    const promise = spawn('node', ['../../cli.js', 'serve', '--no-open'], {
       cwd: './test/fixtures',
     });
     const { stdout } = promise.childProcess;
@@ -92,11 +114,15 @@ describe('cli', function cli() {
 
   it('should export site', () => {
     const distDir = path.join(__dirname, 'fixtures', 'dist');
+    const scriptsDir = path.join(__dirname, 'fixtures', 'scripts');
+    const stylesDir = path.join(__dirname, 'fixtures', 'styles');
+    const indexPath = path.join(__dirname, 'fixtures', 'index.html');
     const shas = path.join(distDir, '.shas.json');
 
     after((done) => {
       fs.unlinkSync(pingyJsonPath);
-      rimraf(distDir, done);
+      fs.unlinkSync(indexPath);
+      rimraf(distDir, () => rimraf(scriptsDir, () => rimraf(stylesDir, done)));
     });
 
     const promise = spawn('node', ['../../cli.js', 'export'], {

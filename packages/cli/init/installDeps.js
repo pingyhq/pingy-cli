@@ -5,7 +5,10 @@ const ora = require('ora');
 const inquirer = require('inquirer');
 const spawn = require('child_process').spawn;
 
-function installDeps(deps) {
+function installDeps(depsObj) {
+  const deps = ['@pingy/cli', depsObj.html.module, depsObj.css.module, depsObj.js.module].filter(
+    x => !!x
+  );
   if (deps.length === 0) {
     console.log(`\nNo dependencies needed. ${chalk.green('Done!')}`);
     return;

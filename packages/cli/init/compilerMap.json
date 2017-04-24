@@ -1,47 +1,60 @@
 {
   "HTML": [
     {
-      "name": "Pug (formerly Jade)",
-      "module": "pug"
+      "name": "Jade",
+      "module": "jade",
+      "extension": "jade"
     }, {
       "name": "Markdown",
-      "module": "marked"
+      "module": "marked",
+      "extension": "md"
     }, {
       "name": "ejs",
-      "module": "ejs"
+      "module": "ejs",
+      "extension": "ejs"
     }, {
       "name": "Handlebars",
-      "module": "handlebars"
+      "module": "handlebars",
+      "extension": "hbs"
     }
   ],
   "CSS": [
     {
       "name": "Sass",
-      "module": "node-sass"
+      "module": "node-sass",
+      "extension": "scss"
     }, {
       "name": "Less",
-      "module": "less"
+      "module": "less",
+      "extension": "less"
     }, {
       "name": "Stylus",
-      "module": "stylus"
+      "module": "stylus",
+      "extension": "styl"
     }
   ],
   "JS" : [
     {
       "name": "CoffeeScript",
-      "module": "coffee-script"
+      "module": "coffee-script",
+      "extension": "coffee"
+
     }, {
       "name": "Babel",
-      "module": "babel"
+      "module": "babel",
+      "extension": "babel.js"
     }, {
       "name": "Bublé",
-      "module": "buble"
+      "module": "buble",
+      "extension": "buble.js"
     }, {
       "name": "LiveScript",
-      "module": "livescript"
+      "module": "livescript",
+      "extension": "ls"
     }, {
       "name": "DogeScript",
-      "module": "dogescript"
+      "module": "dogescript",
+      "extension": "djs"
     }
   ]
 }

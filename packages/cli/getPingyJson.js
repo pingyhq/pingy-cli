@@ -1,14 +1,14 @@
 'use strict';
 
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
 const chalk = require('chalk');
+const findUp = require('find-up');
 
 function getPingyJson() {
-  const pingyJsonPath = path.join(process.cwd(), '.pingy.json');
-  const pingyJsonExists = fs.existsSync(pingyJsonPath);
+  const jsonPath = findUp.sync(['.pingy.json', '.pingy']);
 
-  if (!pingyJsonExists) {
+  if (!jsonPath) {
     console.log(
       chalk.red(
         `${chalk.bold('File not found')}: .pingy.json.\nPlease create it or run \`pingy init\`.`
@@ -17,9 +17,13 @@ function getPingyJson() {
     return false;
   }
   try {
-    const pingyJson = JSON.parse(fs.readFileSync(pingyJsonPath, 'utf8'));
-    return pingyJson;
+    const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+    return {
+      path: path.dirname(jsonPath),
+      json,
+    };
   } catch (e) {
+    console.log(chalk.red.bold(`Unable to read '${jsonPath}'`));
     console.log(chalk.red.bold(e));
   }
   return false;

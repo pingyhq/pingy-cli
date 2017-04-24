@@ -22,8 +22,10 @@ function serveSite(sitePath, port) {
   $pingy.events.on('fileChanged', $instant.reload);
 
   server.listen(port);
+  const url = `http://localhost:${port}`;
   return {
     server,
+    url,
     pingy: $pingy,
     instant: $instant,
   };
