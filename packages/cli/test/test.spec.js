@@ -33,48 +33,26 @@ describe('cli', function cli() {
     });
     const { stdout, stdin } = promise.childProcess;
 
-    const nextStep = (write = '\n', count = 0) =>
+    const nextStep = (matchString, write = '\n') =>
       new Promise((resolve) => {
-        let i = count;
-        stdin.write(write);
-        stdout.on('data', (data) => {
-          // console.log(data.toString());
-          if (data.toString().startsWith('? ')) {
-            i += 1;
-            if (i === 2) resolve();
+        const onData = (data) => {
+          if (data.toString().includes(matchString)) {
+            stdout.removeListener('data', onData);
+            resolve();
+            stdin.write(write);
           }
-        });
+        };
+        stdout.on('data', onData);
       });
 
-    nextStep('\n', 1)
-      .then(() =>
-        // Choose HTML
-        nextStep()
-      )
-      .then(() =>
-        // Choose CSS
-        nextStep()
-      )
-      .then(() =>
-        // Choose JS
-        nextStep()
-      )
-      .then(() =>
-        // Choose 'dist' folder name
-        nextStep()
-      )
-      .then(() =>
-        // scaffold
-        nextStep('y\n')
-      )
-      .then(() =>
-        // 2 spaces
-        nextStep()
-      )
-      .then(() =>
-        // don't install deps
-        nextStep('n\n')
-      );
+    nextStep('\n', '? ')
+      .then(() => nextStep('? What document'))
+      .then(() => nextStep('? What styles'))
+      .then(() => nextStep('? What scripts'))
+      .then(() => nextStep('? Choose the folder name to export'))
+      .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
+      .then(() => nextStep('? The most important question'))
+      .then(() => nextStep('? Run this', 'n\n'));
 
     return promise.then(() => {
       const exists = file => expect(fs.existsSync(file), 'to be true');
