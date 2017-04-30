@@ -40,5 +40,6 @@
     "pingy": "./cli.js"
   },
   "author": "Dave Jeffery <dave@davejeffery.com>",
-  "license": "ISC"
+  "license": "MIT",
+  "repository": "https://github.com/pingyhq/pingy-cli/tree/master/packages/cli"
 }
