@@ -224,7 +224,7 @@ describe('barnyard', () => {
           files => {
             expect(files[0], 'to contain', 'babelPolyfill');
             expect(files[1], 'to contain', '/*! normalize.css');
-            expect(files[2], 'to contain', '"presets": ["es2015"]');
+            expect(files[2], 'to contain', '"presets": ["env"]');
           }
         );
       });
@@ -448,6 +448,38 @@ describe('barnyard', () => {
         empty: true,
         exists: true,
         files: 0
+      })
+    });
+  });
+
+  describe('preflight (empty with prepare options)', () => {
+    before(() =>
+      clearTmpDir().then(() => mkdirp(tmpDir))
+    );
+
+    it('should say dir is empty', () => {
+      var preflight = barnyard.preflight(tmpDir, {
+        babelPolyfill: true,
+        normalizeCss: true,
+        html: {
+          type: 'html'
+        },
+        scripts: {
+          type: 'babel'
+        }
+      });
+      return expect(preflight, 'to be fulfilled with', {
+        empty: true,
+        exists: true,
+        files: 0,
+        preparedFiles: [
+          'index.html',
+          'styles/main.css',
+          'scripts/main.babel.js',
+          '.babelrc',
+          'scripts/polyfill.js',
+          'styles/normalize.css'
+        ]
       })
     });
   });

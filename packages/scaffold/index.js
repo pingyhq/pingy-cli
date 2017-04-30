@@ -64,7 +64,7 @@ var fileMap = {
     js: function(name, dir) {
       return join((dir || defaults.scripts.folder), (name || defaults.scripts.file) + '.js')
     },
-    'babel': function(name, dir) {
+    babel: function(name, dir) {
       return join((dir || defaults.scripts.folder), (name || defaults.scripts.file) + '.babel.js')
     },
     coffee: function(name, dir) {
@@ -76,35 +76,7 @@ var fileMap = {
   },
 };
 
-/**
- * Barnyard - Bootstrap/Scaffold a project for use with Piggy in the Middle and Baconize
- * @param  {string} projectDir Directory to scaffold the generated project to
- * @param  {Object} options
- *     {
- *       html: {
- *         file: 'index',
- *         type: 'html', // or 'jade'
- *       },
- *       styles: {
- *         folder: 'styles',
- *         file: 'main',
- *         type: 'css', // or 'scss', 'sass', 'less', 'styl'
- *       },
- *       scripts: {
- *         folder: 'scripts',
- *         file: 'main',
- *         type: 'js', // or 'babel', 'coffee'
- *       },
- *      babelPolyfill: true/false, // include babel polyfill?
- *      normalizeCss: true/false, // include CSS normalizer file?
- *      whitespaceFormatting: 'tabs', // Pass in a number (e.g. 2) to use spaces for whitespace, otherwise tabs will be used
- *    }
- *
- * @return {Promise<Array[string]>}            Files created during scaffolding
- */
-module.exports = function barnyard(projectDir, options) {
-  options = deepAssign({}, defaults, options);
-
+function prepareFiles(options) {
   function formatOutputObject(inputFile, outputFilename, requiresTemplating) {
     return inputFile.then(function(data) {
       if (requiresTemplating) {
@@ -152,24 +124,52 @@ module.exports = function barnyard(projectDir, options) {
     return getTemplateFile(inputFilename, outputFilename);
   }
 
-  function prepareFiles() {
-    var files = [];
-    files.push(prepareHtml());
-    files.push(prepareStyles());
-    files.push(prepareScripts());
-    if (options.scripts.type === 'babel') {
-      files.push(getFile(babelRCPath, '.babelrc'));
-    }
-    if (options.babelPolyfill) {
-      files.push(getFile(babelPolyfillPath, join(options.scripts.folder, 'polyfill.js')));
-    }
-    if (options.normalizeCss) {
-      files.push(getFile(normalizeCssPath, join(options.styles.folder, 'normalize.css')));
-    }
+  options = deepAssign({}, defaults, options);
 
-    return Q.all(files);
+  var files = [];
+  files.push(prepareHtml());
+  files.push(prepareStyles());
+  files.push(prepareScripts());
+  if (options.scripts.type === 'babel') {
+    files.push(getFile(babelRCPath, '.babelrc'));
+  }
+  if (options.babelPolyfill) {
+    files.push(getFile(babelPolyfillPath, join(options.scripts.folder, 'polyfill.js')));
+  }
+  if (options.normalizeCss) {
+    files.push(getFile(normalizeCssPath, join(options.styles.folder, 'normalize.css')));
   }
 
+  return Q.all(files);
+}
+
+/**
+ * Barnyard - Bootstrap/Scaffold a project for use with Piggy in the Middle and Baconize
+ * @param  {string} projectDir Directory to scaffold the generated project to
+ * @param  {Object} options
+ *     {
+ *       html: {
+ *         file: 'index',
+ *         type: 'html', // or 'jade'
+ *       },
+ *       styles: {
+ *         folder: 'styles',
+ *         file: 'main',
+ *         type: 'css', // or 'scss', 'sass', 'less', 'styl'
+ *       },
+ *       scripts: {
+ *         folder: 'scripts',
+ *         file: 'main',
+ *         type: 'js', // or 'babel', 'coffee'
+ *       },
+ *      babelPolyfill: true/false, // include babel polyfill?
+ *      normalizeCss: true/false, // include CSS normalizer file?
+ *      whitespaceFormatting: 'tabs', // Pass in a number (e.g. 2) to use spaces for whitespace, otherwise tabs will be used
+ *    }
+ *
+ * @return {Promise<Array[string]>}            Files created during scaffolding
+ */
+module.exports = function barnyard(projectDir, options) {
   function outputFile(path, data) {
     return mkdirp(getDirName(path)).then(function() {
       return writeFile(path, data).then(function() {
@@ -187,9 +187,17 @@ module.exports = function barnyard(projectDir, options) {
     return Q.all(outputFilesList);
   }
 
-  return prepareFiles().then(outputFiles);
+  return prepareFiles(options).then(outputFiles);
 };
 
-module.exports.preflight = function(filePath) {
-   return checkdir(filePath, { ignoreDotFiles: true });
+module.exports.preflight = function (filePath, options) {
+  return checkdir(filePath, { ignoreDotFiles: true })
+    .then(function (dirInfo) {
+      if (!dirInfo.exists || typeof options !== 'object') return dirInfo;
+      return prepareFiles(options).then(function (prepared) {
+        return Object.assign(dirInfo, {
+          preparedFiles: prepared.map(b => b.path)
+        });
+      });
+    });
 }
