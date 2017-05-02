@@ -1,6 +1,6 @@
 'use strict';
 
-var fs = require('fs');
+var fs = require('mz/fs');
 var mark = require('markup-js');
 var detab = require('detab');
 var path = require('path');
@@ -8,10 +8,10 @@ var getDirName = path.dirname;
 var join = path.join;
 var deepAssign = require('deep-extend');
 var checkdir = require('checkdir');
-var Q = require('q');
-var mkdirp = Q.denodeify(require('mkdirp'));
-var readFile = Q.denodeify(fs.readFile);
-var writeFile = Q.denodeify(fs.writeFile);
+var thenify = require('thenify');
+var mkdirp = thenify(require('mkdirp'));
+var readFile = fs.readFile;
+var writeFile = fs.writeFile;
 var babelPolyfillPath = require.resolve('babel-polyfill/dist/polyfill.js');
 var normalizeCssPath = require.resolve('normalize.css/normalize.css');
 var babelRCPath = require.resolve('./templates/.babelrc');
@@ -140,7 +140,7 @@ function prepareFiles(options) {
     files.push(getFile(normalizeCssPath, join(options.styles.folder, 'normalize.css')));
   }
 
-  return Q.all(files);
+  return Promise.all(files);
 }
 
 /**
@@ -184,7 +184,7 @@ module.exports = function barnyard(projectDir, options) {
       var filePath = join(projectDir, file.path);
       return outputFile(filePath, file.data);
     });
-    return Q.all(outputFilesList);
+    return Promise.all(outputFilesList);
   }
 
   return prepareFiles(options).then(outputFiles);
@@ -196,7 +196,7 @@ module.exports.preflight = function (filePath, options) {
       if (!dirInfo.exists || typeof options !== 'object') return dirInfo;
       return prepareFiles(options).then(function (prepared) {
         return Object.assign(dirInfo, {
-          preparedFiles: prepared.map(b => b.path)
+          preparedFiles: prepared.map(info => info.path)
         });
       });
     });

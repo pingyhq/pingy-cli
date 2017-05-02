@@ -41,12 +41,12 @@
 
     }, {
       "name": "Babel",
-      "module": "babel",
-      "extension": "babel.js"
+      "module": "babel-preset-env",
+      "extension": "babel"
     }, {
       "name": "Bublé",
       "module": "buble",
-      "extension": "buble.js"
+      "extension": "buble"
     }, {
       "name": "LiveScript",
       "module": "livescript",
