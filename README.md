@@ -18,11 +18,11 @@ Usage: pingy [command]
 
 Commands:
 
-  init              Initialise a new or existing website
-  serve [options]   Serve local development version of website
-  export            Export website to a folder for distribution
-  -h, --help        output usage information
-  -V, --version     output the version number
+  init            Initialise a new or existing website
+  dev [options]   Serve local development version of website
+  export          Export website to a folder for distribution
+  -h, --help      output usage information
+  -V, --version   output the version number
 ```
 
 ### `init`
@@ -36,10 +36,10 @@ Pingy is zero-configuration but it does place a `.pingy.json` file in your websi
 
 *Coming soon: A non-interactive version of the init command*
 
-### `serve`
+### `dev`
 
 ```
-Usage: pingy serve [options]
+Usage: pingy dev [options]
 
 Serve local development version of website
 

@@ -37,7 +37,7 @@ program
   });
 
 program
-  .command('serve')
+  .command('dev')
   .description('Serve local development version of website')
   .option('-p, --port [port]', 'Use chosen port (otherwise random port will be used)')
   .option('-q, --no-open', "Don't automatically launch site in web browser")

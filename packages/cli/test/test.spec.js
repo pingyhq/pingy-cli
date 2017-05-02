@@ -18,7 +18,7 @@ describe('cli', function cli() {
       const output = data.stdout.toString();
       return expect.promise.all({
         commands: expect(output, 'to contain', 'Commands:'),
-        serve: expect(output, 'to contain', 'serve'),
+        dev: expect(output, 'to contain', 'dev'),
         export: expect(output, 'to contain', 'export'),
         init: expect(output, 'to contain', 'init'),
       });
@@ -70,7 +70,7 @@ describe('cli', function cli() {
   });
 
   it('should serve site', () => {
-    const promise = spawn('node', ['../../cli.js', 'serve', '--no-open'], {
+    const promise = spawn('node', ['../../cli.js', 'dev', '--no-open'], {
       cwd: './test/fixtures',
     });
     const { stdout } = promise.childProcess;
