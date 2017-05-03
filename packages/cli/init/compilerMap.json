@@ -4,25 +4,26 @@
       "name": "Jade",
       "module": "jade",
       "extension": "jade"
-    }, {
-      "name": "Markdown",
-      "module": "marked",
-      "extension": "md"
+    },
+    {
+      "name": "Pug",
+      "module": "pug",
+      "extension": "pug"
     }, {
       "name": "ejs",
       "module": "ejs",
       "extension": "ejs"
-    }, {
-      "name": "Handlebars",
-      "module": "handlebars",
-      "extension": "hbs"
     }
   ],
   "CSS": [
     {
-      "name": "Sass",
+      "name": "Sass (.scss)",
       "module": "node-sass",
       "extension": "scss"
+    }, {
+      "name": "Sass (.sass)",
+      "module": "node-sass",
+      "extension": "sass"
     }, {
       "name": "Less",
       "module": "less",
@@ -38,7 +39,6 @@
       "name": "CoffeeScript",
       "module": "coffee-script",
       "extension": "coffee"
-
     }, {
       "name": "Babel",
       "module": "babel-preset-env",
