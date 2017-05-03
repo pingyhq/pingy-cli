@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+{{if normalizeCss}}
+		<link rel="stylesheet" href="{{styles.folder}}/normalize.css">{{/if}}
+		<link rel="stylesheet" href="{{styles.folder}}/{{styles.file}}.css">
+	</head>
+	<body>
+		<h1>Hello world!</h1>
+		<p>We are ready to go.</p>
+{{if babelPolyfill}}
+		<script src="{{scripts.folder}}/polyfill.js"></script>{{/if}}
+		<script src="{{scripts.folder}}/{{scripts.file}}.js"></script>
+	</body>
+</html>

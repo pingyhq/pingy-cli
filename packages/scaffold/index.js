@@ -36,58 +36,80 @@ var defaults = {
   babelPolyfill: false,
   normalizeCss: false,
   whitespaceFormatting: 'tabs',
-}
+};
 
 var fileMap = {
   html: {
-    html: function(name) { return (name || defaults.html.file) + '.html' },
-    jade: function(name) { return (name || defaults.html.file) + '.jade' },
+    html(name) {
+      return `${name || defaults.html.file}.html`;
+    },
+    jade(name) {
+      return `${name || defaults.html.file}.jade`;
+    },
+    pug(name) {
+      return `${name || defaults.html.file}.pug`;
+    },
+    ejs(name) {
+      return `${name || defaults.html.file}.ejs`;
+    },
   },
   styles: {
-    css: function(name, dir) {
-      return join((dir || defaults.styles.folder), (name || defaults.styles.file) + '.css');
+    css(name, dir) {
+      return join(dir || defaults.styles.folder, `${name || defaults.styles.file}.css`);
     },
-    less: function(name, dir) {
-      return join((dir || defaults.styles.folder), (name || defaults.styles.file) + '.less');
+    less(name, dir) {
+      return join(dir || defaults.styles.folder, `${name || defaults.styles.file}.less`);
     },
-    sass: function(name, dir) {
-      return join((dir || defaults.styles.folder), (name || defaults.styles.file) + '.sass');
+    sass(name, dir) {
+      return join(dir || defaults.styles.folder, `${name || defaults.styles.file}.sass`);
     },
-    scss: function(name, dir) {
-      return join((dir || defaults.styles.folder), (name || defaults.styles.file) + '.scss');
+    scss(name, dir) {
+      return join(dir || defaults.styles.folder, `${name || defaults.styles.file}.scss`);
     },
-    styl: function(name, dir) {
-      return join((dir || defaults.styles.folder), (name || defaults.styles.file) + '.styl');
+    styl(name, dir) {
+      return join(dir || defaults.styles.folder, `${name || defaults.styles.file}.styl`);
     },
   },
   scripts: {
-    js: function(name, dir) {
-      return join((dir || defaults.scripts.folder), (name || defaults.scripts.file) + '.js')
+    js(name, dir) {
+      return join(dir || defaults.scripts.folder, `${name || defaults.scripts.file}.js`);
     },
-    babel: function(name, dir) {
-      return join((dir || defaults.scripts.folder), (name || defaults.scripts.file) + '.babel.js')
+    babel(name, dir) {
+      return join(dir || defaults.scripts.folder, `${name || defaults.scripts.file}.babel.js`);
     },
-    coffee: function(name, dir) {
-      return join((dir || defaults.scripts.folder), (name || defaults.scripts.file) + '.coffee')
+    buble(name, dir) {
+      return join(dir || defaults.scripts.folder, `${name || defaults.scripts.file}.buble.js`);
     },
-    ts: function(name, dir) {
-      return join((dir || defaults.scripts.folder), (name || defaults.scripts.file) + '.ts')
+    coffee(name, dir) {
+      return join(dir || defaults.scripts.folder, `${name || defaults.scripts.file}.coffee`);
+    },
+    ls(name, dir) {
+      return join(dir || defaults.scripts.folder, `${name || defaults.scripts.file}.ls`);
+    },
+    djs(name, dir) {
+      return join(dir || defaults.scripts.folder, `${name || defaults.scripts.file}.djs`);
+    },
+    ts(name, dir) {
+      return join(dir || defaults.scripts.folder, `${name || defaults.scripts.file}.ts`);
     },
   },
 };
 
 function prepareFiles(options) {
   function formatOutputObject(inputFile, outputFilename, requiresTemplating) {
-    return inputFile.then(function(data) {
+    return inputFile.then((data) => {
       if (requiresTemplating) {
         data = mark.up(data, options);
       }
-      if (typeof options.whitespaceFormatting === 'number' || !isNaN(options.whitespaceFormatting)) {
+      if (
+        typeof options.whitespaceFormatting === 'number' ||
+        !isNaN(options.whitespaceFormatting)
+      ) {
         data = detab(data, parseInt(options.whitespaceFormatting, 10));
       }
       return {
-        data: data,
-        path: outputFilename
+        data,
+        path: outputFilename,
       };
     });
   }
@@ -171,16 +193,12 @@ function prepareFiles(options) {
  */
 module.exports = function barnyard(projectDir, options) {
   function outputFile(path, data) {
-    return mkdirp(getDirName(path)).then(function() {
-      return writeFile(path, data).then(function() {
-        return path;
-      });
-    });
+    return mkdirp(getDirName(path)).then(() => writeFile(path, data).then(() => path));
   }
 
   function outputFiles(files) {
     // TODO: reject promise when `join` fails
-    var outputFilesList = files.map(function(file) {
+    var outputFilesList = files.map((file) => {
       var filePath = join(projectDir, file.path);
       return outputFile(filePath, file.data);
     });
@@ -191,13 +209,12 @@ module.exports = function barnyard(projectDir, options) {
 };
 
 module.exports.preflight = function (filePath, options) {
-  return checkdir(filePath, { ignoreDotFiles: true })
-    .then(function (dirInfo) {
-      if (!dirInfo.exists || typeof options !== 'object') return dirInfo;
-      return prepareFiles(options).then(function (prepared) {
-        return Object.assign(dirInfo, {
-          preparedFiles: prepared.map(info => info.path)
-        });
-      });
-    });
-}
+  return checkdir(filePath, { ignoreDotFiles: true }).then((dirInfo) => {
+    if (!dirInfo.exists || typeof options !== 'object') return dirInfo;
+    return prepareFiles(options).then(prepared =>
+      Object.assign(dirInfo, {
+        preparedFiles: prepared.map(info => info.path),
+      })
+    );
+  });
+};
