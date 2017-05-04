@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "lint": "jshint .",
-    "test": "npm run lint && mocha",
+    "test": "mocha",
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot",
-    "travis": "npm run lint && npm run coverage"
+    "travis": "npm run coverage"
   },
   "repository": {
     "type": "git",
@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/davej/baby-tolk",
   "dependencies": {
-    "accord": "^0.26.4",
+    "accord": "0.27.1",
     "app-module-path": "1.1.0",
     "clean-css": "^3.4.18",
     "html-minifier": "3.0.3",
