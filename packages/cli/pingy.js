@@ -1,13 +1,15 @@
 'use strict';
 
+const path = require('path');
 const connect = require('connect');
 const serveStatic = require('serve-static');
-const pingyMiddleware = require('@pingy/middleware');
 const instant = require('@pingy/instant');
 const enableDestroy = require('server-destroy');
-const pingyExport = require('@pingy/export');
 
 function serveSite(sitePath, port) {
+  global.babyTolkCompilerModulePath = path.join(sitePath, 'node_modules');
+  const pingyMiddleware = require('@pingy/middleware');
+
   const server = connect();
   enableDestroy(server);
 
@@ -31,7 +33,10 @@ function serveSite(sitePath, port) {
   };
 }
 
-const exportSite = pingyExport.bind(pingyExport);
+function exportSite(inputDir, outputDir, options) {
+  global.babyTolkCompilerModulePath = path.join(inputDir, 'node_modules');
+  return require('@pingy/export')(inputDir, outputDir, options);
+}
 
 module.exports = {
   serveSite,
