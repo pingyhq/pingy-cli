@@ -21,7 +21,7 @@ function updatePkgScripts(pkgJsonPath, answers) {
   const spinner = ora('Adding pingy scripts to package.json').start();
   try {
     const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-    pkgJson.scripts.start = 'pingy serve';
+    pkgJson.scripts.start = 'pingy dev';
     pkgJson.scripts.export = 'pingy export';
     fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJson));
     spinner.succeed('Pingy scripts added to package.json');
