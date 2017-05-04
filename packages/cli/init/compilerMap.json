@@ -41,7 +41,7 @@
       "extension": "coffee"
     }, {
       "name": "Babel",
-      "module": "babel-preset-env",
+      "module": ["babel-core", "babel-preset-env"],
       "extension": "babel"
     }, {
       "name": "Bublé",
