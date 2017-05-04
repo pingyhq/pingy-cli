@@ -8,7 +8,6 @@ var mime = require('mime');
 var urlLib = require('url');
 
 var helpers = {
-
   /**
    * Render a response
    * @param  {number}  statusCode     HTTP status code (e.g. 200)
@@ -29,7 +28,7 @@ var helpers = {
     } else {
       if (compiled.sourcemap) {
         // Add source map link to resonse header
-        rsp.setHeader('X-SourceMap', path.basename(pth) + '.map');
+        rsp.setHeader('X-SourceMap', `${path.basename(pth)}.map`);
       }
       body = compiled.result;
     }
@@ -37,7 +36,7 @@ var helpers = {
     if (typeof body === 'object') {
       body = JSON.stringify(body);
     }
-    rsp.setHeader('Content-Type', mimeType + (charset ? '; charset=' + charset : ''));
+    rsp.setHeader('Content-Type', mimeType + (charset ? `; charset=${charset}` : ''));
     rsp.setHeader('Content-Length', Buffer.byteLength(body, charset));
     rsp.end(body);
   },
@@ -61,14 +60,14 @@ var helpers = {
    */
   fixSourceMapLinks: function fixSourceMapLinks(mountPath, compiled) {
     if (compiled && compiled.sourcemap) {
-      compiled.sourcemap.sources = compiled.sourcemap.sources.map(function(source) {
+      compiled.sourcemap.sources = compiled.sourcemap.sources.map((source) => {
         var newSource;
         // HACK: This is because Babel gives us sources that are relative to the inputPath
         // TODO: Fix this upstream in Accord instead
         if (source.indexOf('/') === -1 && compiled.inputPath) {
-          newSource = path.join(path.dirname(compiled.inputPath), source)
+          newSource = path.join(path.dirname(compiled.inputPath), source);
         }
-        return '/' + path.relative(mountPath, newSource || source);
+        return `/${path.relative(mountPath, newSource || source)}`;
       });
     }
     return compiled;
@@ -83,7 +82,9 @@ var helpers = {
    * @return {string}           Full path to compiled file
    */
   getFullPath: function getFullPath(mountPath, url) {
-    if (url.indexOf('://')) { url = urlLib.parse(url).pathname; }
+    if (url.indexOf('://')) {
+      url = urlLib.parse(url).pathname;
+    }
     var base = unescape(url.split('?')[0]);
     var fullPath = path.join(mountPath, base);
 
@@ -121,9 +122,7 @@ var helpers = {
     var compiledExtension = path.extname(compiledFile);
     var targetExtensions = babyTolk.sourceExtensionMap[compiledExtension] || [];
 
-    return targetExtensions.map(function(extension) {
-      return compiledFile.replace(compiledExtension, extension);
-    });
+    return targetExtensions.map(extension => compiledFile.replace(compiledExtension, extension));
   },
 
   /**
@@ -134,28 +133,25 @@ var helpers = {
   findSourceFile: function findSourceFile(compiledFile, babyTolk) {
     var dir = path.dirname(compiledFile);
     var potentialSourceFiles = this.listPotentialSourceFiles(compiledFile, babyTolk);
-
     if (!potentialSourceFiles.length) {
       // Exit early instead of doing pointless IO
       return when.reject(null);
     }
 
-    return fs.readdir(dir).then(function(files) {
-      // Find the first source file match in dir
-      var sourceFile = files.map(function(file) {
-        // Give files their full path
-        return path.join(dir, file);
-      }).find(function(file) {
-        return potentialSourceFiles.find(function(potentialSource) {
-          return potentialSource === file;
-        });
-      });
-      return sourceFile || when.reject(null);
-    }, function() {
-      return when.reject(null);
-    });
-  }
-
+    return fs.readdir(dir).then(
+      (files) => {
+        // Find the first source file match in dir
+        var sourceFile = files
+          .map(file =>
+            // Give files their full path
+            path.join(dir, file)
+          )
+          .find(file => potentialSourceFiles.find(potentialSource => potentialSource === file));
+        return sourceFile || when.reject(null);
+      },
+      () => when.reject(null)
+    );
+  },
 };
 
 module.exports = helpers;

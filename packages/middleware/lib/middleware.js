@@ -31,16 +31,16 @@ module.exports = function piggy(mountPath) {
     };
 
     var sourcePath;
-    var setSourcePath = function(sp) {
+    var setSourcePath = function (sp) {
       sourcePath = sp;
       return sp;
     };
 
-    var fixSourceMapLinks = function(compiled) {
+    var fixSourceMapLinks = function (compiled) {
       return helpers.fixSourceMapLinks(mountPath, compiled);
     };
 
-    var forwardCompilationError = function(err) {
+    var forwardCompilationError = function (err) {
       if (err && err.toString) {
         var ext = path.extname(compiledPath);
         err = err.toString();
@@ -49,11 +49,12 @@ module.exports = function piggy(mountPath) {
         } else if (ext === '.js') {
           err = jserror(err);
         }
-        return helpers.render(200, fullPath, {result: err}, false, rsp);
+        return helpers.render(200, fullPath, { result: err }, false, rsp);
       }
     };
 
-    return helpers.findSourceFile(fullCompiledPath, babyTolk)
+    return helpers
+      .findSourceFile(fullCompiledPath, babyTolk)
       .then(setSourcePath)
       .then(babyTolk.read) // Compile source file using babyTolk
       .then(fixSourceMapLinks, forwardCompilationError)
@@ -63,7 +64,7 @@ module.exports = function piggy(mountPath) {
   middleware.reload = function reload() {
     babyTolk.reload();
     cache.delAll();
-  }
+  };
   middleware.events = eventEmitter;
 
   return middleware;
