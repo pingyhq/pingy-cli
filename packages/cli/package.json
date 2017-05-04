@@ -1,6 +1,6 @@
 {
   "name": "@pingy/cli",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "",
   "main": "index.js",
   "dependencies": {
