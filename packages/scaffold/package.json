@@ -1,6 +1,6 @@
 {
   "name": "@pingy/scaffold",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Bootstrap/Scaffold a project for use with Piggy in the Middle and Baconize",
   "main": "index.js",
   "scripts": {

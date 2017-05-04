@@ -1,6 +1,6 @@
 {
   "name": "@pingy/compile",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "A file reader that promises to translate non-web assets to web assets given the available transpilers, sourcemaps and all",
   "main": "lib/baby-tolk.js",
   "files": [

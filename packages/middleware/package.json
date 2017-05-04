@@ -1,6 +1,6 @@
 {
   "name": "@pingy/middleware",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
   "main": "lib/middleware.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "url": "https://github.com/davej/piggy-in-the-middle.git"
   },
   "dependencies": {
-    "@pingy/compile": "^6.0.0",
+    "@pingy/compile": "^6.1.0",
     "chokidar": "^1.6.0",
     "csserror": "^2.0.2",
     "jserror": "^1.0.0",
