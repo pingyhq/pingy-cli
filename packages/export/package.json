@@ -7,6 +7,8 @@
     "test": "mocha --timeout 15000",
     "example": "node examples/compile-site.js"
   },
+  "engines" : { "node" : ">=6" },
+  "engineStrict" : true,
   "keywords": [
     "compile",
     "transpile",

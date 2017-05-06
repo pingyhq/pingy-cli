@@ -36,6 +36,8 @@
   "scripts": {
     "test": "mocha"
   },
+  "engines" : { "node" : ">=6" },
+  "engineStrict" : true,
   "bin": {
     "pingy": "./cli.js"
   },

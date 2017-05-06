@@ -7,6 +7,8 @@
     "test": "mocha",
     "example": "node examples/basic-connect-server.js"
   },
+  "engines" : { "node" : ">=6" },
+  "engineStrict" : true,
   "author": "Dave Jeffery <dave@davejeffery.com>",
   "license": "MIT",
   "bugs": {

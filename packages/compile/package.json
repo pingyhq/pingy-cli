@@ -12,6 +12,8 @@
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot",
     "travis": "npm run coverage"
   },
+  "engines" : { "node" : ">=6" },
+  "engineStrict" : true,
   "repository": {
     "type": "git",
     "url": "https://github.com/davej/baby-tolk.git"
