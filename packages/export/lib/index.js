@@ -37,13 +37,20 @@ var addSrcExtension = function (filePath) {
   return replaceExtension(filePath, `.src${ext}`);
 };
 
-var useExclusionsApi = function (options) {
-  options.directoryFilter = options.exclusions
+var useExclusionsApi = function (options, outputDir) {
+  const excludeDirs = options.exclusions
     .filter(excl => excl.action === 'exclude' && excl.type === 'dir')
-    .map(excl => `!${excl.path}`);
+    .map(excl => excl.path);
+
+  options.directoryFilter = (entry) => {
+    if (entry.name[0] === '.') return false;
+    if (entry.fullPath === outputDir) return false;
+    return !mm([entry.path], excludeDirs).length;
+  };
   options.fileFilter = options.exclusions
     .filter(excl => excl.action === 'exclude' && excl.type === 'file')
-    .map(excl => `!${excl.path}`);
+    .map(excl => `!${excl.path}`)
+    .concat('!**/.*');
 
   options.blacklist = options.exclusions
     .filter(excl => excl.action === 'dontCompile' && excl.type === 'dir')
@@ -91,7 +98,7 @@ module.exports = function (inputDir, outputDir, options) {
   };
 
   if (options.exclusions) {
-    useExclusionsApi(options);
+    useExclusionsApi(options, outputDir);
   }
 
   var readAndValidateShas = function () {

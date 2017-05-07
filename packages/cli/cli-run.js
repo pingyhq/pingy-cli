@@ -49,7 +49,6 @@ function run() {
       const jsonPort = pingyJson.json.port;
       const customPort = Number(options.port || jsonPort);
       const port = customPort || null;
-      console.log(port, options.port, pingyJson);
       getPort(port).then((freePort) => {
         if (typeof port === 'number' && port !== freePort) {
           console.log(
@@ -72,14 +71,7 @@ function run() {
       const inputDir = pingyJson.dir;
       const outputDir = path.join(inputDir, pingyJson.json.exportDir);
 
-      const exclusions = [
-        ...pingyJson.json.exclusions,
-        {
-          path: pingyJson.json.exportDir,
-          action: 'exclude',
-          type: 'dir',
-        }
-      ];
+      const exclusions = pingyJson.json.exclusions;
 
       const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();
       const exporting = pingy.exportSite(inputDir, outputDir, { exclusions });
