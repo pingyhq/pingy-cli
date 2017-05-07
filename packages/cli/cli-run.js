@@ -79,6 +79,9 @@ function run() {
       exporting.then(
         () => {
           exportingSpinner.succeed();
+          setTimeout(() => {
+            process.exit(0);
+          }, 10);
         },
         (err) => {
           exportingSpinner.fail(`Failed export to ${chalk.bold(outputDir)}`);
