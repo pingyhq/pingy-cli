@@ -1,6 +1,6 @@
 {
   "name": "@pingy/export",
-  "version": "3.1.1",
+  "version": "4.0.0",
   "description": "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
   "main": "lib/index.js",
   "scripts": {
