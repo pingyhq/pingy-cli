@@ -9,10 +9,11 @@ const getPort = require('get-port');
 const ora = require('ora');
 const chalk = require('chalk');
 const opn = require('opn');
+const { inspect } = require('util');
 const pkgJson = require('./package');
 const pingy = require('./pingy');
 const init = require('./init');
-const getPingyJson = require('./getPingyJson');
+const { getPingyJson, setPingyJson } = require('./pingyJson');
 
 function run() {
   logo('Pingy');
@@ -43,18 +44,22 @@ function run() {
     .option('-p, --port [port]', 'Use chosen port (otherwise random port will be used)')
     .option('-q, --no-open', "Don't automatically launch site in web browser")
     .action((options) => {
-      const port = Number(options.port) || null;
-      return getPort(port).then((freePort) => {
-        const pingyJson = getPingyJson();
-        if (!pingyJson) return;
+      const pingyJson = getPingyJson();
+      if (!pingyJson) return;
+      const jsonPort = pingyJson.json.port;
+      const customPort = Number(options.port || jsonPort);
+      const port = customPort || null;
+      console.log(port, options.port, pingyJson);
+      getPort(port).then((freePort) => {
         if (typeof port === 'number' && port !== freePort) {
           console.log(
             chalk.red.bold(`Port ${port} is not available, using random port ${freePort} instead\n`)
           );
         }
-        const { url } = pingy.serveSite(pingyJson.path, freePort);
+        const { url } = pingy.serveSite(pingyJson.dir, freePort);
         console.log(`Serving at ${url}`);
         if (options.open) opn(url);
+        if (jsonPort !== freePort) setPingyJson({ port: freePort });
       });
     });
 
@@ -64,7 +69,7 @@ function run() {
     .action(() => {
       const pingyJson = getPingyJson();
       if (!pingyJson) return;
-      const inputDir = pingyJson.path;
+      const inputDir = pingyJson.dir;
       const outputDir = path.join(inputDir, pingyJson.json.exportDir);
 
       const exclusions = [
@@ -76,13 +81,21 @@ function run() {
         }
       ];
 
-      const exportingSpinner = ora(
-        `${pingyJson.json.name} exported to ${chalk.bold(outputDir)}`
-      ).start();
+      const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();
       const exporting = pingy.exportSite(inputDir, outputDir, { exclusions });
-      exporting.then(() => {
-        exportingSpinner.succeed();
-      });
+
+      exporting.then(
+        () => {
+          exportingSpinner.succeed();
+        },
+        (err) => {
+          exportingSpinner.fail(`Failed export to ${chalk.bold(outputDir)}`);
+          console.log(inspect(err));
+          setTimeout(() => {
+            process.exit(1);
+          }, 10);
+        }
+      );
       const spinners = {};
       exporting.events.on('compile-start', (file) => {
         spinners[file.path] = ora(`Compiling ${file.name}`).start();

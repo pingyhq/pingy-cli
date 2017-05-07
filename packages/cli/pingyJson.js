@@ -7,7 +7,6 @@ const findUp = require('find-up');
 
 function getPingyJson() {
   const jsonPath = findUp.sync(['.pingy.json', '.pingy']);
-
   if (!jsonPath) {
     console.log(
       chalk.red(
@@ -19,7 +18,8 @@ function getPingyJson() {
   try {
     const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
     return {
-      path: path.dirname(jsonPath),
+      dir: path.dirname(jsonPath),
+      path: jsonPath,
       json,
     };
   } catch (e) {
@@ -29,4 +29,14 @@ function getPingyJson() {
   return false;
 }
 
-module.exports = getPingyJson;
+function setPingyJson(obj) {
+  const pingyJson = getPingyJson();
+  if (!pingyJson) return;
+  const newPingyJson = Object.assign({}, pingyJson.json, obj);
+  fs.writeFileSync(pingyJson.path, JSON.stringify(newPingyJson, null, '\t'), 'utf8');
+}
+
+module.exports = {
+  getPingyJson,
+  setPingyJson,
+};
