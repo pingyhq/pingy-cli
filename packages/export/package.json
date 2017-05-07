@@ -1,14 +1,16 @@
 {
   "name": "@pingy/export",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha --timeout 15000",
     "example": "node examples/compile-site.js"
   },
-  "engines" : { "node" : ">=6" },
-  "engineStrict" : true,
+  "engines": {
+    "node": ">=6"
+  },
+  "engineStrict": true,
   "keywords": [
     "compile",
     "transpile",
@@ -30,7 +32,7 @@
     "url": "https://github.com/davej/baconize.git"
   },
   "dependencies": {
-    "@pingy/compile": "^6.1.0",
+    "@pingy/compile": "^6.1.1",
     "checkdir": "^1.0.0",
     "micromatch": "^2.3.11",
     "mkdirp": "^0.5.1",

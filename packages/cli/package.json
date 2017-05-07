@@ -1,13 +1,13 @@
 {
   "name": "@pingy/cli",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@pingy/export": "^3.1.0",
+    "@pingy/export": "^3.1.1",
     "@pingy/instant": "^3.0.0",
-    "@pingy/middleware": "^3.1.0",
-    "@pingy/scaffold": "^5.1.0",
+    "@pingy/middleware": "^3.1.1",
+    "@pingy/scaffold": "^5.2.0",
     "archy": "^1.0.0",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
@@ -36,8 +36,10 @@
   "scripts": {
     "test": "mocha"
   },
-  "engines" : { "node" : ">=6" },
-  "engineStrict" : true,
+  "engines": {
+    "node": ">=6"
+  },
+  "engineStrict": true,
   "bin": {
     "pingy": "./cli.js"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@pingy/scaffold",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "Bootstrap/Scaffold a project for use with Piggy in the Middle and Baconize",
   "main": "index.js",
   "scripts": {
@@ -8,8 +8,10 @@
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "travis": "npm run coverage"
   },
-  "engines" : { "node" : ">=6" },
-  "engineStrict" : true,
+  "engines": {
+    "node": ">=6"
+  },
+  "engineStrict": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/davej/barnyard.git"

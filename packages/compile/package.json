@@ -1,6 +1,6 @@
 {
   "name": "@pingy/compile",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "A file reader that promises to translate non-web assets to web assets given the available transpilers, sourcemaps and all",
   "main": "lib/baby-tolk.js",
   "files": [
@@ -12,8 +12,10 @@
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot",
     "travis": "npm run coverage"
   },
-  "engines" : { "node" : ">=6" },
-  "engineStrict" : true,
+  "engines": {
+    "node": ">=6"
+  },
+  "engineStrict": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/davej/baby-tolk.git"

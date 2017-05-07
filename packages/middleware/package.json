@@ -1,14 +1,16 @@
 {
   "name": "@pingy/middleware",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
   "main": "lib/middleware.js",
   "scripts": {
     "test": "mocha",
     "example": "node examples/basic-connect-server.js"
   },
-  "engines" : { "node" : ">=6" },
-  "engineStrict" : true,
+  "engines": {
+    "node": ">=6"
+  },
+  "engineStrict": true,
   "author": "Dave Jeffery <dave@davejeffery.com>",
   "license": "MIT",
   "bugs": {
@@ -20,7 +22,7 @@
     "url": "https://github.com/davej/piggy-in-the-middle.git"
   },
   "dependencies": {
-    "@pingy/compile": "^6.1.0",
+    "@pingy/compile": "^6.1.1",
     "chokidar": "^1.6.0",
     "csserror": "^2.0.2",
     "jserror": "^1.0.0",
