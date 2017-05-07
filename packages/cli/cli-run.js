@@ -74,7 +74,7 @@ function run() {
       const exclusions = pingyJson.json.exclusions;
 
       const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();
-      const exporting = pingy.exportSite(inputDir, outputDir, { exclusions });
+      const exporting = pingy.exportSite(inputDir, outputDir, { exclusions, minify: true });
 
       exporting.then(
         () => {
