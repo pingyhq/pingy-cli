@@ -32,7 +32,8 @@ function installDeps(depsObj) {
     ])
     .then(({ doDepInstall }) => {
       if (doDepInstall) {
-        const npmInstall = spawn('npm', ['install', '--save-dev', ...deps], {
+        const npmCmd = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
+        const npmInstall = spawn(npmCmd, ['install', '--save-dev', ...deps], {
           stdio: 'inherit',
         });
         npmInstall.on('exit', (code) => {
