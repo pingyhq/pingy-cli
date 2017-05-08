@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/davej/baby-tolk",
   "dependencies": {
-    "accord": "0.27.1",
+    "accord": "0.27.3",
     "app-module-path": "1.1.0",
     "clean-css": "^3.4.18",
     "html-minifier": "3.0.3",
