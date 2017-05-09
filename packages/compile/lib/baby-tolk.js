@@ -30,6 +30,7 @@ var adapters = [
   'scss',
   'stylus',
   'swig',
+  'typescript',
   'jade'
 ];
 
