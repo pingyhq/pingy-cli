@@ -55,10 +55,14 @@ function run() {
             chalk.red.bold(`Port ${port} is not available, using random port ${freePort} instead\n`)
           );
         }
-        const { url } = pingy.serveSite(pingyJson.dir, freePort);
+        const serveOptions = { port: freePort };
+        const { url } = pingy.serveSite(
+          pingyJson.dir,
+          Object.assign({}, pingyJson.json, serveOptions)
+        );
         console.log(`Serving at ${url}`);
         if (options.open) opn(url);
-        if (jsonPort !== freePort) setPingyJson({ port: freePort });
+        if (jsonPort !== freePort) setPingyJson(serveOptions);
       });
     });
 
@@ -74,7 +78,11 @@ function run() {
       const exclusions = pingyJson.json.exclusions;
 
       const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();
-      const exporting = pingy.exportSite(inputDir, outputDir, { exclusions, minify: true });
+      const exporting = pingy.exportSite(
+        inputDir,
+        outputDir,
+        Object.assign({}, { minify: true }, pingyJson.json)
+      );
 
       exporting.then(
         () => {
