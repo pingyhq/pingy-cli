@@ -8,9 +8,9 @@ var htmlMinify = require('html-minifier').minify;
 // TODO: A lot of funky stuff goes on when normailizing the sourcemaps after
 // minification. This should be documented.
 
-var css = function(compiled) {
+var css = function (compiled) {
   var options = {
-    sourceMap: compiled.sourcemap ? JSON.stringify(compiled.sourcemap) : true
+    sourceMap: compiled.sourcemap ? JSON.stringify(compiled.sourcemap) : true,
   };
   var compiledFile;
   if (compiled.sourcemap) {
@@ -28,11 +28,11 @@ var css = function(compiled) {
   return compiled;
 };
 
-var js = function(compiled) {
+var js = function (compiled) {
   var options = {
     fromString: true,
-    outSourceMap: compiled.inputPath + '.map',
-    filename: compiled.inputPath
+    outSourceMap: `${compiled.inputPath}.map`,
+    filename: compiled.inputPath,
   };
   if (compiled.sourcemap) {
     options.inSourceMap = compiled.sourcemap;
@@ -57,7 +57,7 @@ var js = function(compiled) {
     var nFileName = path.basename(compiled.sourcemap.file, '.map');
     var ext = path.extname(nFileName);
     if (ext !== '.js') {
-      nFileName = path.basename(nFileName, ext) + '.js';
+      nFileName = `${path.basename(nFileName, ext)}.js`;
     }
     compiled.sourcemap.file = nFileName;
   }
@@ -65,11 +65,11 @@ var js = function(compiled) {
   return compiled;
 };
 
-var html = function(compiled) {
+var html = function (compiled) {
   var options = {
     removeComments: true,
     collapseWhitespace: true,
-    removeEmptyAttributes: true
+    removeEmptyAttributes: true,
   };
   compiled.result = htmlMinify(compiled.result, options);
   return compiled;
@@ -80,23 +80,23 @@ var htmlExtentions = ['.html', '.htm'];
 var jsExtentions = ['.js'];
 var allExtentions = cssExtentions.concat(htmlExtentions).concat(jsExtentions);
 
-var isCss = function(extension) {
+var isCss = function (extension) {
   return cssExtentions.indexOf(extension) > -1;
 };
 
-var isHtml = function(extension) {
+var isHtml = function (extension) {
   return htmlExtentions.indexOf(extension) > -1;
 };
 
-var isJs = function(extension) {
+var isJs = function (extension) {
   return jsExtentions.indexOf(extension) > -1;
 };
 
-var isMinifiable = function(extension) {
+var isMinifiable = function (extension) {
   return allExtentions.indexOf(extension) > -1;
 };
 
-module.exports = function(compiled, options) {
+module.exports = function (compiled, options) {
   options = options || {};
   if (isCss(compiled.extension)) {
     compiled = css(compiled);
