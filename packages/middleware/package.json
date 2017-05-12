@@ -44,8 +44,8 @@
     "sinon": "^1.17.4",
     "stylus": "^0.54.5",
     "unexpected": "^10.13.3",
-    "unexpected-express": "^8.2.0",
-    "unexpected-messy": "^6.1.1",
+    "unexpected-express": "^9.0.0",
+    "unexpected-messy": "^7.0.0",
     "unexpected-sinon": "^10.2.1"
   }
 }
