@@ -239,11 +239,12 @@ module.exports = {
           inputSha = inputSha.concat(
             shaSources
               .map((path) => {
-                if (Path.normalize(path) === Path.normalize(pathName)) {
+                const normPath = Path.normalize(path);
+                if (normPath === Path.normalize(pathName)) {
                   return null;
                 }
                 return fsp.readFile(path, 'utf8').then(content => ({
-                  file: Path.normalize(path),
+                  file: normPath,
                   sha: createHash(content),
                 }));
               })
@@ -258,6 +259,9 @@ module.exports = {
       return compiled;
     });
 
-    return continuation;
+    return continuation.catch((err) => {
+      if (err && err.file) err.file = Path.normalize(err.file);
+      throw err;
+    });
   },
 };
