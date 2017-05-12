@@ -36,7 +36,7 @@
   "devDependencies": {
     "coveralls": "^2.11.12",
     "istanbul": "^0.4.4",
-    "mocha": "^2.5.3",
+    "mocha": "^3.3.0",
     "mocha-lcov-reporter": "^1.0.0",
     "rimraf": "^2.5.4",
     "unexpected": "^10.15.0"

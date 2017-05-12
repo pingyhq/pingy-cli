@@ -29,9 +29,9 @@
     "tamper": "^0.1.0"
   },
   "devDependencies": {
+    "browserify": "^9.0.3",
+    "mocha": "^3.3.0",
     "should": "^5.2.0",
-    "supertest": "^0.15.0",
-    "mocha": "^2.2.1",
-    "browserify": "^9.0.3"
+    "supertest": "^0.15.0"
   }
 }
