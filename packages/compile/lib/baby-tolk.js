@@ -239,11 +239,11 @@ module.exports = {
           inputSha = inputSha.concat(
             shaSources
               .map((path) => {
-                if (path === pathName) {
+                if (Path.normalize(path) === Path.normalize(pathName)) {
                   return null;
                 }
                 return fsp.readFile(path, 'utf8').then(content => ({
-                  file: path,
+                  file: Path.normalize(path),
                   sha: createHash(content),
                 }));
               })
