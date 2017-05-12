@@ -3,7 +3,8 @@
 var Path = require('path');
 var when = require('when');
 var node = require('when/node');
-var fs = node.liftAll(require('fs'));
+var fs = require('fs');
+var fsp = node.liftAll(fs);
 var accord = require('accord');
 var pathCompleteExtname = require('path-complete-extname');
 var crypto = require('crypto');
@@ -164,7 +165,7 @@ module.exports = {
     var extension = pathCompleteExtname(pathName);
     var adapter = !dontCompile(pathName) && getAdapter(extension);
 
-    var sourceFile = fs.readFile(pathName, 'utf8');
+    var sourceFile = fsp.readFile(pathName, 'utf8');
     var sourceFileContents = null;
 
     var continuation = sourceFile.then((result) => {
@@ -186,8 +187,17 @@ module.exports = {
         if (extension === '.sass') transpilerOptions.indentedSyntax = true;
       }
 
+      var manuallyTrackedSourceFiles = [];
+      if (adapter.engineName === 'ejs') {
+        adapter.engine.fileLoader = (filePath) => {
+          manuallyTrackedSourceFiles.push(filePath);
+          return fs.readFileSync(filePath);
+        };
+      }
+
       continuation = continuation.then(source =>
         adapter.render(source.result, transpilerOptions).then((compiled) => {
+          compiled.manuallyTrackedSourceFiles = manuallyTrackedSourceFiles;
           compiled.extension = `.${adapter.output}`;
           compiled.inputPath = pathName;
           if (options.inputSha) {
@@ -219,14 +229,20 @@ module.exports = {
             sha: createHash(sourceFileContents),
           }
         ];
+        var shaSources;
         if (compiled.sourcemap) {
+          shaSources = compiled.sourcemap.sources;
+        } else if (compiled.manuallyTrackedSourceFiles) {
+          shaSources = compiled.manuallyTrackedSourceFiles;
+        }
+        if (compiled.sourcemap || compiled.manuallyTrackedSourceFiles) {
           inputSha = inputSha.concat(
-            compiled.sourcemap.sources
+            shaSources
               .map((path) => {
                 if (path === pathName) {
                   return null;
                 }
-                return fs.readFile(path, 'utf8').then(content => ({
+                return fsp.readFile(path, 'utf8').then(content => ({
                   file: path,
                   sha: createHash(content),
                 }));
