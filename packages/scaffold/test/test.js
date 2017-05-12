@@ -356,15 +356,10 @@ describe('barnyard', () => {
       before(() => readFile(filePath, 'utf8').then(data => (fileContents = data)));
 
       it('should reference scripts and styles', () =>
-        expect(fileContents, 'to contain', Path.join('css/styles.css'), Path.join('js/app.js')));
+        expect(fileContents, 'to contain', 'css/styles.css', 'js/app.js'));
 
       it('should reference babel polyfill or normalize', () =>
-        expect(
-          fileContents,
-          'to contain',
-          Path.join('js/polyfill.js'),
-          Path.join('css/normalize.css')
-        ));
+        expect(fileContents, 'to contain', 'js/polyfill.js', 'css/normalize.css'));
     });
 
     describe('asset files', () => {
