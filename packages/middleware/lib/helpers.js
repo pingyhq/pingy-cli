@@ -67,7 +67,11 @@ var helpers = {
         if (source.indexOf('/') === -1 && compiled.inputPath) {
           newSource = path.join(path.dirname(compiled.inputPath), source);
         }
-        return `/${path.relative(mountPath, newSource || source)}`;
+        var sourceMapPath = `/${path.relative(mountPath, newSource || source)}`;
+        if (process.platform === 'win32') {
+          sourceMapPath = sourceMapPath.replace('\\', '/');
+        }
+        return sourceMapPath;
       });
     }
     return compiled;
