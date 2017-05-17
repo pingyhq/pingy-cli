@@ -3,7 +3,7 @@
 var when = require('when');
 var node = require('when/node');
 var fs = node.liftAll(require('fs'));
-var path = require('path');
+var path = require('upath');
 var mime = require('mime');
 var urlLib = require('url');
 
