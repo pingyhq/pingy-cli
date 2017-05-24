@@ -5,7 +5,7 @@ const spawn = require('child_process').spawn;
 function npmInit(quietMode) {
   return new Promise((resolve, reject) => {
     const npmCmd = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
-    const subcommand = ['init'];
+    const subcommand = ['init', '--yes'];
     if (quietMode) subcommand.push('--quiet');
     const cmd = spawn(npmCmd, subcommand, { stdio: 'inherit' });
     cmd.on('exit', (code) => {
