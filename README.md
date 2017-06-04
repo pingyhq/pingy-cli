@@ -52,7 +52,7 @@ Options:
 
 Will create a local development server and open the site in your default web browser. Automatically supports live browser reload, compilation/transpilation (with smart caching) and sourcemaps without any configuration.
 
-*Note: If you created your project with `pingy init`, then Pingy will try to add a `run` script (if it doesn't already exist) to your `package.json`. In this case, you can run `npm start`, instead of `pingy init`.*
+*Note: If you created your project with `pingy init`, then Pingy will try to add a `run` script (if it doesn't already exist) to your `package.json`. In this case, you can run `npm start`, instead of `pingy dev`.*
 
 
 ### `export`
