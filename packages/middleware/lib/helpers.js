@@ -69,6 +69,7 @@ var helpers = {
         }
         var sourceMapPath = `/${path.relative(mountPath, newSource || source)}`;
         if (process.platform === 'win32') {
+          // Convert to forward-slash because these are url paths not win32 file paths
           sourceMapPath = sourceMapPath.replace('\\', '/');
         }
         return sourceMapPath;
