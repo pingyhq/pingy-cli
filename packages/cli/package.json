@@ -14,13 +14,13 @@
     "connect": "^3.6.0",
     "find-up": "^2.1.0",
     "get-port": "^3.1.0",
-    "inquirer": "^3.0.6",
-    "opn": "^4.0.2",
+    "inquirer": "^3.1.0",
+    "opn": "^5.1.0",
     "ora": "^1.2.0",
     "semver": "^5.3.0",
     "serve-static": "^1.12.1",
     "server-destroy": "^1.0.1",
-    "turbo-logo": "^0.3.1",
+    "turbo-logo": "^0.4.1",
     "valid-filename": "^2.0.1"
   },
   "devDependencies": {

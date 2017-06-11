@@ -39,7 +39,7 @@
     "magicpen-media": "^1.5.1",
     "messy": "^6.10.0",
     "mocha": "^3.3.0",
-    "node-sass": "^3.13.1",
+    "node-sass": "^4.5.3",
     "serve-static": "^1.11.1",
     "sinon": "^1.17.4",
     "stylus": "^0.54.5",
