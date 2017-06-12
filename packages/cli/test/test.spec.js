@@ -90,12 +90,13 @@ describe('cli', function cli() {
       .then(body => expect(body, 'to contain', '/instant/client/bundle.js'));
   });
 
-  it('should export site', () => {
+  describe('export', () => {
     const distDir = path.join(__dirname, 'fixtures', 'dist');
     const scriptsDir = path.join(__dirname, 'fixtures', 'scripts');
     const stylesDir = path.join(__dirname, 'fixtures', 'styles');
     const indexPath = path.join(__dirname, 'fixtures', 'index.html');
     const shas = path.join(distDir, '.shas.json');
+    const distIndexPath = path.join(distDir, 'index.html');
 
     after((done) => {
       fs.unlinkSync(pingyJsonPath);
@@ -103,20 +104,46 @@ describe('cli', function cli() {
       rimraf(distDir, () => rimraf(scriptsDir, () => rimraf(stylesDir, done)));
     });
 
-    const promise = spawn('node', ['../../cli.js', 'export'], {
-      cwd: './test/fixtures',
-    });
-
-    const hasExportedSite = () =>
-      new Promise((resolve) => {
-        promise.childProcess.on('exit', resolve);
+    it('should export site', () => {
+      const promise = spawn('node', ['../../cli.js', 'export'], {
+        cwd: './test/fixtures',
       });
 
-    return hasExportedSite().then(() =>
-      expect.promise.all({
-        dir: expect(fs.existsSync(distDir), 'to be true'),
-        shas: expect(fs.existsSync(shas), 'to be true'),
-      })
-    );
+      const hasExportedSite = () =>
+        new Promise((resolve) => {
+          promise.childProcess.on('exit', resolve);
+        });
+
+      return hasExportedSite().then(() =>
+        expect.promise.all({
+          dir: expect(fs.existsSync(distDir), 'to be true'),
+          shas: expect(fs.existsSync(shas), 'to be true'),
+          index: expect(fs.readFileSync(distIndexPath, 'utf8'), 'to contain', '<body><h1>Hello'),
+        })
+      );
+    });
+
+    it('should export site (unminified)', () => {
+      const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
+      const newPingyContent = pingyContent.replace('"minify": true,', '"minify": false,');
+      fs.writeFileSync(pingyJsonPath, newPingyContent);
+
+      const promise = spawn('node', ['../../cli.js', 'export'], {
+        cwd: './test/fixtures',
+      });
+
+      const hasExportedSite = () =>
+        new Promise((resolve) => {
+          promise.childProcess.on('exit', resolve);
+        });
+
+      return hasExportedSite().then(() =>
+        expect.promise.all({
+          dir: expect(fs.existsSync(distDir), 'to be true'),
+          shas: expect(fs.existsSync(shas), 'to be true'),
+          index: expect(fs.readFileSync(distIndexPath, 'utf8'), 'to contain', '<body>\n'),
+        })
+      );
+    });
   });
 });
