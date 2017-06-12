@@ -32,17 +32,17 @@ describe('cli', function cli() {
       cwd: './test/fixtures',
     });
     const { stdout, stdin } = promise.childProcess;
-    let onData = () => null;
-    stdout.on('data', data => onData(data));
 
     const nextStep = (matchString, write = '\n') =>
       new Promise((resolve) => {
-        onData = (data) => {
+        const onData = (data) => {
           if (data.toString().includes(matchString)) {
+            stdout.removeListener('data', onData);
             resolve();
             stdin.write(write);
           }
         };
+        stdout.on('data', onData);
       });
 
     nextStep('\n', '? ')
