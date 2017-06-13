@@ -1,6 +1,6 @@
 {
   "name": "@pingy/compile",
-  "version": "6.1.4",
+  "version": "6.1.5",
   "description": "A file reader that promises to translate non-web assets to web assets given the available transpilers, sourcemaps and all",
   "main": "lib/baby-tolk.js",
   "files": [
@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/davej/baby-tolk",
   "dependencies": {
-    "@pingy/accord": "0.27.3",
+    "@pingy/accord": "^0.28.0",
     "app-module-path": "1.1.0",
     "clean-css": "^3.4.18",
     "html-minifier": "3.0.3",
