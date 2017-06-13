@@ -5,7 +5,7 @@ var when = require('when');
 var node = require('when/node');
 var fs = require('fs');
 var fsp = node.liftAll(fs);
-var accord = require('accord');
+var accord = require('@pingy/accord');
 var pathCompleteExtname = require('path-complete-extname');
 var crypto = require('crypto');
 var minify = require('./minify');
@@ -197,7 +197,7 @@ module.exports = {
 
       continuation = continuation.then(source =>
         adapter.render(source.result, transpilerOptions).then((compiled) => {
-          compiled.manuallyTrackedSourceFiles = manuallyTrackedSourceFiles;
+          compiled.manuallyTrackedSourceFiles = compiled.dependencies || manuallyTrackedSourceFiles;
           compiled.extension = `.${adapter.output}`;
           compiled.inputPath = pathName;
           if (options.inputSha) {
