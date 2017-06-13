@@ -11,6 +11,11 @@ const installDeps = require('./installDeps');
 const npmInit = require('./npmInit');
 const scaffold = require('./scaffold');
 
+const pkgJsonPath = path.join(process.cwd(), 'package.json');
+const pingyJsonPath = path.join(process.cwd(), '.pingy.json');
+const pkgJsonExists = fs.existsSync(pkgJsonPath);
+const pingyJsonExists = fs.existsSync(pingyJsonPath);
+
 const createChoices = type => [type, ...compilerMap[type].map(x => x.name)];
 const nameToObj = (type, prettyName) => compilerMap[type].find(x => x.name === prettyName) || {};
 
@@ -57,9 +62,6 @@ function processAnswers(answers, quietMode) {
     js: nameToObj('JS', answers.scripts),
   };
 
-  const pkgJsonPath = path.join(process.cwd(), 'package.json');
-  const pkgJsonExists = fs.existsSync(pkgJsonPath);
-
   if (pkgJsonExists) {
     performActions(pkgJsonPath, answers, depsObj);
   } else {
@@ -70,16 +72,35 @@ function processAnswers(answers, quietMode) {
 }
 
 function prompt() {
-  return inquirer.prompt(stage1).then(processAnswers);
+  return new Promise((resolve) => {
+    if (pingyJsonExists && pkgJsonExists) {
+      return inquirer
+        .prompt([
+          {
+            type: 'confirm',
+            name: 'resume',
+            default: false,
+            message: 'Pingy has detected a .pingy.json and package.json in your project, do you want to continue?',
+          }
+        ])
+        .then(answers => resolve(answers.resume));
+    }
+    return resolve(true);
+  }).then((resume) => {
+    if (resume) return inquirer.prompt(stage1).then(processAnswers);
+  });
 }
 
 function init(...args) {
   if (args.length > 0) {
-    return processAnswers({
-      html: args.html || 'HTML',
-      scripts: args.scripts || 'JS',
-      styles: args.styles || 'CSS',
-    }, true);
+    return processAnswers(
+      {
+        html: args.html || 'HTML',
+        scripts: args.scripts || 'JS',
+        styles: args.styles || 'CSS',
+      },
+      true
+    );
   }
   return prompt();
 }
