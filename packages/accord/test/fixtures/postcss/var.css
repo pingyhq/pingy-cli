@@ -1,0 +1,5 @@
+$color: green;
+
+.test {
+  background: $color;
+}

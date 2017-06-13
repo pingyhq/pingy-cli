@@ -1,0 +1,1 @@
+React.createElement("div", {className: "foo"}, this.props.bar)

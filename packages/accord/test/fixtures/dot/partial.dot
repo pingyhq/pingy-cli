@@ -1,0 +1,5 @@
+{{##def.snippet:
+<div>{{=it.name}}</div>
+#}}
+
+{{#def.snippet}}<div>{{=it.age}}</div>

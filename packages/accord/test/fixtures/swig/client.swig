@@ -1,0 +1,1 @@
+<h1>{% if foo %}Bar{% endif %}</h1>
