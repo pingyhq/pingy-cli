@@ -79,5 +79,8 @@
     "coverage": "mocha && ./node_modules/.bin/istanbul report && open coverage/lcov-report/index.html",
     "coveralls": "istanbul report && cat ./coverage/lcov.info | coveralls",
     "test": "mocha test/test.js"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
