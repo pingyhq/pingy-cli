@@ -24,7 +24,7 @@ function updatePkgScripts(pkgJsonPath, answers) {
     if (!pkgJson.scripts) pkgJson.scripts = {};
     pkgJson.scripts.start = 'pingy dev';
     pkgJson.scripts.export = 'pingy export';
-    fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJson));
+    fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, '\t'));
     spinner.succeed('Pingy scripts added to package.json');
     createDotPingy(pkgJson.name, answers.exportDir);
   } catch (err) {
