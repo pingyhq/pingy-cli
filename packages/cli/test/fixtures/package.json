@@ -1,1 +1,13 @@
-{"name":"fixtures","version":"1.0.0","description":"","main":"index.js","scripts":{"test":"echo \"Error: no test specified\" && exit 1","start":"pingy dev","export":"pingy export"},"author":"Dave Jeffery <dave@davejeffery.com>","license":"ISC"}
+{
+	"name": "fixtures",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "pingy dev",
+		"export": "pingy export"
+	},
+	"author": "Dave Jeffery <dave@davejeffery.com>",
+	"license": "ISC"
+}
