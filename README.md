@@ -27,6 +27,17 @@ Commands:
 
 ### `init`
 
+```
+Usage: pingy init [options]
+
+Initialise a new or existing website using Pingy
+
+Options:
+
+  -h, --help  output usage information
+  --yarn  Use Yarn instead of NPM for installing packages
+```
+
 `pingy init` will initialise a new or existing website in the current directory.
 An interactive prompt will ask you a few questions and can then install requested
 dependencies (e.g. Sass, Less, Babel, CoffeeScript etc..). Optionally, `init` can

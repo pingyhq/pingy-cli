@@ -24,6 +24,7 @@ function run() {
   program
     .command('init')
     .description('Initialise a new or existing website using Pingy')
+    .option('--yarn', 'Use Yarn instead of NPM for installing packages')
     // .option('-q, --quiet', "Assume defaults and don't ask any questions. Non-interactive mode")
     // .option('--html', 'Language to use for HTML docs')
     // .option('--styles', 'Language to use for styles')
@@ -35,7 +36,7 @@ function run() {
       // if (options.quiet) {
       //   TODO: Non-interactive more
       // }
-      init();
+      init(options);
     });
 
   program

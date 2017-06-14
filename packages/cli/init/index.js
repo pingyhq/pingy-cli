@@ -50,28 +50,30 @@ const stage1 = [
   }
 ];
 
-function performActions(pkgJsonPath, answers, depsObj) {
+function performActions(pkgJsonPath, answers, depsObj, options) {
   updatePkgScripts(pkgJsonPath, answers);
-  return scaffold(pkgJsonPath, depsObj).then(() => installDeps(depsObj));
+  return scaffold(pkgJsonPath, depsObj).then(() => installDeps(depsObj, options));
 }
 
-function processAnswers(answers, quietMode) {
-  const depsObj = {
-    html: nameToObj('HTML', answers.html),
-    css: nameToObj('CSS', answers.styles),
-    js: nameToObj('JS', answers.scripts),
+function processAnswers(options) {
+  return (answers, quietMode) => {
+    const depsObj = {
+      html: nameToObj('HTML', answers.html),
+      css: nameToObj('CSS', answers.styles),
+      js: nameToObj('JS', answers.scripts),
+    };
+
+    if (pkgJsonExists) {
+      performActions(pkgJsonPath, answers, depsObj, options);
+    } else {
+      npmInit(quietMode)
+        .then(() => performActions(pkgJsonPath, answers, depsObj, options))
+        .catch(e => ora().fail(e.message));
+    }
   };
-
-  if (pkgJsonExists) {
-    performActions(pkgJsonPath, answers, depsObj);
-  } else {
-    npmInit(quietMode)
-      .then(() => performActions(pkgJsonPath, answers, depsObj))
-      .catch(e => ora().fail(e.message));
-  }
 }
 
-function prompt() {
+function prompt(options) {
   return new Promise((resolve) => {
     if (pingyJsonExists && pkgJsonExists) {
       return inquirer
@@ -80,29 +82,29 @@ function prompt() {
             type: 'confirm',
             name: 'resume',
             default: false,
-            message: 'Pingy has detected a .pingy.json and package.json in your project, do you want to continue?',
+            message: 'Looks like you have run `pingy init` already. Pingy has detected a .pingy.json and package.json in your project, do you want to continue anyway?',
           }
         ])
         .then(answers => resolve(answers.resume));
     }
     return resolve(true);
   }).then((resume) => {
-    if (resume) return inquirer.prompt(stage1).then(processAnswers);
+    if (resume) return inquirer.prompt(stage1).then(processAnswers(options));
   });
 }
 
-function init(...args) {
-  if (args.length > 0) {
-    return processAnswers(
-      {
-        html: args.html || 'HTML',
-        scripts: args.scripts || 'JS',
-        styles: args.styles || 'CSS',
-      },
-      true
-    );
-  }
-  return prompt();
+function init(options) {
+  // if (args.length > 0) {
+  //   return processAnswers(
+  //     {
+  //       html: args.html || 'HTML',
+  //       scripts: args.scripts || 'JS',
+  //       styles: args.styles || 'CSS',
+  //     },
+  //     true
+  //   );
+  // }
+  return prompt(options);
 }
 
 module.exports = init;
