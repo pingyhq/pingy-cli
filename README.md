@@ -119,6 +119,10 @@ it also won't try to minify HTML, CSS or JS files within 'bower_components'.
 
 *Better documentation for this functionality is coming soon. For the moment, feel free to create an issue if you want more information.*
 
+## Is there an example repo where I can try out Pingy CLI?
+
+Sure, you can clone [the repo for the website](https://github.com/pingyhq/pingy-cli-website). It uses Sass and Babel.
+
 ## License
 
 (The MIT License)
