@@ -74,6 +74,16 @@ var helpers = {
   },
 
   /**
+   * Add `index.html` if serving root of a dir
+   * @param  {string} reqUrl    request URL
+   * @return {string} fixedUrl  URL with index.html served on doc root
+   */
+  fixReqRoot: function fixReqRoot(reqUrl) {
+    if (path.extname(reqUrl) === '') return `${reqUrl}index.html`
+    return reqUrl;
+  },
+
+  /**
    * 1. Removes query params and unescapes
    * 2. Joins url with the mount path
    * 3. If it's a root path then look for 'index.html'
