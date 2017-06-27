@@ -94,6 +94,7 @@ module.exports = function (inputDir, outputDir, options) {
   var babyTolkOptions = {
     minify: options.minify,
     sourceMap: options.sourcemaps,
+    autoprefix: options.autoprefix,
     inputSha: true,
   };
 
@@ -115,11 +116,16 @@ module.exports = function (inputDir, outputDir, options) {
       .then((contents) => {
         existingShas = JSON.parse(contents);
 
-        var matchingCompilerShas = existingShas.filter(
-          sha => babyTolk.getTransformId(getInputFile(sha), babyTolkOptions) === sha.type
-        );
+        var checkIfCompilerTypeIsEqual = sha =>
+          babyTolk.getTransformId(getInputFile(sha), babyTolkOptions) === sha.type;
 
-        var outFiles = existingShas.map(
+
+        var checkIfShaEqual = fileContents => (sha, i) =>
+          fileContents[i] && sha.outputSha === createHash(fileContents[i])
+
+        var validShas = existingShas.filter(sha => !!sha);
+
+        var outFiles = validShas.map(
           sha => sha && fsp.readFile(getMainFile(sha), 'utf8').then(contents => contents, noop)
         );
 
@@ -127,9 +133,9 @@ module.exports = function (inputDir, outputDir, options) {
         return when
           .all(outFiles)
           .then(fileContents =>
-            matchingCompilerShas.filter(
-              (sha, i) => fileContents[i] && sha.outputSha === createHash(fileContents[i])
-            )
+            validShas
+              .filter(checkIfShaEqual(fileContents))
+              .filter(checkIfCompilerTypeIsEqual)
           );
       })
       .then(filtered =>
@@ -138,11 +144,16 @@ module.exports = function (inputDir, outputDir, options) {
           .all(
             filtered.map(sha =>
               when.all(
-                sha.inputSha.map(input =>
-                  fsp
+                sha.inputSha.reduce(
+                  // Remove duplicates
+                  (a, b) => (a.find(sha => sha.file === b.file) ? a.push(b) : a)
+                , []).map(input => {
+                  return fsp
                     .readFile(path.join(inputDir, input.file), 'utf8')
-                    .then(contents => input.sha === createHash(contents))
-                )
+                    .then(contents => {
+                      return input.sha === createHash(contents)
+                    })
+                })
               )
             )
           )

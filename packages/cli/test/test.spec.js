@@ -10,6 +10,11 @@ const rimraf = require('rimraf');
 describe('cli', function cli() {
   const fixturesPath = path.join(__dirname, 'fixtures');
   const pingyJsonPath = path.join(fixturesPath, '.pingy.json');
+  const indexHtml = path.join(fixturesPath, 'index.html');
+  const scripts = path.join(fixturesPath, 'scripts', 'main.js');
+  const styles = path.join(fixturesPath, 'styles', 'main.css');
+  let siteUrl;
+  let stylesUrl;
   this.timeout(10000);
 
   it('should display help text when called with no args', () => {
@@ -25,7 +30,7 @@ describe('cli', function cli() {
     });
   });
 
-  it('should create .pingy.json and scaffold using init command', () => {
+  it('`init` should create .pingy.json and scaffold using init command', () => {
     before(() => fs.unlinkSync(pingyJsonPath));
 
     const promise = spawn('node', ['../../cli.js', 'init'], {
@@ -56,9 +61,6 @@ describe('cli', function cli() {
 
     return promise.then(() => {
       const exists = file => expect(fs.existsSync(file), 'to be true');
-      const indexHtml = path.join(fixturesPath, 'index.html');
-      const scripts = path.join(fixturesPath, 'scripts', 'main.js');
-      const styles = path.join(fixturesPath, 'styles', 'main.css');
 
       return expect.promise.all({
         dir: exists(pingyJsonPath),
@@ -69,35 +71,64 @@ describe('cli', function cli() {
     });
   });
 
-  it('should serve site', () => {
+  const isServingSite = stdout =>
+    new Promise((resolve) => {
+      stdout.on('data', (data) => {
+        const str = data.toString();
+        const index = str.indexOf('http://');
+        if (index !== -1) resolve(str.substring(index));
+      });
+    });
+
+  it('`dev` should serve site', () => {
     const promise = spawn('node', ['../../cli.js', 'dev', '--no-open'], {
       cwd: './test/fixtures',
     });
     const { stdout } = promise.childProcess;
 
-    const isServingSite = () =>
-      new Promise((resolve) => {
-        stdout.on('data', (data) => {
-          const str = data.toString();
-          const index = str.indexOf('http://');
-          if (index !== -1) resolve(str.substring(index));
-        });
-      });
-
-    return isServingSite()
-      .then(url => fetch(url))
+    return isServingSite(stdout)
+      .then((url) => {
+        siteUrl = url.split('\n')[0];
+        stylesUrl = `${siteUrl}/styles/main.css`;
+        return fetch(siteUrl);
+      })
       .then(res => res.text())
-      .then(body => expect(body, 'to contain', '/instant/client/bundle.js'));
+      .then(body => expect(body, 'to contain', '/instant/client/bundle.js'))
+      .then(() => fetch(stylesUrl))
+      .then(res => res.text())
+      .then(body => expect(body, 'to contain', 'color: hotpink;'))
+      .then(() => {
+        // Making a change
+        const s = fs.readFileSync(styles, 'utf8');
+        fs.writeFileSync(styles, `${s}\nbody { display: flex }`);
+      })
+      .then(() => fetch(stylesUrl))
+      .then(res => res.text())
+      .then(body => expect(body, 'to contain', 'body { display: flex }'));
   });
 
-  describe('export', () => {
-    const distDir = path.join(__dirname, 'fixtures', 'dist');
-    const scriptsDir = path.join(__dirname, 'fixtures', 'scripts');
-    const stylesDir = path.join(__dirname, 'fixtures', 'styles');
-    const indexPath = path.join(__dirname, 'fixtures', 'index.html');
-    const shas = path.join(distDir, '.shas.json');
-    const distIndexPath = path.join(distDir, 'index.html');
+  const distDir = path.join(__dirname, 'fixtures', 'dist');
+  const scriptsDir = path.join(__dirname, 'fixtures', 'scripts');
+  const stylesDir = path.join(__dirname, 'fixtures', 'styles');
+  const indexPath = path.join(__dirname, 'fixtures', 'index.html');
+  const shas = path.join(distDir, '.shas.json');
+  const distIndexPath = path.join(distDir, 'index.html');
 
+  describe('export', () => {
+    const hasExportedSite = () =>
+      new Promise((resolve) => {
+        promise.childProcess.on('exit', resolve);
+      });
+
+    return hasExportedSite().then(() =>
+      expect.promise.all({
+        dir: expect(fs.existsSync(distDir), 'to be true'),
+        shas: expect(fs.existsSync(shas), 'to be true'),
+      })
+    );
+  });
+
+  it('`export` should respect .pingy.json (autoprefix)', () => {
     after((done) => {
       fs.unlinkSync(pingyJsonPath);
       fs.unlinkSync(indexPath);
@@ -132,16 +163,24 @@ describe('cli', function cli() {
         cwd: './test/fixtures',
       });
 
-      const hasExportedSite = () =>
-        new Promise((resolve) => {
-          promise.childProcess.on('exit', resolve);
-        });
+      const addAutoprefixConfig = () => {
+        const p = fs.readFileSync(pingyJsonPath, 'utf8');
+        fs.writeFileSync(
+          pingyJsonPath,
+          p.replace('"minify": true,', '"minify": true,\n\t"autoprefix": true,')
+        );
+      };
 
+      addAutoprefixConfig();
       return hasExportedSite().then(() =>
         expect.promise.all({
           dir: expect(fs.existsSync(distDir), 'to be true'),
           shas: expect(fs.existsSync(shas), 'to be true'),
-          index: expect(fs.readFileSync(distIndexPath, 'utf8'), 'to contain', '<body>\n'),
+          styles: expect(
+            fs.readFileSync(stylesDistFile, 'utf8'),
+            'to contain',
+            'display:-webkit-box'
+          ),
         })
       );
     });

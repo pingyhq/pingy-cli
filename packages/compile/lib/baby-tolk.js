@@ -8,6 +8,8 @@ var fsp = node.liftAll(fs);
 var accord = require('@pingy/accord');
 var pathCompleteExtname = require('path-complete-extname');
 var crypto = require('crypto');
+var autoprefixer = require('autoprefixer');
+var postcss = require('postcss');
 var minify = require('./minify');
 
 var extensionMap;
@@ -116,6 +118,13 @@ var sanitizeOptions = function (options) {
     options.inputSha = true;
     options.outputSha = true;
   }
+  if (options.autoprefix) {
+    if (typeof options.autoprefix === 'string') {
+      options.autoprefix = [options.autoprefix];
+    } else if (options.autoprefix === true) {
+      options.autoprefix = ['last 2 versions'];
+    }
+  }
   return options;
 };
 
@@ -124,10 +133,16 @@ var getAdapter = function (extension) {
   return adapters && adapters[0];
 };
 
-var _getTransformId = function (adapter, options) {
+var _getTransformId = function (adapter, options, extension) {
   var transformId = '';
   if (adapter) {
     transformId = `${adapter.engineName}@${adapter.engine.version}`;
+  }
+
+  if (options.autoprefix) {
+    if (extension === '.css' || (adapter && targetExtension[extension] === '.css')) {
+      transformId += '::autoprefix';
+    }
   }
   if (options.sourceMap) {
     transformId += '::map';
@@ -142,7 +157,7 @@ var getTransformId = function (pathName, options) {
   options = sanitizeOptions(options);
   var extension = pathCompleteExtname(pathName);
   var adapter = !dontCompile(pathName) && getAdapter(extension);
-  return _getTransformId(adapter, options);
+  return _getTransformId(adapter, options, extension);
 };
 
 module.exports = {
@@ -164,6 +179,7 @@ module.exports = {
 
     var extension = pathCompleteExtname(pathName);
     var adapter = !dontCompile(pathName) && getAdapter(extension);
+    var isCss = Path.extname(pathName) === '.css';
 
     var sourceFile = fsp.readFile(pathName, 'utf8');
     var sourceFileContents = null;
@@ -175,8 +191,9 @@ module.exports = {
       return obj;
     });
 
-    var transformId = _getTransformId(adapter, options);
+    var transformId = _getTransformId(adapter, options, extension);
     if (adapter) {
+      isCss = adapter.output === 'css';
       var transpilerOptions = Object.assign({}, options, {
         sourcemap: options.sourceMap,
         filename: pathName,
@@ -211,6 +228,26 @@ module.exports = {
         source.extension = extension;
         source.inputPath = pathName;
         return source;
+      });
+    }
+
+    if (isCss && options.autoprefix) {
+      continuation = continuation.then((compiled) => {
+        var postCssOptions = {};
+        if (compiled.sourcemap) {
+          postCssOptions.map = {
+            prev: compiled.sourcemap,
+          };
+        }
+        return postcss([autoprefixer({ browsers: options.autoprefix })])
+          .process(compiled.result, postCssOptions)
+          .then((result) => {
+            compiled.result = result.css;
+            if (result.map) {
+              compiled.sourcemap = result.map;
+            }
+            return compiled;
+          });
       });
     }
 

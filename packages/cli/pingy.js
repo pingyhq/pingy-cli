@@ -6,7 +6,7 @@ const serveStatic = require('serve-static');
 const instant = require('@pingy/instant');
 const enableDestroy = require('server-destroy');
 
-function serveSite(sitePath, port) {
+function serveSite(sitePath, options) {
   const pingyMiddleware = require('@pingy/middleware');
 
   const server = connect();
@@ -14,7 +14,7 @@ function serveSite(sitePath, port) {
 
   const $instant = instant(sitePath);
   const $serveStatic = serveStatic(sitePath);
-  const $pingy = pingyMiddleware(sitePath);
+  const $pingy = pingyMiddleware(sitePath, options);
 
   server.use($instant);
   server.use($serveStatic);
@@ -22,8 +22,8 @@ function serveSite(sitePath, port) {
 
   $pingy.events.on('fileChanged', $instant.reload);
 
-  server.listen(port);
-  const url = `http://localhost:${port}`;
+  server.listen(options.port);
+  const url = `http://localhost:${options.port}`;
   return {
     server,
     url,

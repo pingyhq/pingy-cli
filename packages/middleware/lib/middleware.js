@@ -8,7 +8,7 @@ var csserror = require('csserror');
 var jserror = require('jserror');
 var path = require('path');
 
-module.exports = function piggy(mountPath) {
+module.exports = function piggy(mountPath, options) {
   var eventEmitter = new events.EventEmitter();
   var cache = Cache(mountPath, eventEmitter);
 
@@ -57,7 +57,7 @@ module.exports = function piggy(mountPath) {
     return helpers
       .findSourceFile(fullCompiledPath, babyTolk)
       .then(setSourcePath)
-      .then(babyTolk.read) // Compile source file using babyTolk
+      .then(filePath => babyTolk.read(filePath, options)) // Compile source file using babyTolk
       .then(fixSourceMapLinks, forwardCompilationError)
       .then(renderCompiledFile, next); // No specific error handling for the moment
   };

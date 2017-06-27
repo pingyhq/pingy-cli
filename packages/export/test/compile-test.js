@@ -434,6 +434,7 @@ describe('baconize', function() {
   describe('compile minified with sourcemaps (with broken js)', function() {
     var originalJSContents;
     before(() => {
+      // REMINDER: This will be re-compiled in next test
       // Uglify doesn't support es6 so it should not minify the file and just silently move on
       return fs.readFile(getPathIn('scripts/iterate.js'), 'utf8').then(content => {
         originalJSContents = content;
@@ -502,6 +503,7 @@ describe('baconize', function() {
           return expect.promise.all([
             expect(results[0].toString(), 'to contain', 'saying \'hello\'.</p>'),
             expect(results[1].toString(), 'to contain', 'body{'),
+            expect(results[1].toString(), 'not to contain', 'display:-ms-flexbox'),
             expect(results[2].toString(), 'to contain', 'console.log("H'),
             expect(results[3].toString(), 'to contain', 'for (var i = 0;'),
             expect(results[4].toString(), 'to contain', '<html><head>'),
@@ -594,12 +596,14 @@ describe('baconize', function() {
         return fs.writeFile(getPathIn('dont-copy/_inner.styl'), content + ' ');
       });
 
+      // REMINDER: iterate.js will be re-compiled because of previous test
+
       return when.all([styl, html, randomFile, coffee]);
     });
 
     after(done => {
       var coffee = fs.writeFile(getPathIn('dont-copy/_inner.styl'), originalStylContents);
-      coffee.then(() => { clearDir(done); });
+      coffee.then(done);
     });
 
 
@@ -609,7 +613,8 @@ describe('baconize', function() {
         directoryFilter: ['!dont-copy'],
         compile: true,
         minify: true,
-        sourcemaps: true
+        sourcemaps: true,
+        autoprefix: true,
       };
       var bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -639,9 +644,9 @@ describe('baconize', function() {
           expect(num, 'to be', 9),
           expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
           expect(compiledFiles, 'to contain',
-            'index.jade', 'styles/main.styl', 'scripts/main.coffee', 'scripts/iterate.js').and('to have length', 4),
+            'index.jade', 'styles/main.styl', 'scripts/main.coffee', 'scripts/iterate.js', 'styles/typography.css').and('to have length', 5),
           expect(compilationReuseFiles, 'to contain',
-            'about.html', 'scripts/log.babel.js', 'styles/typography.css').and('to have length', 3),
+            'about.html', 'scripts/log.babel.js').and('to have length', 2),
         ]);
       });
     });
@@ -661,6 +666,7 @@ describe('baconize', function() {
           expect.promise.all([
             expect(results[0].toString(), 'to contain', 'saying \'hello\'.</p>'),
             expect(results[1].toString(), 'to contain', 'body{'),
+            expect(results[1].toString(), 'to contain', 'display:-ms-flexbox'),
             expect(results[2].toString(), 'to contain', 'console.log("H'),
             expect(results[3].toString(), 'to contain', 'for(var stuff=[1,2,3,4,5]'),
             expect(results[4].toString(), 'to contain', '<html><head>'),
@@ -696,7 +702,7 @@ describe('baconize', function() {
           fs.readFile(getPathOut('styles/typography.css.map'))
         ]).then(function(results) {
           return expect.promise.all([
-            expect(results[0].toString(), 'to contain', '"file":"main.css"')
+            expect(results[0].toString(), 'to contain', '"file":"main.styl"')
               .and('to contain', '"sources":["main.styl","../dont-copy/_inner.styl"]'),
             expect(results[1].toString(), 'to contain', '"file":"main.js"')
               .and('to contain', '"sources":["main.coffee"]'),
@@ -769,6 +775,54 @@ describe('baconize', function() {
       });
 
     });
+  });
+
+  describe('compile minified with sourcemaps (SHA test repeated)', function() {
+    after(clearDir);
+
+    it('should compile compilable files and copy all others', function () {
+      var options = {
+        blacklist: ['dont-compile/**'],
+        directoryFilter: ['!dont-copy'],
+        compile: true,
+        minify: true,
+        sourcemaps: true,
+        autoprefix: true,
+      };
+      var bacon = baconize(getPathIn(), getPathOut(), options);
+
+      var dirs = [];
+      bacon.events.on('chdir', function(dir) { dirs.push(dir); });
+
+      var compiledFiles = [];
+      var compilationReuseFiles = [];
+      var lastStartedFile;
+      bacon.events.on('compile-start', function(file) {
+        lastStartedFile = file.path;
+      });
+      bacon.events.on('compile-done', function(file) {
+        if (lastStartedFile === file.path) {
+          compiledFiles.push(file.path);
+        } else {
+          expect.fail('Unexpected compile-done event');
+        }
+      });
+      bacon.events.on('compile-reuse', function(file) {
+        compilationReuseFiles.push(file.path);
+      });
+
+
+      return bacon.then(function(num) {
+        return expect.promise.all([
+          expect(num, 'to be', 9),
+          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and('to have length', 4),
+          expect(compiledFiles, 'to have length', 0),
+          expect(compilationReuseFiles, 'to contain',
+            'about.html', 'index.jade', 'scripts/iterate.js', 'scripts/log.babel.js', 'scripts/main.coffee', 'styles/main.styl', 'styles/typography.css').and('to have length', 7),
+        ]);
+      });
+    });
+
   });
 
   describe('aborted compile', function() {
