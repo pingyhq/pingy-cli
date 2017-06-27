@@ -48,6 +48,10 @@
       "module": "buble",
       "extension": "buble"
     }, {
+      "name": "TypeScript",
+      "module": "typescript-compiler@^1.4",
+      "extension": "ts"
+    }, {
       "name": "LiveScript",
       "module": "livescript",
       "extension": "ls"
