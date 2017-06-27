@@ -7,7 +7,6 @@ const instant = require('@pingy/instant');
 const enableDestroy = require('server-destroy');
 
 function serveSite(sitePath, port) {
-  global.babyTolkCompilerModulePath = path.join(sitePath, 'node_modules');
   const pingyMiddleware = require('@pingy/middleware');
 
   const server = connect();
@@ -34,7 +33,6 @@ function serveSite(sitePath, port) {
 }
 
 function exportSite(inputDir, outputDir, options) {
-  global.babyTolkCompilerModulePath = path.join(inputDir, 'node_modules');
   return require('@pingy/export')(inputDir, outputDir, options);
 }
 

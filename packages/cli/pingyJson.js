@@ -16,9 +16,14 @@ function getPingyJson() {
     return false;
   }
   try {
+    const dir = path.dirname(jsonPath);
     const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+    global.babyTolkCompilerModulePath = json.globalModuleSearch
+      ? null
+      : path.join(dir, 'node_modules');
+
     return {
-      dir: path.dirname(jsonPath),
+      dir,
       path: jsonPath,
       json,
     };
