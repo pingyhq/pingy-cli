@@ -42,7 +42,7 @@ on('/instant/events', function(ev) {
   var normalizedLocationHref = location.href.split('#')[0].split('?')[0]
 
   // reload the page
-  if (url.href == normalizedLocationHref) {
+  if (url.href.replace('index.html','') == normalizedLocationHref) {
     location.reload()
     return
   }
