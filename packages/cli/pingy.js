@@ -5,6 +5,7 @@ const connect = require('connect');
 const serveStatic = require('serve-static');
 const instant = require('@pingy/instant');
 const enableDestroy = require('server-destroy');
+const autoprefixer = require('express-autoprefixer');
 
 function serveSite(sitePath, options) {
   const pingyMiddleware = require('@pingy/middleware');
@@ -16,6 +17,22 @@ function serveSite(sitePath, options) {
   const $serveStatic = serveStatic(sitePath);
   const $pingy = pingyMiddleware(sitePath, options);
 
+  if (options.autoprefix) {
+    if (typeof options.autoprefix === 'string') {
+      options.autoprefix = [options.autoprefix];
+    } else if (options.autoprefix === true) {
+      options.autoprefix = 'last 2 versions';
+    }
+    // console.log('hi');
+    server.use((req, res, next) => {
+      // console.log(req.url);
+      if (path.extname(req.url) === '.css') {
+        console.log(req.url, options.autoprefix);
+        return autoprefixer({ browsers: options.autoprefix, cascade: false })(req, res, next);
+      }
+      return next();
+    });
+  }
   server.use($instant);
   server.use($serveStatic);
   server.use($pingy);

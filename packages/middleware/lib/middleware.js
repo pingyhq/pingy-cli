@@ -13,6 +13,7 @@ module.exports = function piggy(mountPath, options) {
   var cache = Cache(mountPath, eventEmitter);
 
   var middleware = function piggyMiddleware(req, rsp, next) {
+    console.log(req.url);
     req.url = helpers.fixReqRoot(req.url);
     var isSrcMap = helpers.isSourceMap(req.url);
     var fullPath = helpers.getFullPath(mountPath, req.url);

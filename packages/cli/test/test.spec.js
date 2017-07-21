@@ -114,20 +114,6 @@ describe('cli', function cli() {
   const shas = path.join(distDir, '.shas.json');
   const distIndexPath = path.join(distDir, 'index.html');
 
-  describe('export', () => {
-    const hasExportedSite = () =>
-      new Promise((resolve) => {
-        promise.childProcess.on('exit', resolve);
-      });
-
-    return hasExportedSite().then(() =>
-      expect.promise.all({
-        dir: expect(fs.existsSync(distDir), 'to be true'),
-        shas: expect(fs.existsSync(shas), 'to be true'),
-      })
-    );
-  });
-
   it('`export` should respect .pingy.json (autoprefix)', () => {
     after((done) => {
       fs.unlinkSync(pingyJsonPath);
