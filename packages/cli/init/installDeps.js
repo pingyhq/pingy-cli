@@ -12,7 +12,8 @@ function installDeps(depsObj, options) {
   const cssModules = toArray(depsObj.css.module);
   const jsModules = toArray(depsObj.js.module);
 
-  const deps = ['@pingy/cli', ...htmlModules, ...cssModules, ...jsModules].filter(x => !!x);
+  const pingyDep = options.globalPingy ? [null] : ['@pingy/cli'];
+  const deps = [...pingyDep, ...htmlModules, ...cssModules, ...jsModules].filter(x => !!x);
   if (deps.length === 0) {
     console.log(`\nNo dependencies needed. ${chalk.green('Done!')}`);
     return;

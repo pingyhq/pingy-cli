@@ -1,22 +1,22 @@
 'use strict';
 
-var path = require('path');
-var CleanCSS = require('clean-css');
-var UglifyJS = require('uglify-js');
-var htmlMinify = require('html-minifier').minify;
+const path = require('path');
+const CleanCSS = require('clean-css');
+const UglifyJS = require('uglify-js');
+const htmlMinify = require('html-minifier').minify;
 
 // TODO: A lot of funky stuff goes on when normailizing the sourcemaps after
 // minification. This should be documented.
 
-var css = function (compiled) {
-  var options = {
+const css = function (compiled) {
+  const options = {
     sourceMap: compiled.sourcemap ? JSON.stringify(compiled.sourcemap) : true,
   };
-  var compiledFile;
+  let compiledFile;
   if (compiled.sourcemap) {
     compiledFile = compiled.sourcemap.file;
   }
-  var minified = new CleanCSS(options).minify(compiled.result);
+  const minified = new CleanCSS(options).minify(compiled.result);
   compiled.result = minified.styles;
   compiled.sourcemap = minified.sourceMap.toJSON();
   if (compiled.sourcemap.sources[0] === '$stdin') {
@@ -28,8 +28,8 @@ var css = function (compiled) {
   return compiled;
 };
 
-var js = function (compiled) {
-  var options = {
+const js = function (compiled) {
+  const options = {
     fromString: true,
     outSourceMap: `${compiled.inputPath}.map`,
     filename: compiled.inputPath,
@@ -38,7 +38,7 @@ var js = function (compiled) {
     options.inSourceMap = compiled.sourcemap;
   }
 
-  var ug;
+  let ug;
   try {
     ug = UglifyJS.minify(compiled.result, options);
   } catch (err) {
@@ -54,8 +54,8 @@ var js = function (compiled) {
   }
   if (compiled.sourcemap.file) {
     // Bugfix for: https://github.com/mishoo/UglifyJS2/issues/764
-    var nFileName = path.basename(compiled.sourcemap.file, '.map');
-    var ext = path.extname(nFileName);
+    let nFileName = path.basename(compiled.sourcemap.file, '.map');
+    const ext = path.extname(nFileName);
     if (ext !== '.js') {
       nFileName = `${path.basename(nFileName, ext)}.js`;
     }
@@ -65,8 +65,8 @@ var js = function (compiled) {
   return compiled;
 };
 
-var html = function (compiled) {
-  var options = {
+const html = function (compiled) {
+  const options = {
     removeComments: true,
     collapseWhitespace: true,
     removeEmptyAttributes: true,
@@ -75,24 +75,24 @@ var html = function (compiled) {
   return compiled;
 };
 
-var cssExtentions = ['.css'];
-var htmlExtentions = ['.html', '.htm'];
-var jsExtentions = ['.js'];
-var allExtentions = cssExtentions.concat(htmlExtentions).concat(jsExtentions);
+const cssExtentions = ['.css'];
+const htmlExtentions = ['.html', '.htm'];
+const jsExtentions = ['.js'];
+const allExtentions = cssExtentions.concat(htmlExtentions).concat(jsExtentions);
 
-var isCss = function (extension) {
+const isCss = function (extension) {
   return cssExtentions.indexOf(extension) > -1;
 };
 
-var isHtml = function (extension) {
+const isHtml = function (extension) {
   return htmlExtentions.indexOf(extension) > -1;
 };
 
-var isJs = function (extension) {
+const isJs = function (extension) {
   return jsExtentions.indexOf(extension) > -1;
 };
 
-var isMinifiable = function (extension) {
+const isMinifiable = function (extension) {
   return allExtentions.indexOf(extension) > -1;
 };
 

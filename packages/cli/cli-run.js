@@ -9,11 +9,11 @@ const getPort = require('get-port');
 const ora = require('ora');
 const chalk = require('chalk');
 const opn = require('opn');
-const {inspect} = require('util');
+const { inspect } = require('util');
 const pkgJson = require('./package');
 const pingy = require('./pingy');
 const init = require('./init');
-const {getPingyJson, setPingyJson} = require('./pingyJson');
+const { getPingyJson, setPingyJson } = require('./pingyJson');
 
 function run() {
   logo('Pingy');
@@ -25,6 +25,10 @@ function run() {
     .command('init')
     .description('Initialise a new or existing website using Pingy')
     .option('--yarn', 'Use Yarn instead of NPM for installing packages')
+    .option(
+      '--global-pingy',
+      "Don't install local version of Pingy CLI, use global version instead"
+    )
     // .option('-q, --quiet', "Assume defaults and don't ask any questions. Non-interactive mode")
     // .option('--html', 'Language to use for HTML docs')
     // .option('--styles', 'Language to use for styles')
@@ -32,7 +36,7 @@ function run() {
     // .option('--dist', 'Folder name to export distibution-ready site to')
     // .option('--no-scaffold', "Don't scaffold files for this site")
     // .option('--no-install', "Don't install project dependencies automatically")
-    .action(options => {
+    .action((options) => {
       // if (options.quiet) {
       //   TODO: Non-interactive more
       // }
@@ -42,27 +46,22 @@ function run() {
   program
     .command('dev')
     .description('Serve local development version of website')
-    .option(
-      '-p, --port [port]',
-      'Use chosen port (otherwise random port will be used)'
-    )
+    .option('-p, --port [port]', 'Use chosen port (otherwise random port will be used)')
     .option('-q, --no-open', "Don't automatically launch site in web browser")
-    .action(options => {
+    .action((options) => {
       const pingyJson = getPingyJson();
       if (!pingyJson) return;
       const jsonPort = pingyJson.json.port;
       const customPort = Number(options.port || jsonPort);
       const port = customPort || null;
-      getPort(port).then(freePort => {
+      getPort(port).then((freePort) => {
         if (typeof port === 'number' && port !== freePort) {
           console.log(
-            chalk.red.bold(
-              `Port ${port} is not available, using random port ${freePort} instead\n`
-            )
+            chalk.red.bold(`Port ${port} is not available, using random port ${freePort} instead\n`)
           );
         }
-        const serveOptions = {port: freePort};
-        const {url} = pingy.serveSite(
+        const serveOptions = { port: freePort };
+        const { url } = pingy.serveSite(
           pingyJson.dir,
           Object.assign({}, pingyJson.json, serveOptions)
         );
@@ -81,9 +80,7 @@ function run() {
       const inputDir = pingyJson.dir;
       const outputDir = path.join(inputDir, pingyJson.json.exportDir);
 
-      const exportingSpinner = ora(
-        `Exporting to ${chalk.bold(outputDir)}`
-      ).start();
+      const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();
       const exporting = pingy.exportSite(inputDir, outputDir, pingyJson.json);
 
       exporting.then(
@@ -93,7 +90,7 @@ function run() {
             process.exit(0);
           }, 10);
         },
-        err => {
+        (err) => {
           exportingSpinner.fail(`Failed export to ${chalk.bold(outputDir)}`);
           console.log(inspect(err));
           setTimeout(() => {
@@ -102,10 +99,10 @@ function run() {
         }
       );
       const spinners = {};
-      exporting.events.on('compile-start', file => {
+      exporting.events.on('compile-start', (file) => {
         spinners[file.path] = ora(`Compiling ${file.name}`).start();
       });
-      exporting.events.on('compile-done', file => {
+      exporting.events.on('compile-done', (file) => {
         spinners[file.path].succeed();
       });
     });

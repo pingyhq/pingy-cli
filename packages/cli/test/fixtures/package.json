@@ -8,6 +8,7 @@
 		"start": "pingy dev",
 		"export": "pingy export"
 	},
+	"keywords": [],
 	"author": "Dave Jeffery <dave@davejeffery.com>",
 	"license": "ISC"
 }

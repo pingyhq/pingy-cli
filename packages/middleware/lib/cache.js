@@ -1,12 +1,12 @@
 'use strict';
 
-var chokidar = require('chokidar');
-var e = require('events');
+const chokidar = require('chokidar');
+const e = require('events');
 
 module.exports = function Cache(mountPath, events) {
   // Set-up cache and watchers
-  var cache = {};
-  var watchers = {};
+  const cache = {};
+  const watchers = {};
 
   function exists(compiledPath) {
     return compiledPath in cache;
@@ -36,12 +36,12 @@ module.exports = function Cache(mountPath, events) {
 
   function add(sourcePath, compiledPath, compiled) {
     _add(compiledPath, compiled);
-    var sources = _getSources(compiled, sourcePath);
+    const sources = _getSources(compiled, sourcePath);
     _preAddWatcher(compiledPath, sources);
   }
 
   function _getSources(compiled, sourcePath) {
-    var sources;
+    let sources;
     if (compiled.sourcemap) {
       // Remove preceeding slash to make the path relative (instead of absolute)
       sources = compiled.sourcemap.sources.map(src => src.substring(1));
@@ -62,13 +62,13 @@ module.exports = function Cache(mountPath, events) {
     if (!watchers[compiledPath]) {
       _addWatcher(compiledPath, sources);
     } else {
-      var newSources = sources.filter(src => watchers[compiledPath].indexOf(src) === -1);
+      const newSources = sources.filter(src => watchers[compiledPath].indexOf(src) === -1);
       _addWatcher(compiledPath, newSources);
     }
   }
 
   function _addWatcher(compiledPath, sources) {
-    var fileChanged = function (sourcePath) {
+    const fileChanged = function (sourcePath) {
       del(compiledPath);
       events.emit('fileChanged', compiledPath, sourcePath);
     };

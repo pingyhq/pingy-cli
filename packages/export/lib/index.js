@@ -1,43 +1,43 @@
 'use strict';
 
-var babyTolk = require('@pingy/compile');
-var readdirp = require('readdirp');
-var through = require('through2');
-var path = require('path');
-var pathCompleteExtname = require('path-complete-extname');
-var when = require('when');
-var fs = require('fs');
-var mm = require('micromatch');
-var events = require('events');
-var checkDir = require('checkdir');
-var nodefn = require('when/node');
-var crypto = require('crypto');
-var rimraf = nodefn.lift(require('rimraf'));
-var mkdirp = nodefn.lift(require('mkdirp'));
-var fsp = nodefn.liftAll(fs);
+const babyTolk = require('@pingy/compile');
+const readdirp = require('readdirp');
+const through = require('through2');
+const path = require('path');
+const pathCompleteExtname = require('path-complete-extname');
+const when = require('when');
+const fs = require('fs');
+const mm = require('micromatch');
+const events = require('events');
+const checkDir = require('checkdir');
+const nodefn = require('when/node');
+const crypto = require('crypto');
+const rimraf = nodefn.lift(require('rimraf'));
+const mkdirp = nodefn.lift(require('mkdirp'));
+const fsp = nodefn.liftAll(fs);
 
 // TODO: Consider using node-glob module instead of readdirp + through2
 // I think that will simplify the code.
 
-var extname = function (filePath) {
-  var ext = path.extname(filePath);
+const extname = function (filePath) {
+  const ext = path.extname(filePath);
   if (babyTolk.targetExtensionMap[ext]) {
     return ext;
   }
   return pathCompleteExtname(filePath);
 };
 
-var replaceExtension = function (filePath, newExtension) {
-  var ext = extname(filePath);
+const replaceExtension = function (filePath, newExtension) {
+  const ext = extname(filePath);
   return filePath.slice(0, -ext.length) + newExtension;
 };
 
-var addSrcExtension = function (filePath) {
-  var ext = extname(filePath);
+const addSrcExtension = function (filePath) {
+  const ext = extname(filePath);
   return replaceExtension(filePath, `.src${ext}`);
 };
 
-var useExclusionsApi = function (options, outputDir) {
+const useExclusionsApi = function (options, outputDir) {
   const excludeDirs = options.exclusions
     .filter(excl => excl.action === 'exclude' && excl.type === 'dir')
     .map(excl => excl.path);
@@ -67,31 +67,31 @@ var useExclusionsApi = function (options, outputDir) {
   return options;
 };
 
-var createHash = function (data) {
-  var shasum = crypto.createHash('sha1');
+const createHash = function (data) {
+  const shasum = crypto.createHash('sha1');
   shasum.update(data);
   return shasum.digest('hex');
 };
 
-var noop = () => null;
+const noop = () => null;
 
 module.exports = function (inputDir, outputDir, options) {
-  var eventEmitter = new events.EventEmitter();
-  var shasFilename = '.shas.json';
-  var fileWhitelist = [shasFilename];
-  var filesCopied = 0;
+  const eventEmitter = new events.EventEmitter();
+  const shasFilename = '.shas.json';
+  const fileWhitelist = [shasFilename];
+  let filesCopied = 0;
   options = options || {};
-  var previousDir = null;
-  var abortRequested = false;
-  var shas = [];
-  var shasPath = path.join(outputDir, shasFilename);
-  var existingShas;
+  let previousDir = null;
+  let abortRequested = false;
+  const shas = [];
+  const shasPath = path.join(outputDir, shasFilename);
+  let existingShas;
 
   // Default compile and minify options to `true`
   options.compile = options.compile !== false;
   options.sourcemaps = options.sourcemaps !== false;
 
-  var babyTolkOptions = {
+  const babyTolkOptions = {
     minify: options.minify,
     sourceMap: options.sourcemaps,
     autoprefix: options.autoprefix,
@@ -102,30 +102,29 @@ module.exports = function (inputDir, outputDir, options) {
     useExclusionsApi(options, outputDir);
   }
 
-  var readAndValidateShas = function () {
-    var getMainFile = (sha) => {
-      var files = sha.output;
-      var mainFile = files[files.length - 1];
+  const readAndValidateShas = function () {
+    const getMainFile = (sha) => {
+      const files = sha.output;
+      const mainFile = files[files.length - 1];
       return path.join(outputDir, mainFile);
     };
 
-    var getInputFile = sha => path.join(inputDir, sha.input);
+    const getInputFile = sha => path.join(inputDir, sha.input);
 
     return fsp
       .readFile(shasPath, 'utf8')
       .then((contents) => {
         existingShas = JSON.parse(contents);
 
-        var checkIfCompilerTypeIsEqual = sha =>
+        const checkIfCompilerTypeIsEqual = sha =>
           babyTolk.getTransformId(getInputFile(sha), babyTolkOptions) === sha.type;
 
+        const checkIfShaEqual = fileContents => (sha, i) =>
+          fileContents[i] && sha.outputSha === createHash(fileContents[i]);
 
-        var checkIfShaEqual = fileContents => (sha, i) =>
-          fileContents[i] && sha.outputSha === createHash(fileContents[i])
+        const validShas = existingShas.filter(sha => !!sha);
 
-        var validShas = existingShas.filter(sha => !!sha);
-
-        var outFiles = validShas.map(
+        const outFiles = validShas.map(
           sha => sha && fsp.readFile(getMainFile(sha), 'utf8').then(contents => contents, noop)
         );
 
@@ -133,9 +132,7 @@ module.exports = function (inputDir, outputDir, options) {
         return when
           .all(outFiles)
           .then(fileContents =>
-            validShas
-              .filter(checkIfShaEqual(fileContents))
-              .filter(checkIfCompilerTypeIsEqual)
+            validShas.filter(checkIfShaEqual(fileContents)).filter(checkIfCompilerTypeIsEqual)
           );
       })
       .then(filtered =>
@@ -144,21 +141,22 @@ module.exports = function (inputDir, outputDir, options) {
           .all(
             filtered.map(sha =>
               when.all(
-                sha.inputSha.reduce(
-                  // Remove duplicates
-                  (a, b) => (a.find(sha => sha.file === b.file) ? a.push(b) : a)
-                , []).map(input => {
-                  return fsp
-                    .readFile(path.join(inputDir, input.file), 'utf8')
-                    .then(contents => {
-                      return input.sha === createHash(contents)
-                    })
-                })
+                sha.inputSha
+                  .reduce(
+                    // Remove duplicates
+                    (a, b) => (a.find(sha => sha.file === b.file) ? a : a.push(b) && a),
+                    []
+                  )
+                  .map(input =>
+                    fsp
+                      .readFile(path.join(inputDir, input.file), 'utf8')
+                      .then(contents => input.sha === createHash(contents))
+                  )
               )
             )
           )
           .then((equalShaBoolArr) => {
-            var filterBools = equalShaBoolArr.map(
+            const filterBools = equalShaBoolArr.map(
               // i.e.. [true, true, false] => false
               x => x.reduce((prev, curr) => prev && curr, true)
             );
@@ -180,30 +178,30 @@ module.exports = function (inputDir, outputDir, options) {
       );
   };
 
-  var compileAndCopy = function (reusableFiles) {
+  const compileAndCopy = function (reusableFiles) {
     babyTolk.reload();
     return when
       .promise((resolve, reject) => {
         options.root = inputDir;
-        var stream = readdirp(options);
+        const stream = readdirp(options);
 
         stream
           .pipe(
             through.obj(
               (file, _, next) => {
                 if (abortRequested) {
-                  var err = new Error('Manually aborted by user');
+                  const err = new Error('Manually aborted by user');
                   err.code = 'ABORT';
                   return reject(err);
                 }
-                var outputFullPath = path.join(outputDir, file.path);
-                var doCompile = !mm(file.path, options.blacklist).length;
+                const outputFullPath = path.join(outputDir, file.path);
+                const doCompile = !mm(file.path, options.blacklist).length;
 
-                var addFileToWhitelist = (filePath) => {
+                const addFileToWhitelist = (filePath) => {
                   fileWhitelist.push(filePath);
                 };
 
-                var fileDone = function () {
+                const fileDone = function () {
                   if (previousDir !== file.parentDir) {
                     eventEmitter.emit('chdir', file.parentDir);
                     previousDir = file.parentDir;
@@ -212,15 +210,15 @@ module.exports = function (inputDir, outputDir, options) {
                   next();
                 };
 
-                var processFile = function () {
-                  var ext = extname(file.name);
-                  var compileExt = babyTolk.targetExtensionMap[ext];
+                const processFile = function () {
+                  const ext = extname(file.name);
+                  const compileExt = babyTolk.targetExtensionMap[ext];
 
-                  var compile = function () {
+                  const compile = function () {
                     if (reusableFiles && Array.isArray(reusableFiles.input)) {
-                      var reuseExistingFile = reusableFiles.input.indexOf(file.path) > -1;
+                      const reuseExistingFile = reusableFiles.input.indexOf(file.path) > -1;
                       if (reuseExistingFile) {
-                        var previousSha = existingShas.find(sha => sha.input === file.path);
+                        const previousSha = existingShas.find(sha => sha.input === file.path);
                         if (previousSha) {
                           shas.push(previousSha);
                         }
@@ -233,13 +231,13 @@ module.exports = function (inputDir, outputDir, options) {
                     eventEmitter.emit('compile-start', file);
 
                     return babyTolk.read(file.fullPath, babyTolkOptions).then((compiled) => {
-                      var relativePath = path.relative(inputDir, compiled.inputPath);
-                      var writeFiles = [],
+                      const relativePath = path.relative(inputDir, compiled.inputPath);
+                      let writeFiles = [],
                         fileNames = [];
 
-                      var fileName = file.name;
-                      var compiledOutputFullPath = outputFullPath;
-                      var extensionChanged = false;
+                      let fileName = file.name;
+                      let compiledOutputFullPath = outputFullPath;
+                      let extensionChanged = false;
                       if (ext !== compiled.extension) {
                         extensionChanged = true;
                         compiledOutputFullPath = replaceExtension(
@@ -250,7 +248,7 @@ module.exports = function (inputDir, outputDir, options) {
                       }
 
                       if (compiled.sourcemap) {
-                        var sourcemapStr = `sourceMappingURL=${fileName}.map`;
+                        const sourcemapStr = `sourceMappingURL=${fileName}.map`;
 
                         compiled.sourcemap.sources = compiled.sourcemap.sources
                           .map(source => path.resolve(process.cwd(), source))
@@ -260,7 +258,7 @@ module.exports = function (inputDir, outputDir, options) {
                           )
                           .map(source => (extensionChanged ? source : addSrcExtension(source)));
 
-                        var srcMapFileName = `${compiledOutputFullPath}.map`;
+                        const srcMapFileName = `${compiledOutputFullPath}.map`;
                         writeFiles.push(
                           fsp.writeFile(srcMapFileName, JSON.stringify(compiled.sourcemap))
                         );
@@ -294,19 +292,25 @@ module.exports = function (inputDir, outputDir, options) {
                     });
                   }; // End compile Fn
 
-                  var copy = function (renameToSrc) {
-                    var rs = fs.createReadStream(file.fullPath);
-                    var writePath = renameToSrc ? addSrcExtension(outputFullPath) : outputFullPath;
-                    var ws = fs.createWriteStream(writePath);
+                  const copy = function (renameToSrc) {
+                    const rs = fs.createReadStream(file.fullPath);
+                    const writePath = renameToSrc
+                      ? addSrcExtension(outputFullPath)
+                      : outputFullPath;
+                    const ws = fs.createWriteStream(writePath);
                     addFileToWhitelist(path.relative(outputDir, writePath));
                     rs.pipe(ws).on('error', reject);
                     ws.on('finish', fileDone).on('error', reject);
                   };
 
-                  if (options.compile && compileExt && doCompile) {
+                  const shouldCompile = options.compile && compileExt && doCompile;
+                  const shouldMinify = babyTolk.isMinifiable(ext) && options.minify && doCompile;
+                  const shouldAutoprefix = options.autoprefix && ext === '.css' && doCompile;
+
+                  if (shouldCompile) {
                     // compile
                     compile().then(() => (options.sourcemaps ? copy() : fileDone()), reject);
-                  } else if (babyTolk.isMinifiable(ext) && options.minify && doCompile) {
+                  } else if (shouldMinify || shouldAutoprefix) {
                     // minify
                     compile().then(
                       () => (options.sourcemaps ? copy(true) : fileDone()),
@@ -317,7 +321,7 @@ module.exports = function (inputDir, outputDir, options) {
                   }
                 };
 
-                var dir = path.dirname(outputFullPath);
+                const dir = path.dirname(outputFullPath);
                 mkdirp(dir).then(processFile, reject);
               },
               (next) => {
@@ -352,7 +356,7 @@ module.exports = function (inputDir, outputDir, options) {
       });
   };
 
-  var promise = readAndValidateShas()
+  const promise = readAndValidateShas()
     .then(compileAndCopy)
     .then(numFiles => fsp.writeFile(shasPath, JSON.stringify(shas, null, 2)).then(() => numFiles))
     // TODO: Don't delete dir after abort. Leave as is instead.
@@ -370,17 +374,17 @@ module.exports = function (inputDir, outputDir, options) {
 };
 
 module.exports.preflight = function preflight(inputDir, outputDir) {
-  var checks = [
+  const checks = [
     checkDir(inputDir),
     checkDir(path.join(inputDir, 'node_modules')),
     checkDir(path.join(inputDir, 'bower_components'))
   ];
   if (outputDir) checks.push(checkDir(outputDir));
   return Promise.all(checks).then((info) => {
-    var mainDir = info[0];
-    var nodeModules = info[1];
-    var bowerComponents = info[2];
-    var outputDir = info[3];
+    const mainDir = info[0];
+    const nodeModules = info[1];
+    const bowerComponents = info[2];
+    const outputDir = info[3];
     return Object.assign(
       {},
       mainDir,

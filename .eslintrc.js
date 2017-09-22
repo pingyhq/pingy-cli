@@ -1,28 +1,33 @@
 module.exports = {
-  "extends": "airbnb-base",
-  "env": {
-    "node": true,
-    "mocha":true
+  extends: 'airbnb-base',
+  env: {
+    node: true,
+    mocha: true,
   },
-  "plugins": [
-      "import"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "script",
-    "ecmaFeatures": {
-      "modules": false
-    }
+  plugins: ['import', 'mocha'],
+  parserOptions: {
+    ecmaVersion: 6,
+    sourceType: 'script',
+    ecmaFeatures: {
+      modules: false,
+    },
   },
-  "rules": {
-    "strict": ["error", "global"],
-    "comma-dangle": ["error", {
-      "arrays": "never",
-      "objects": "always-multiline",
-      "imports": "never",
-      "exports": "never",
-      "functions": "ignore"
-    }],
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/*.test.js", "**/*.spec.js"]}]
-  }
+  rules: {
+    'mocha/no-mocha-arrows': 'error',
+    strict: ['error', 'global'],
+    'comma-dangle': [
+      'error',
+      {
+        arrays: 'never',
+        objects: 'always-multiline',
+        imports: 'never',
+        exports: 'never',
+        functions: 'ignore',
+      },
+    ],
+    'import/no-extraneous-dependencies': [
+      'error',
+      { devDependencies: ['**/*.test.js', '**/*.spec.js'] },
+    ],
+  },
 };

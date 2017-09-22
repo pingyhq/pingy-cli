@@ -1,30 +1,29 @@
 'use strict';
 
-var babyTolk = require('@pingy/compile');
-var helpers = require('./helpers');
-var Cache = require('./cache');
-var events = require('events');
-var csserror = require('csserror');
-var jserror = require('jserror');
-var path = require('path');
+const babyTolk = require('@pingy/compile');
+const helpers = require('./helpers');
+const Cache = require('./cache');
+const events = require('events');
+const csserror = require('csserror');
+const jserror = require('jserror');
+const path = require('path');
 
 module.exports = function piggy(mountPath, options) {
-  var eventEmitter = new events.EventEmitter();
-  var cache = Cache(mountPath, eventEmitter);
+  const eventEmitter = new events.EventEmitter();
+  const cache = Cache(mountPath, eventEmitter);
 
-  var middleware = function piggyMiddleware(req, rsp, next) {
-    console.log(req.url);
+  const middleware = function piggyMiddleware(req, rsp, next) {
     req.url = helpers.fixReqRoot(req.url);
-    var isSrcMap = helpers.isSourceMap(req.url);
-    var fullPath = helpers.getFullPath(mountPath, req.url);
-    var compiledPath = helpers.getCompiledPath(req.url);
-    var fullCompiledPath = helpers.getCompiledPath(fullPath);
+    const isSrcMap = helpers.isSourceMap(req.url);
+    const fullPath = helpers.getFullPath(mountPath, req.url);
+    const compiledPath = helpers.getCompiledPath(req.url);
+    const fullCompiledPath = helpers.getCompiledPath(fullPath);
 
     if (cache.exists(compiledPath)) {
       return helpers.render(200, fullPath, cache.get(compiledPath), isSrcMap, rsp);
     }
 
-    var renderCompiledFile = function renderCompiledFile(compiled) {
+    const renderCompiledFile = function renderCompiledFile(compiled) {
       if (!compiled) {
         return next();
       }
@@ -32,19 +31,19 @@ module.exports = function piggy(mountPath, options) {
       helpers.render(200, fullPath, compiled, isSrcMap, rsp);
     };
 
-    var sourcePath;
-    var setSourcePath = function (sp) {
+    let sourcePath;
+    const setSourcePath = function (sp) {
       sourcePath = sp;
       return sp;
     };
 
-    var fixSourceMapLinks = function (compiled) {
+    const fixSourceMapLinks = function (compiled) {
       return helpers.fixSourceMapLinks(mountPath, compiled);
     };
 
-    var forwardCompilationError = function (err) {
+    const forwardCompilationError = function (err) {
       if (err && err.toString) {
-        var ext = path.extname(compiledPath);
+        const ext = path.extname(compiledPath);
         err = err.toString();
         if (ext === '.css') {
           err = csserror(err);

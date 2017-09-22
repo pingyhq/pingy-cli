@@ -23,11 +23,8 @@ function serveSite(sitePath, options) {
     } else if (options.autoprefix === true) {
       options.autoprefix = 'last 2 versions';
     }
-    // console.log('hi');
     server.use((req, res, next) => {
-      // console.log(req.url);
       if (path.extname(req.url) === '.css') {
-        console.log(req.url, options.autoprefix);
         return autoprefixer({ browsers: options.autoprefix, cascade: false })(req, res, next);
       }
       return next();

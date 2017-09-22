@@ -1,24 +1,24 @@
 'use strict';
 
-var Path = require('path');
-var when = require('when');
-var node = require('when/node');
-var fs = require('fs');
-var fsp = node.liftAll(fs);
-var accord = require('@pingy/accord');
-var pathCompleteExtname = require('path-complete-extname');
-var crypto = require('crypto');
-var autoprefixer = require('autoprefixer');
-var postcss = require('postcss');
-var minify = require('./minify');
+const Path = require('path');
+const when = require('when');
+const node = require('when/node');
+const fs = require('fs');
+const fsp = node.liftAll(fs);
+const accord = require('@pingy/accord');
+const pathCompleteExtname = require('path-complete-extname');
+const crypto = require('crypto');
+const autoprefixer = require('autoprefixer');
+const postcss = require('postcss');
+const minify = require('./minify');
 
-var extensionMap;
-var loadedAdapters;
-var targetExtension;
-var sourceExtension;
+let extensionMap;
+let loadedAdapters;
+let targetExtension;
+let sourceExtension;
 
 // Whitelisted adapters
-var adapters = [
+const adapters = [
   'LiveScript',
   'babel',
   'buble',
@@ -51,7 +51,10 @@ function load() {
       } catch (e) {
         if (e.code !== 'MODULE_NOT_FOUND' && e.message.indexOf('Cannot find module') === -1) {
           console.error(
-            `${e.message.replace(/^error: ?/i, 'Accord Error: ')}. Try updating to the latest version`
+            `${e.message.replace(
+              /^error: ?/i,
+              'Accord Error: '
+            )}. Try updating to the latest version`
           );
         }
         // else {
@@ -70,7 +73,7 @@ function load() {
         adapter.extensions = ['buble.js'];
       }
       loadedAdapters.push(adapter);
-      var extensions = adapter.extensions.map(extension => `.${extension}`);
+      const extensions = adapter.extensions.map(extension => `.${extension}`);
       extensions.forEach((extension) => {
         if (!Array.isArray(extensionMap[extension])) {
           extensionMap[extension] = [];
@@ -84,8 +87,8 @@ function load() {
   sourceExtension = {};
 
   Object.keys(extensionMap).forEach((sourceExt) => {
-    var adapters = extensionMap[sourceExt];
-    var targetExt = `.${adapters[0].output}`;
+    const adapters = extensionMap[sourceExt];
+    const targetExt = `.${adapters[0].output}`;
 
     targetExtension[sourceExt] = targetExt;
 
@@ -98,20 +101,20 @@ function load() {
 }
 load();
 
-var dontCompile = function (pathName) {
+const dontCompile = function (pathName) {
   // Baby Tolk wont compile files that begin with an underscore `_`.
   // This is by convention.
-  var baseName = Path.basename(pathName);
+  const baseName = Path.basename(pathName);
   return baseName[0] === '_';
 };
 
-var createHash = function (data) {
-  var shasum = crypto.createHash('sha1');
+const createHash = function (data) {
+  const shasum = crypto.createHash('sha1');
   shasum.update(data);
   return shasum.digest('hex');
 };
 
-var sanitizeOptions = function (options) {
+const sanitizeOptions = function (options) {
   options = options || {};
   options.sourceMap = options.sourceMap !== false;
   if (options.sha) {
@@ -128,20 +131,20 @@ var sanitizeOptions = function (options) {
   return options;
 };
 
-var getAdapter = function (extension) {
-  var adapters = extensionMap[extension];
+const getAdapter = function (extension) {
+  const adapters = extensionMap[extension];
   return adapters && adapters[0];
 };
 
-var _getTransformId = function (adapter, options, extension) {
-  var transformId = '';
+const _getTransformId = function (adapter, options, extension) {
+  let transformId = '';
   if (adapter) {
     transformId = `${adapter.engineName}@${adapter.engine.version}`;
   }
 
   if (options.autoprefix) {
     if (extension === '.css' || (adapter && targetExtension[extension] === '.css')) {
-      transformId += '::autoprefix';
+      transformId += `::autoprefix=${options.autoprefix}`;
     }
   }
   if (options.sourceMap) {
@@ -153,10 +156,10 @@ var _getTransformId = function (adapter, options, extension) {
   return transformId;
 };
 
-var getTransformId = function (pathName, options) {
+const getTransformId = function (pathName, options) {
   options = sanitizeOptions(options);
-  var extension = pathCompleteExtname(pathName);
-  var adapter = !dontCompile(pathName) && getAdapter(extension);
+  const extension = pathCompleteExtname(pathName);
+  const adapter = !dontCompile(pathName) && getAdapter(extension);
   return _getTransformId(adapter, options, extension);
 };
 
@@ -177,24 +180,24 @@ module.exports = {
   read(pathName, options) {
     options = sanitizeOptions(options);
 
-    var extension = pathCompleteExtname(pathName);
-    var adapter = !dontCompile(pathName) && getAdapter(extension);
-    var isCss = Path.extname(pathName) === '.css';
+    const extension = pathCompleteExtname(pathName);
+    const adapter = !dontCompile(pathName) && getAdapter(extension);
+    let isCss = Path.extname(pathName) === '.css';
 
-    var sourceFile = fsp.readFile(pathName, 'utf8');
-    var sourceFileContents = null;
+    const sourceFile = fsp.readFile(pathName, 'utf8');
+    let sourceFileContents = null;
 
-    var continuation = sourceFile.then((result) => {
-      var obj = { result };
+    let continuation = sourceFile.then((result) => {
+      const obj = { result };
       sourceFileContents = result;
       // if (options.inputSha) { obj.inputSha = createHash(result); }
       return obj;
     });
 
-    var transformId = _getTransformId(adapter, options, extension);
+    const transformId = _getTransformId(adapter, options, extension);
     if (adapter) {
       isCss = adapter.output === 'css';
-      var transpilerOptions = Object.assign({}, options, {
+      const transpilerOptions = Object.assign({}, options, {
         sourcemap: options.sourceMap,
         filename: pathName,
       });
@@ -204,7 +207,7 @@ module.exports = {
         if (extension === '.sass') transpilerOptions.indentedSyntax = true;
       }
 
-      var manuallyTrackedSourceFiles = [];
+      const manuallyTrackedSourceFiles = [];
       if (adapter.engineName === 'ejs') {
         adapter.engine.fileLoader = (filePath) => {
           manuallyTrackedSourceFiles.push(filePath);
@@ -233,7 +236,7 @@ module.exports = {
 
     if (isCss && options.autoprefix) {
       continuation = continuation.then((compiled) => {
-        var postCssOptions = {};
+        const postCssOptions = {};
         if (compiled.sourcemap) {
           postCssOptions.map = {
             prev: compiled.sourcemap,
@@ -260,14 +263,20 @@ module.exports = {
       }
       compiled.transformId = transformId === '' ? null : transformId;
       if (options.inputSha) {
-        var inputSha = [
+        let inputSha = [
           {
             file: pathName,
             sha: createHash(sourceFileContents),
           }
         ];
-        var shaSources;
+        let shaSources;
         if (compiled.sourcemap) {
+          if (
+            compiled.sourcemap.constructor &&
+            compiled.sourcemap.constructor.name === 'SourceMapGenerator'
+          ) {
+            compiled.sourcemap = compiled.sourcemap.toJSON();
+          }
           shaSources = compiled.sourcemap.sources;
         } else if (compiled.manuallyTrackedSourceFiles) {
           shaSources = compiled.manuallyTrackedSourceFiles;
