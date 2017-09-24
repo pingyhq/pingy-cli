@@ -1,6 +1,6 @@
 'use strict';
 
-const Path = require('path');
+const Path = require('upath');
 const when = require('when');
 const node = require('when/node');
 const fs = require('fs');
@@ -178,6 +178,7 @@ module.exports = {
   isMinifiable: minify.isMinifiable,
   getTransformId,
   read(pathName, options) {
+    pathName = Path.normalize(pathName);
     options = sanitizeOptions(options);
 
     const extension = pathCompleteExtname(pathName);
@@ -285,7 +286,7 @@ module.exports = {
           inputSha = inputSha.concat(
             shaSources
               .map((path) => {
-                if (path === pathName) {
+                if (Path.normalize(path) === pathName) {
                   return null;
                 }
                 return fsp.readFile(path, 'utf8').then(content => ({
@@ -297,12 +298,7 @@ module.exports = {
           );
         }
         return when.all(inputSha).then((inputSha) => {
-          const shaIndex = [];
-          const deDupedShas = inputSha.filter((item) => {
-            const k = item.file;
-            return shaIndex.indexOf(k) >= 0 ? false : shaIndex.push(k);
-          });
-          compiled.inputSha = deDupedShas;
+          compiled.inputSha = inputSha;
           return compiled;
         });
       }
