@@ -1,8 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const uniq = require('lodash.uniq');
+const os = require('os');
 
-const winSkip = os === 'windows' ? it.skip : it;
+const winSkip = os.platform() === 'win32' ? it.skip : it;
 
 describe('base functions', () => {
   it('supports should work', () => {
