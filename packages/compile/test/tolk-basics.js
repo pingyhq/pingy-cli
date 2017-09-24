@@ -1,12 +1,12 @@
 'use strict';
 
-const Path = require('path');
+const Path = require('upath');
 const expect = require('unexpected').clone();
 const tolk = require('../lib/baby-tolk');
 const { join } = Path;
 
 function getPath(path) {
-  return join(process.cwd(), 'fixtures/source', path);
+  return join(process.cwd(), 'fixtures', 'source', path);
 }
 
 describe('readCompiled', () => {
