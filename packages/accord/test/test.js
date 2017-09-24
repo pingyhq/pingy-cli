@@ -1,6 +1,8 @@
-let path = require('path');
-let fs = require('fs');
-let uniq = require('lodash.uniq');
+const path = require('path');
+const fs = require('fs');
+const uniq = require('lodash.uniq');
+
+const winSkip = os === 'windows' ? it.skip : it;
 
 describe('base functions', () => {
   it('supports should work', () => {
@@ -15,17 +17,22 @@ describe('base functions', () => {
     return (() => accord.load('blargh')).should.throw();
   });
 
-  it('load should accept a custom path', () =>
-    (() => accord.load('jade', path.join(__dirname, '../node_modules/jade'))).should.not.throw());
+  it('load should accept a custom path', () => {
+    return (() =>
+      accord.load('jade', path.join(__dirname, '../node_modules/jade'))).should.not.throw();
+  });
 
-  it("load should resolve a custom path using require's algorithm", () =>
-    (() =>
+  it("load should resolve a custom path using require's algorithm", () => {
+    return (() =>
       accord.load(
         'jade',
         path.join(__dirname, '../node_modules/jade/missing/path')
-      )).should.not.throw());
+      )).should.not.throw();
+  });
 
-  it('all should return all adapters', () => accord.all().should.be.a('object'));
+  it('all should return all adapters', () => {
+    return accord.all().should.be.a('object');
+  });
 
   return it.skip('should throw an error when attempting to load an unsupported version', () =>
     (() => accord.load('xxx')).should.throw('xxx version x is not currently supported')
@@ -54,7 +61,7 @@ describe('jade', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.jade');
+    const lpath = path.join(this.path, 'basic.jade');
     return this.jade
       .renderFile(lpath, { foo: 'such options' })
       .then(res => should.match_expected(this.jade, res.result, lpath));
@@ -73,7 +80,7 @@ describe('jade', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.jade');
+    const lpath = path.join(this.path, 'precompile.jade');
     return this.jade
       .compileFile(lpath)
       .then(res => should.match_expected(this.jade, res.result({ foo: 'such options' }), lpath));
@@ -88,24 +95,24 @@ describe('jade', () => {
   });
 
   it('should client-compile a file', function () {
-    let lpath = path.join(this.path, 'client.jade');
+    const lpath = path.join(this.path, 'client.jade');
     return this.jade
       .compileFileClient(lpath, { foo: 'such options' })
       .then(res => should.match_expected(this.jade, res.result, lpath));
   });
 
   it('should handle external file requests', function () {
-    let lpath = path.join(this.path, 'partial.jade');
+    const lpath = path.join(this.path, 'partial.jade');
     return this.jade
       .renderFile(lpath)
       .then(res => should.match_expected(this.jade, res.result, lpath));
   });
 
   it('should render with client side helpers', function () {
-    let lpath = path.join(this.path, 'client-complex.jade');
+    const lpath = path.join(this.path, 'client-complex.jade');
     return this.jade.compileFileClient(lpath).then((res) => {
-      let tpl_string = `${this.jade.clientHelpers()}${res.result}; template({ wow: 'local' })`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${this.jade.clientHelpers()}${res.result}; template({ wow: 'local' })`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.jade, tpl, lpath);
     });
   });
@@ -117,8 +124,8 @@ describe('jade', () => {
   });
 
   return it('should handle rapid async calls with different deeply nested locals correctly', function () {
-    let lpath = path.join(this.path, 'async.jade');
-    let opts = { wow: { such: 'test' } };
+    const lpath = path.join(this.path, 'async.jade');
+    const opts = { wow: { such: 'test' } };
     return W.map(__range__(1, 100, true), (i) => {
       opts.wow = { such: i };
       return this.jade.renderFile(lpath, opts).catch(should.not.exist);
@@ -148,7 +155,7 @@ describe('pug', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.pug');
+    const lpath = path.join(this.path, 'basic.pug');
     return this.pug
       .renderFile(lpath, { foo: 'such options' })
       .then(res => should.match_expected(this.pug, res.result, lpath));
@@ -167,7 +174,7 @@ describe('pug', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.pug');
+    const lpath = path.join(this.path, 'precompile.pug');
     return this.pug
       .compileFile(lpath)
       .then(res => should.match_expected(this.pug, res.result({ foo: 'such options' }), lpath));
@@ -175,33 +182,33 @@ describe('pug', () => {
 
   it('should client-compile a string', function () {
     return this.pug.compileClient('p imma firin mah lazer!\np= foo').then((res) => {
-      let tpl_string = `${res.result}; template({ foo: 'such options' })`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${res.result}; template({ foo: 'such options' })`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.pug, tpl, path.join(this.path, 'cstring.pug'));
     });
   });
 
   it('should client-compile a file', function () {
-    let lpath = path.join(this.path, 'client.pug');
+    const lpath = path.join(this.path, 'client.pug');
     return this.pug.compileFileClient(lpath).then((res) => {
-      let tpl_string = `${res.result}; template({ foo: 'such options' })`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${res.result}; template({ foo: 'such options' })`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.pug, tpl, lpath);
     });
   });
 
   it('should handle external file requests', function () {
-    let lpath = path.join(this.path, 'partial.pug');
+    const lpath = path.join(this.path, 'partial.pug');
     return this.pug
       .renderFile(lpath)
       .then(res => should.match_expected(this.pug, res.result, lpath));
   });
 
   it('should render complex pug files', function () {
-    let lpath = path.join(this.path, 'client-complex.pug');
+    const lpath = path.join(this.path, 'client-complex.pug');
     return this.pug.compileFileClient(lpath).then((res) => {
-      let tpl_string = `${res.result}; template({ wow: 'local' })`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${res.result}; template({ wow: 'local' })`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.pug, tpl, lpath);
     });
   });
@@ -213,8 +220,8 @@ describe('pug', () => {
   });
 
   return it('should handle rapid async calls with different deeply nested locals correctly', function () {
-    let lpath = path.join(this.path, 'async.pug');
-    let opts = { wow: { such: 'test' } };
+    const lpath = path.join(this.path, 'async.pug');
+    const opts = { wow: { such: 'test' } };
     return W.map(__range__(1, 100, true), (i) => {
       opts.wow = { such: i };
       return this.pug.renderFile(lpath, opts).catch(should.not.exist);
@@ -244,7 +251,7 @@ describe.skip('swig', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.swig');
+    const lpath = path.join(this.path, 'basic.swig');
     return this.swig
       .renderFile(lpath, { locals: { author: 'Jeff Escalante' } })
       .then(res => should.match_expected(this.swig, res.result, lpath));
@@ -263,7 +270,7 @@ describe.skip('swig', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.swig');
+    const lpath = path.join(this.path, 'precompile.swig');
     return this.swig
       .compileFile(lpath)
       .then(res => should.match_expected(this.swig, res.result({ title: 'Hello!' }), lpath));
@@ -278,23 +285,23 @@ describe.skip('swig', () => {
   });
 
   it.skip('should client-compile a file', function () {
-    let lpath = path.join(this.path, 'client.swig');
+    const lpath = path.join(this.path, 'client.swig');
     return this.swig
       .compileFileClient(lpath)
       .then(res => should.match_expected(this.swig, res.result, lpath));
   });
 
   it('should handle external file requests', function () {
-    let lpath = path.join(this.path, 'partial.swig');
+    const lpath = path.join(this.path, 'partial.swig');
     return this.swig
       .renderFile(lpath)
       .then(res => should.match_expected(this.swig, res.result, lpath));
   });
 
   return it('should render with client side helpers', function () {
-    let lpath = path.join(this.path, 'client-complex.swig');
+    const lpath = path.join(this.path, 'client-complex.swig');
     return this.swig.compileFileClient(lpath).then((res) => {
-      let tpl_string = `window = {}; ${this.swig.clientHelpers()};\n var tpl = (${res.result});`;
+      const tpl_string = `window = {}; ${this.swig.clientHelpers()};\n var tpl = (${res.result});`;
       return should.match_expected(this.swig, tpl_string, lpath);
     });
   });
@@ -322,7 +329,7 @@ describe('coffeescript', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.coffee');
+    const lpath = path.join(this.path, 'basic.coffee');
     return this.coffee
       .renderFile(lpath)
       .then(res => should.match_expected(this.coffee, res.result, lpath));
@@ -333,11 +340,14 @@ describe('coffeescript', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.coffee.render('!   ---@#$$@%#$').then(should.not.exist).catch(x => x);
+    return this.coffee
+      .render('!   ---@#$$@%#$')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   return it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.coffee');
+    const lpath = path.join(this.path, 'basic.coffee');
     return this.coffee.renderFile(lpath, { sourcemap: true }).then((res) => {
       res.sourcemap.should.exist;
       res.sourcemap.version.should.equal(3);
@@ -372,7 +382,7 @@ describe('stylus', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.styl');
+    const lpath = path.join(this.path, 'basic.styl');
     return this.stylus
       .renderFile(lpath)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
@@ -383,52 +393,52 @@ describe('stylus', () => {
   });
 
   it('should set normal options', function () {
-    let opts = {
+    const opts = {
       paths: ['pluginz'],
       foo: 'bar',
     };
 
-    let lpath = path.join(this.path, 'include1.styl');
+    const lpath = path.join(this.path, 'include1.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should correctly import css files', function () {
-    let opts = { 'include css': true };
+    const opts = { 'include css': true };
 
-    let lpath = path.join(this.path, 'include_css.styl');
+    const lpath = path.join(this.path, 'include_css.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should set vanilla url function', function () {
-    let opts = { url: 'embedurl' };
+    const opts = { url: 'embedurl' };
 
-    let lpath = path.join(this.path, 'embedurl.styl');
+    const lpath = path.join(this.path, 'embedurl.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should set url function with options', function () {
-    let opts = {
+    const opts = {
       url: {
         name: 'embedurl',
         limit: 10,
       },
     };
 
-    let lpath = path.join(this.path, 'embedurl.styl');
-    let epath = path.join(this.path, 'embedurl-opts.styl');
+    const lpath = path.join(this.path, 'embedurl.styl');
+    const epath = path.join(this.path, 'embedurl-opts.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, epath));
   });
 
   it('should set defines', function () {
-    let opts = { define: { foo: 'bar', baz: 'quux' } };
+    const opts = { define: { foo: 'bar', baz: 'quux' } };
 
     return this.stylus
       .render('.test\n  test: foo', opts)
@@ -438,52 +448,52 @@ describe('stylus', () => {
   });
 
   it('should set raw defines', function () {
-    let opts = { rawDefine: { rdefine: { blue1: '#0000FF' } } };
+    const opts = { rawDefine: { rdefine: { blue1: '#0000FF' } } };
 
-    let lpath = path.join(this.path, 'rawdefine.styl');
+    const lpath = path.join(this.path, 'rawdefine.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should set includes', function () {
-    let opts = { include: 'pluginz' };
+    const opts = { include: 'pluginz' };
 
-    let lpath = path.join(this.path, 'include1.styl');
+    const lpath = path.join(this.path, 'include1.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should set multiple includes', function () {
-    let opts = { include: ['pluginz', 'extra_plugin'] };
+    const opts = { include: ['pluginz', 'extra_plugin'] };
 
-    let lpath = path.join(this.path, 'include2.styl');
+    const lpath = path.join(this.path, 'include2.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should set imports', function () {
-    let opts = { import: 'pluginz/lib' };
+    const opts = { import: 'pluginz/lib' };
 
-    let lpath = path.join(this.path, 'import1.styl');
+    const lpath = path.join(this.path, 'import1.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should set multiple imports', function () {
-    let opts = { import: ['pluginz/lib', 'pluginz/lib2'] };
+    const opts = { import: ['pluginz/lib', 'pluginz/lib2'] };
 
-    let lpath = path.join(this.path, 'import2.styl');
+    const lpath = path.join(this.path, 'import2.styl');
     return this.stylus
       .renderFile(lpath, opts)
       .then(res => should.match_expected(this.stylus, res.result, lpath));
   });
 
   it('should set plugins', function () {
-    let opts = {
+    const opts = {
       use(style) {
         return style.define('main-width', 500);
       },
@@ -497,7 +507,7 @@ describe('stylus', () => {
   });
 
   it('should set multiple plugins', function () {
-    let opts = {
+    const opts = {
       use: [style => style.define('main-width', 500), style => style.define('main-height', 200)],
     };
 
@@ -509,12 +519,15 @@ describe('stylus', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.stylus.render("error('oh noes!')").then(should.not.exist).catch(x => x);
+    return this.stylus
+      .render("error('oh noes!')")
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   return it('should expose sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.styl');
-    let opts = { sourcemap: true };
+    const lpath = path.join(this.path, 'basic.styl');
+    const opts = { sourcemap: true };
 
     return this.stylus
       .renderFile(lpath, opts)
@@ -550,7 +563,7 @@ describe.skip('dot', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.dot');
+    const lpath = path.join(this.path, 'basic.dot');
     return this.dot
       .renderFile(lpath, { name: 'Jake', age: 31 })
       .then(res => should.match_expected(this.dot, res.result, lpath));
@@ -569,7 +582,7 @@ describe.skip('dot', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.dot');
+    const lpath = path.join(this.path, 'precompile.dot');
     return this.dot
       .compileFile(lpath)
       .then(res =>
@@ -584,14 +597,14 @@ describe.skip('dot', () => {
   // dot doesn't support external file requests out of the box. You have to write your own extension to load snippets.
   // try using the one found here https://github.com/olado/doT/blob/master/examples/withdoT.js
   it('should handle partial renders', function () {
-    let lpath = path.join(this.path, 'partial.dot');
+    const lpath = path.join(this.path, 'partial.dot');
     return this.dot
       .renderFile(lpath, { name: 'Jake', age: 31 })
       .then(res => should.match_expected(this.dot, res.result, lpath));
   });
 
   it('should client-compile a string', function () {
-    let input = `\
+    const input = `\
 {{? it.name }}
 <div>Oh, I love your name, {{=it.name}}!</div>
 {{?? it.age === 0}}
@@ -600,14 +613,14 @@ describe.skip('dot', () => {
 You are {{=it.age}} and still don't have a name?
 {{?}}\
 `;
-    let target = path.join(this.path, 'cstring.dot');
+    const target = path.join(this.path, 'cstring.dot');
     return this.dot
       .compileClient(input, { name: 'Jake', age: 31 })
       .then(res => should.match_expected(this.dot, res.result, target));
   });
 
   it('should client-compile a file', function () {
-    let lpath = path.join(this.path, 'client.dot');
+    const lpath = path.join(this.path, 'client.dot');
 
     return this.dot
       .compileFileClient(lpath, { name: 'Jake', age: 31 })
@@ -615,16 +628,19 @@ You are {{=it.age}} and still don't have a name?
   });
 
   it('should render with client side helpers', function () {
-    let lpath = path.join(this.path, 'client-complex.dot');
+    const lpath = path.join(this.path, 'client-complex.dot');
     return this.dot.compileFileClient(lpath).then((res) => {
-      let tpl_string = `${this.dot.clientHelpers()}; var tpl = ${res.result}; tpl({'name':'Jake','age':31})`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${this.dot.clientHelpers()}; var tpl = ${res.result}; tpl({'name':'Jake','age':31})`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.dot, tpl, lpath);
     });
   });
 
   return it('should correctly handle errors', function () {
-    return this.dot.render('<div>Hi {{=it.name()}}!</div>').then(should.not.exist).catch(x => x);
+    return this.dot
+      .render('<div>Hi {{=it.name()}}!</div>')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -650,7 +666,7 @@ describe('ejs', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.ejs');
+    const lpath = path.join(this.path, 'basic.ejs');
     return this.ejs
       .renderFile(lpath, { foo: 'wow opts' })
       .then(res => should.match_expected(this.ejs, res.result, lpath));
@@ -669,14 +685,14 @@ describe('ejs', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.ejs');
+    const lpath = path.join(this.path, 'precompile.ejs');
     return this.ejs
       .compileFile(lpath)
       .then(res => should.match_expected(this.ejs, res.result({ foo: 'wow opts' }), lpath));
   });
 
   it('should handle external file requests', function () {
-    let lpath = path.join(this.path, 'partial.ejs');
+    const lpath = path.join(this.path, 'partial.ejs');
     return this.ejs
       .renderFile(lpath)
       .then(res => should.match_expected(this.ejs, res.result, lpath));
@@ -693,23 +709,26 @@ describe('ejs', () => {
   // ejs writes the filename to the function, which makes this
   // not work cross-system as expected
   it.skip('should client-compile a file', function () {
-    let lpath = path.join(this.path, 'client.ejs');
+    const lpath = path.join(this.path, 'client.ejs');
     return this.ejs
       .compileFileClient(lpath)
       .then(res => should.match_expected(this.ejs, res.result, lpath));
   });
 
   it('should render with client side helpers', function () {
-    let lpath = path.join(this.path, 'client-complex.ejs');
+    const lpath = path.join(this.path, 'client-complex.ejs');
     return this.ejs.compileFileClient(lpath).then((res) => {
-      let tpl_string = `${this.ejs.clientHelpers()}; var tpl = ${res.result}; tpl({ foo: 'local' })`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${this.ejs.clientHelpers()}; var tpl = ${res.result}; tpl({ foo: 'local' })`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.ejs, tpl, lpath);
     });
   });
 
   return it('should correctly handle errors', function () {
-    return this.ejs.render('<%= wow() %>').then(should.not.exist).catch(x => x);
+    return this.ejs
+      .render('<%= wow() %>')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -728,13 +747,13 @@ describe('eco', () => {
 
   it('should render a string', function () {
     return this.eco.render('<p>eco yah</p><p><%= @foo %></p>', { foo: 'wow opts' }).then((res) => {
-      let tgt = path.join(this.path, 'rstring.eco');
+      const tgt = path.join(this.path, 'rstring.eco');
       return should.match_expected(this.eco, res.result, tgt);
     });
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.eco');
+    const lpath = path.join(this.path, 'basic.eco');
     return this.eco
       .renderFile(lpath, { foo: 'wow opts' })
       .then(res => should.match_expected(this.eco, res.result, lpath));
@@ -742,13 +761,13 @@ describe('eco', () => {
 
   it('should compile a string', function () {
     return this.eco.compile('<p>precompilez</p><p><%= @foo %></p>').then((res) => {
-      let tgt = path.join(this.path, 'pstring.eco');
+      const tgt = path.join(this.path, 'pstring.eco');
       return should.match_expected(this.eco, res.result({ foo: 'wow opts' }), tgt);
     });
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.eco');
+    const lpath = path.join(this.path, 'precompile.eco');
     return this.eco
       .compileFile(lpath)
       .then(res => should.match_expected(this.eco, res.result({ foo: 'wow opts' }), lpath));
@@ -756,20 +775,23 @@ describe('eco', () => {
 
   it('should client-compile a string', function () {
     return this.eco.compileClient('Woah look, a <%= thing %>').then((res) => {
-      let tgt = path.join(this.path, 'cstring.eco');
+      const tgt = path.join(this.path, 'cstring.eco');
       return should.match_expected(this.eco, res.result, tgt);
     });
   });
 
   it('should client-compile a file', function () {
-    let lpath = path.join(this.path, 'client.eco');
+    const lpath = path.join(this.path, 'client.eco');
     return this.eco
       .compileFileClient(lpath)
       .then(res => should.match_expected(this.eco, res.result, lpath));
   });
 
   return it('should correctly handle errors', function () {
-    return this.eco.render('<%= wow() %>').then(should.not.exist).catch(x => x);
+    return this.eco
+      .render('<%= wow() %>')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -795,14 +817,14 @@ describe('markdown', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.md');
+    const lpath = path.join(this.path, 'basic.md');
     return this.markdown
       .renderFile(lpath)
       .then(res => should.match_expected(this.markdown, res.result, lpath));
   });
 
   it('should render with options', function () {
-    let lpath = path.join(this.path, 'opts.md');
+    const lpath = path.join(this.path, 'opts.md');
     return this.markdown
       .renderFile(lpath, { sanitize: true })
       .then(res => should.match_expected(this.markdown, res.result, lpath));
@@ -835,14 +857,14 @@ describe('minify-js', () => {
   });
 
   it('should minify a file', function () {
-    let lpath = path.join(this.path, 'basic.js');
+    const lpath = path.join(this.path, 'basic.js');
     return this.minifyjs
       .renderFile(lpath)
       .then(res => should.match_expected(this.minifyjs, res.result, lpath));
   });
 
   it('should minify with options', function () {
-    let lpath = path.join(this.path, 'opts.js');
+    const lpath = path.join(this.path, 'opts.js');
     return this.minifyjs
       .renderFile(lpath, { compress: false })
       .then(res => should.match_expected(this.minifyjs, res.result, lpath));
@@ -853,11 +875,14 @@ describe('minify-js', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.minifyjs.render('@#$%#I$$N%NI#$%I$PQ').then(should.not.exist).catch(x => x);
+    return this.minifyjs
+      .render('@#$%#I$$N%NI#$%I$PQ')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   return it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.js');
+    const lpath = path.join(this.path, 'basic.js');
     return this.minifyjs.renderFile(lpath, { sourcemap: true }).then((res) => {
       res.sourcemap.version.should.equal(3);
       res.sourcemap.mappings.length.should.be.above(1);
@@ -890,14 +915,14 @@ describe('minify-css', () => {
   });
 
   it('should minify a file', function () {
-    let lpath = path.join(this.path, 'basic.css');
+    const lpath = path.join(this.path, 'basic.css');
     return this.minifycss
       .renderFile(lpath)
       .then(res => should.match_expected(this.minifycss, res.result, lpath));
   });
 
   it('should minify with options', function () {
-    let lpath = path.join(this.path, 'opts.css');
+    const lpath = path.join(this.path, 'opts.css');
     return this.minifycss
       .renderFile(lpath, { keepBreaks: true })
       .then(res => should.match_expected(this.minifycss, res.result, lpath));
@@ -938,7 +963,7 @@ describe('escape-html', () => {
       );
   });
   it('should render a file without escaping anything', function () {
-    let lpath = path.join(this.path, 'basic.html');
+    const lpath = path.join(this.path, 'basic.html');
     return this.escapeHtml
       .renderFile(lpath)
       .catch(should.not.exist)
@@ -946,7 +971,7 @@ describe('escape-html', () => {
   });
 
   return it('should escape content', function () {
-    let lpath = path.join(this.path, 'escapable.html');
+    const lpath = path.join(this.path, 'escapable.html');
     return this.escapeHtml
       .renderFile(lpath)
       .catch(should.not.exist)
@@ -976,7 +1001,7 @@ describe('minify-html', () => {
   });
 
   it('should minify a file', function () {
-    let lpath = path.join(this.path, 'basic.html');
+    const lpath = path.join(this.path, 'basic.html');
     return this.minifyhtml
       .renderFile(lpath)
       .catch(err => console.log(err.stack))
@@ -984,7 +1009,7 @@ describe('minify-html', () => {
   });
 
   it('should minify with options', function () {
-    let lpath = path.join(this.path, 'opts.html');
+    const lpath = path.join(this.path, 'opts.html');
     return this.minifyhtml
       .renderFile(lpath, { collapseWhitespace: false })
       .then(res => should.match_expected(this.minifyhtml, res.result, lpath));
@@ -995,7 +1020,10 @@ describe('minify-html', () => {
   });
 
   return it('should correctly handle errors', function () {
-    return this.minifyhtml.render('<<<{@$@#$').then(should.not.exist).catch(x => x);
+    return this.minifyhtml
+      .render('<<<{@$@#$')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1021,14 +1049,14 @@ describe('csso', () => {
   });
 
   it('should minify a file', function () {
-    let lpath = path.join(this.path, 'basic.css');
+    const lpath = path.join(this.path, 'basic.css');
     return this.csso
       .renderFile(lpath)
       .then(res => should.match_expected(this.csso, res.result, lpath));
   });
 
   it('should minify with options', function () {
-    let lpath = path.join(this.path, 'opts.css');
+    const lpath = path.join(this.path, 'opts.css');
     return this.csso
       .renderFile(lpath, { restructuring: false })
       .then(res => should.match_expected(this.csso, res.result, lpath));
@@ -1039,7 +1067,10 @@ describe('csso', () => {
   });
 
   return it('should correctly handle errors', function () {
-    return this.csso.render('wow').then(should.not.exist).catch(x => x);
+    return this.csso
+      .render('wow')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1065,7 +1096,7 @@ describe('mustache', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.mustache');
+    const lpath = path.join(this.path, 'basic.mustache');
     return this.mustache
       .renderFile(lpath, { name: 'doge', winner: true })
       .then(res => should.match_expected(this.mustache, res.result, lpath));
@@ -1084,30 +1115,33 @@ describe('mustache', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.mustache');
+    const lpath = path.join(this.path, 'precompile.mustache');
     return this.mustache
       .compileFile(lpath)
       .then(res => should.match_expected(this.mustache, res.result.render({ name: 'foo' }), lpath));
   });
 
   it('client compile should work', function () {
-    let lpath = path.join(this.path, 'client-complex.mustache');
+    const lpath = path.join(this.path, 'client-complex.mustache');
     return this.mustache.compileFileClient(lpath).then((res) => {
-      let tpl_string = `${this.mustache.clientHelpers()}; var tpl = ${res.result} tpl.render({ wow: 'local' })`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${this.mustache.clientHelpers()}; var tpl = ${res.result} tpl.render({ wow: 'local' })`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.mustache, tpl, lpath);
     });
   });
 
   it('should handle partials', function () {
-    let lpath = path.join(this.path, 'partial.mustache');
+    const lpath = path.join(this.path, 'partial.mustache');
     return this.mustache
       .renderFile(lpath, { foo: 'bar', partials: { partial: 'foo {{ foo }}' } })
       .then(res => should.match_expected(this.mustache, res.result, lpath));
   });
 
   return it('should correctly handle errors', function () {
-    return this.mustache.render('{{# !@{!# }}').then(should.not.exist).catch(x => x);
+    return this.mustache
+      .render('{{# !@{!# }}')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1133,7 +1167,7 @@ describe('dogescript', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.djs');
+    const lpath = path.join(this.path, 'basic.djs');
     return this.doge
       .renderFile(lpath, { trueDoge: true })
       .then(res => should.match_expected(this.doge, res.result, lpath));
@@ -1169,7 +1203,7 @@ describe('handlebars', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.hbs');
+    const lpath = path.join(this.path, 'basic.hbs');
     return this.handlebars
       .renderFile(lpath, { compiler: 'handlebars' })
       .then(res => should.match_expected(this.handlebars, res.result, lpath));
@@ -1188,7 +1222,7 @@ describe('handlebars', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.hbs');
+    const lpath = path.join(this.path, 'precompile.hbs');
     return this.handlebars
       .compileFile(lpath)
       .then(res =>
@@ -1205,30 +1239,33 @@ describe('handlebars', () => {
   });
 
   it('should client-compile a file', function () {
-    let lpath = path.join(this.path, 'client.hbs');
+    const lpath = path.join(this.path, 'client.hbs');
     return this.handlebars
       .compileFileClient(lpath)
       .then(res => should.match_expected(this.handlebars, res.result, lpath));
   });
 
   it('should handle external file requests', function () {
-    let lpath = path.join(this.path, 'partial.hbs');
+    const lpath = path.join(this.path, 'partial.hbs');
     return this.handlebars
       .renderFile(lpath, { partials: { foo: '<p>hello from a partial!</p>' } })
       .then(res => should.match_expected(this.handlebars, res.result, lpath));
   });
 
   it('should render with client side helpers', function () {
-    let lpath = path.join(this.path, 'client-complex.hbs');
+    const lpath = path.join(this.path, 'client-complex.hbs');
     return this.handlebars.compileFileClient(lpath).then((res) => {
-      let tpl_string = `${this.handlebars.clientHelpers()}; var tpl = ${res.result}; tpl({ wow: 'local' })`;
-      let tpl = eval.call(global, tpl_string);
+      const tpl_string = `${this.handlebars.clientHelpers()}; var tpl = ${res.result}; tpl({ wow: 'local' })`;
+      const tpl = eval.call(global, tpl_string);
       return should.match_expected(this.handlebars, tpl, lpath);
     });
   });
 
   return it('should correctly handle errors', function () {
-    return this.handlebars.render('{{# !@{!# }}').then(should.not.exist).catch(x => x);
+    return this.handlebars
+      .render('{{# !@{!# }}')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1254,14 +1291,14 @@ describe('scss', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.scss');
+    const lpath = path.join(this.path, 'basic.scss');
     return this.scss
       .renderFile(lpath, { trueDoge: true })
       .then(res => should.match_expected(this.scss, res.result, lpath));
   });
 
   it('should include external files', function () {
-    let lpath = path.join(this.path, 'external.scss');
+    const lpath = path.join(this.path, 'external.scss');
     return this.scss
       .renderFile(lpath, { includePaths: [this.path] })
       .then(res => should.match_expected(this.scss, res.result, lpath));
@@ -1272,11 +1309,14 @@ describe('scss', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.scss.render('!@##%#$#^$').then(should.not.exist).catch(x => x);
+    return this.scss
+      .render('!@##%#$#^$')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   it('should generate a sourcemap', function () {
-    let lpath = path.join(this.path, 'basic.scss');
+    const lpath = path.join(this.path, 'basic.scss');
     return this.scss
       .renderFile(lpath, { sourcemap: true })
       .tap((res) => {
@@ -1289,8 +1329,8 @@ describe('scss', () => {
   });
 
   it('should generate a sourcemap with correct sources', function () {
-    let lpath = path.join(this.path, 'external.scss');
-    let mixinpath = path.join(this.path, '_mixin_lib.scss');
+    const lpath = path.join(this.path, 'external.scss');
+    const mixinpath = path.join(this.path, '_mixin_lib.scss');
     return this.scss
       .renderFile(lpath, { sourcemap: true })
       .tap((res) => {
@@ -1305,8 +1345,8 @@ describe('scss', () => {
   });
 
   return it('should generate a sourcemap with correct relative sources', function () {
-    let lpath = path.join(this.path, 'external.scss');
-    let mixinpath = path.join(this.path, '_mixin_lib.scss');
+    const lpath = path.join(this.path, 'external.scss');
+    const mixinpath = path.join(this.path, '_mixin_lib.scss');
     return this.scss
       .renderFile(lpath, { sourcemap: lpath })
       .tap((res) => {
@@ -1343,14 +1383,14 @@ describe('less', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.less');
+    const lpath = path.join(this.path, 'basic.less');
     return this.less
       .renderFile(lpath, { trueDoge: true })
       .then(res => should.match_expected(this.less, res.result, lpath));
   });
 
   it('should include external files', function () {
-    let lpath = path.join(this.path, 'external.less');
+    const lpath = path.join(this.path, 'external.less');
     return this.less
       .renderFile(lpath, { paths: [this.path] })
       .then(res => should.match_expected(this.less, res.result, lpath));
@@ -1361,7 +1401,10 @@ describe('less', () => {
   });
 
   it('should correctly handle parse errors', function () {
-    return this.less.render('!@##%#$#^$').then(should.not.exist).catch(x => x);
+    return this.less
+      .render('!@##%#$#^$')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   it('should correctly handle tree resolution errors', function () {
@@ -1377,8 +1420,8 @@ describe('less', () => {
       .catch(x => x);
   });
 
-  it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.less');
+  winSkip('should generate sourcemaps', function () {
+    const lpath = path.join(this.path, 'basic.less');
     return this.less.renderFile(lpath, { sourcemap: true }).then((res) => {
       res.sourcemap.version.should.equal(3);
       res.sourcemap.mappings.length.should.be.above(1);
@@ -1389,7 +1432,7 @@ describe('less', () => {
   });
 
   return it('should accept sourcemap overrides', function () {
-    let lpath = path.join(this.path, 'basic.less');
+    const lpath = path.join(this.path, 'basic.less');
     return this.less
       .renderFile(lpath, {
         sourceMap: { sourceMapBasepath: 'test/fixtures/less/basic.less' },
@@ -1423,7 +1466,7 @@ describe('coco', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.co');
+    const lpath = path.join(this.path, 'basic.co');
     return this.coco
       .renderFile(lpath)
       .then(res => should.match_expected(this.coco, res.result, lpath));
@@ -1434,7 +1477,10 @@ describe('coco', () => {
   });
 
   return it('should correctly handle errors', function () {
-    return this.coco.render('!! ---  )I%$_(I(YRTO').then(should.not.exist).catch(x => x);
+    return this.coco
+      .render('!! ---  )I%$_(I(YRTO')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1460,7 +1506,7 @@ describe('livescript', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.ls');
+    const lpath = path.join(this.path, 'basic.ls');
     return this.livescript
       .renderFile(lpath)
       .then(res => should.match_expected(this.livescript, res.result, lpath));
@@ -1471,7 +1517,10 @@ describe('livescript', () => {
   });
 
   return it('should correctly handle errors', function () {
-    return this.livescript.render('!! ---  )I%$_(I(YRTO').then(should.not.exist).catch(x => x);
+    return this.livescript
+      .render('!! ---  )I%$_(I(YRTO')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1488,7 +1537,7 @@ describe('typescript', () => {
     return this.typescript.name.should.be.ok;
   });
 
-  it('should render a string', function () {
+  winSkip('should render a string', function () {
     return this.typescript
       .render('var n:number = 42; console.log(n)', { bare: true })
       .then(res =>
@@ -1496,8 +1545,8 @@ describe('typescript', () => {
       );
   });
 
-  it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.ts');
+  winSkip('should render a file', function () {
+    const lpath = path.join(this.path, 'basic.ts');
     return this.typescript
       .renderFile(lpath)
       .then(res => should.match_expected(this.typescript, res.result, lpath));
@@ -1508,7 +1557,10 @@ describe('typescript', () => {
   });
 
   return it('should correctly handle errors', function () {
-    return this.typescript.render('!! ---  )I%$_(I(YRTO').then(should.not.exist).catch(x => x);
+    return this.typescript
+      .render('!! ---  )I%$_(I(YRTO')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1534,7 +1586,7 @@ describe.skip('myth', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.myth');
+    const lpath = path.join(this.path, 'basic.myth');
     return this.myth
       .renderFile(lpath)
       .then(res => should.match_expected(this.myth, res.result, lpath));
@@ -1545,11 +1597,14 @@ describe.skip('myth', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.myth.render('!! ---  )I%$_(I(YRTO').then(should.not.exist).catch(x => x);
+    return this.myth
+      .render('!! ---  )I%$_(I(YRTO')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   return it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.myth');
+    const lpath = path.join(this.path, 'basic.myth');
     return this.myth.renderFile(lpath, { sourcemap: true }).then((res) => {
       res.sourcemap.should.be.an('object');
       res.sourcemap.version.should.equal(3);
@@ -1583,7 +1638,7 @@ describe('haml', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.haml');
+    const lpath = path.join(this.path, 'basic.haml');
     return this.haml
       .renderFile(lpath, { compiler: 'haml' })
       .then(res => should.match_expected(this.haml, res.result, lpath));
@@ -1602,7 +1657,7 @@ describe('haml', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'precompile.haml');
+    const lpath = path.join(this.path, 'precompile.haml');
     return this.haml
       .compileFile(lpath)
       .then(res => should.match_expected(this.haml, res.result({ friend: 'doge' }), lpath));
@@ -1615,7 +1670,10 @@ describe('haml', () => {
   });
 
   return it('should correctly handle errors', function () {
-    return this.haml.render('%p= wow()').then(should.not.exist).catch(x => x);
+    return this.haml
+      .render('%p= wow()')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
@@ -1644,7 +1702,7 @@ describe.skip('marc', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.md');
+    const lpath = path.join(this.path, 'basic.md');
     return this.marc
       .renderFile(lpath, { data: { label: 'marc' } })
       .then(res => should.match_expected(this.marc, res.result, lpath));
@@ -1685,7 +1743,7 @@ describe('toffee', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.toffee');
+    const lpath = path.join(this.path, 'basic.toffee');
     return this.toffee
       .renderFile(lpath, { supplies: ['mop', 'trash bin', 'flashlight'] })
       .catch(should.not.exist)
@@ -1708,7 +1766,7 @@ describe('toffee', () => {
   });
 
   it('should compile a file', function () {
-    let lpath = path.join(this.path, 'template.toffee');
+    const lpath = path.join(this.path, 'template.toffee');
     return this.toffee
       .compileFile(lpath, { supplies: ['mop', 'trash bin', 'flashlight'] })
       .then(res => should.match_expected(this.toffee, res.result, lpath));
@@ -1748,8 +1806,8 @@ describe('toffee', () => {
       );
   });
 
-  it('should client-compile a file', function () {
-    let lpath = path.join(path.relative(process.cwd(), this.path), 'my_templates-2.toffee');
+  winSkip('should client-compile a file', function () {
+    const lpath = path.join(path.relative(process.cwd(), this.path), 'my_templates-2.toffee');
     return this.toffee
       .compileFileClient(lpath, {})
       .then(res => should.match_expected(this.toffee, res.result, lpath));
@@ -1784,7 +1842,7 @@ describe('babel', () => {
   });
 
   it('should render a string', function () {
-    let p = path.join(this.path, 'string.js');
+    const p = path.join(this.path, 'string.js');
     return this.babel
       .render("console.log('foo');", { presets: ['es2015'] })
       .catch(should.not.exist)
@@ -1792,7 +1850,7 @@ describe('babel', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.js');
+    const lpath = path.join(this.path, 'basic.js');
     return this.babel
       .renderFile(lpath, { presets: ['es2015'] })
       .catch(should.not.exist)
@@ -1804,11 +1862,14 @@ describe('babel', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.babel.render('!   ---@#$$@%#$').then(should.not.exist).catch(x => x);
+    return this.babel
+      .render('!   ---@#$$@%#$')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.js');
+    const lpath = path.join(this.path, 'basic.js');
     return this.babel.renderFile(lpath, { presets: ['es2015'], sourcemap: true }).then((res) => {
       res.sourcemap.should.exist;
       res.sourcemap.version.should.equal(3);
@@ -1820,7 +1881,7 @@ describe('babel', () => {
   });
 
   return it("should not allow keys outside of babel's options", function () {
-    let lpath = path.join(this.path, 'basic.js');
+    const lpath = path.join(this.path, 'basic.js');
     return this.babel
       .renderFile(lpath, { presets: ['es2015'], foobar: 'wow' })
       .catch(should.not.exist)
@@ -1842,7 +1903,7 @@ describe('buble', () => {
   });
 
   it('should render a string', function () {
-    let p = path.join(this.path, 'string.js');
+    const p = path.join(this.path, 'string.js');
     return this.buble
       .render("console.log('foo');")
       .catch(should.not.exist)
@@ -1850,7 +1911,7 @@ describe('buble', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.js');
+    const lpath = path.join(this.path, 'basic.js');
     return this.buble
       .renderFile(lpath)
       .catch(should.not.exist)
@@ -1862,11 +1923,14 @@ describe('buble', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.buble.render('!   ---@#$$@%#$').then(should.not.exist).catch(x => x);
+    return this.buble
+      .render('!   ---@#$$@%#$')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
-  return it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.js');
+  return winSkip('should generate sourcemaps', function () {
+    const lpath = path.join(this.path, 'basic.js');
     return this.buble.renderFile(lpath).then((res) => {
       res.sourcemap.should.exist;
       res.sourcemap.version.should.equal(3);
@@ -1898,7 +1962,7 @@ describe('jsx', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.jsx');
+    const lpath = path.join(this.path, 'basic.jsx');
     return this.jsx
       .renderFile(lpath)
       .then(res => should.match_expected(this.jsx, res.result, lpath));
@@ -1909,11 +1973,14 @@ describe('jsx', () => {
   });
 
   it('should correctly handle errors', function () {
-    return this.jsx.render('!   ---@#$$@%#$').then(should.not.exist).catch(x => x);
+    return this.jsx
+      .render('!   ---@#$$@%#$')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 
   return it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.jsx');
+    const lpath = path.join(this.path, 'basic.jsx');
     return this.jsx.renderFile(lpath, { sourcemap: true }).then((res) => {
       res.sourcemap.should.exist;
       res.sourcemap.version.should.equal(3);
@@ -1947,7 +2014,7 @@ describe('cjsx', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.cjsx');
+    const lpath = path.join(this.path, 'basic.cjsx');
     return this.cjsx
       .renderFile(lpath)
       .then(res => should.match_expected(this.cjsx, res.result, lpath));
@@ -1980,23 +2047,23 @@ describe('postcss', () => {
   });
 
   it('should render a file', function () {
-    let lpath = path.join(this.path, 'basic.css');
+    const lpath = path.join(this.path, 'basic.css');
     return this.postcss
       .renderFile(lpath)
       .then(res => should.match_expected(this.postcss, res.result, lpath));
   });
 
   it('should render a file with plugin', function () {
-    let lpath = path.join(this.path, 'var.css');
-    let varsPlugin = require('postcss-simple-vars');
+    const lpath = path.join(this.path, 'var.css');
+    const varsPlugin = require('postcss-simple-vars');
     return this.postcss
       .renderFile(lpath, { use: [varsPlugin] })
       .then(res => should.match_expected(this.postcss, res.result, lpath));
   });
 
   it('should generate sourcemaps', function () {
-    let lpath = path.join(this.path, 'basic.css');
-    let opts = { map: true };
+    const lpath = path.join(this.path, 'basic.css');
+    const opts = { map: true };
     return this.postcss.renderFile(lpath, opts).then((res) => {
       res.sourcemap.should.exist;
       res.sourcemap.version.should.equal(3);
@@ -2009,14 +2076,17 @@ describe('postcss', () => {
   });
 
   return it('should correctly handle errors', function () {
-    return this.postcss.render('.test { ').then(should.not.exist).catch(x => x);
+    return this.postcss
+      .render('.test { ')
+      .then(should.not.exist)
+      .catch(x => x);
   });
 });
 
 function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  const range = [];
+  const ascending = left < right;
+  const end = !inclusive ? right : ascending ? right + 1 : right - 1;
   for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
     range.push(i);
   }
