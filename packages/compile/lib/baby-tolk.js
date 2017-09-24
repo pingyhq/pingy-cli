@@ -297,7 +297,12 @@ module.exports = {
           );
         }
         return when.all(inputSha).then((inputSha) => {
-          compiled.inputSha = inputSha;
+          const shaIndex = [];
+          const deDupedShas = inputSha.filter((item) => {
+            const k = item.file;
+            return shaIndex.indexOf(k) >= 0 ? false : shaIndex.push(k);
+          });
+          compiled.inputSha = deDupedShas;
           return compiled;
         });
       }
