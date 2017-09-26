@@ -1,9 +1,10 @@
 os:
   - linux
-  - osx
 language: node_js
 sudo: false
 node_js:
   - "6"
   - "7"
   - "8"
+addons:
+  chrome: stable

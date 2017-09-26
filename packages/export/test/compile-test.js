@@ -1,6 +1,6 @@
 'use strict';
 
-const Path = require('path');
+const Path = require('upath');
 const expect = require('unexpected').clone();
 const baconize = require('../');
 const rimraf = require('rimraf');
@@ -9,11 +9,11 @@ const nodefn = require('when/node');
 const fs = nodefn.liftAll(require('fs'));
 
 function getPathIn(path) {
-  return Path.join(process.cwd(), 'examples/site', path || '');
+  return Path.join(process.cwd(), 'examples', 'site', path || '');
 }
 
 function getPathOut(path) {
-  return Path.join(process.cwd(), 'examples/output', path || '');
+  return Path.join(process.cwd(), 'examples', 'output', path || '');
 }
 
 describe('baconize', function() {
@@ -55,7 +55,7 @@ describe('baconize', function() {
       return bacon.then(num =>
         expect.promise.all([
           expect(num, 'to be', 9),
-          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and(
+          expect(dirs, 'to contain', '.', 'dont-compile', 'scripts', 'styles').and(
             'to have length',
             4
           ),
@@ -167,7 +167,7 @@ describe('baconize', function() {
       return bacon.then(num =>
         expect.promise.all([
           expect(num, 'to be', 9),
-          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and(
+          expect(dirs, 'to contain', '.', 'dont-compile', 'scripts', 'styles').and(
             'to have length',
             4
           ),
@@ -309,7 +309,7 @@ describe('baconize', function() {
       return bacon.then(num =>
         expect.promise.all([
           expect(num, 'to be', 9),
-          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and(
+          expect(dirs, 'to contain', '.', 'dont-compile', 'scripts', 'styles').and(
             'to have length',
             4
           ),
@@ -404,7 +404,7 @@ describe('baconize', function() {
       return bacon.then(num =>
         expect.promise.all([
           expect(num, 'to be', 9),
-          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and(
+          expect(dirs, 'to contain', '.', 'dont-compile', 'scripts', 'styles').and(
             'to have length',
             4
           ),
@@ -526,7 +526,7 @@ describe('baconize', function() {
       return bacon.then(num =>
         expect.promise.all([
           expect(num, 'to be', 9),
-          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and(
+          expect(dirs, 'to contain', '.', 'dont-compile', 'scripts', 'styles').and(
             'to have length',
             4
           ),
@@ -714,7 +714,7 @@ describe('baconize', function() {
       return bacon.then(num =>
         expect.promise.all([
           expect(num, 'to be', 9),
-          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and(
+          expect(dirs, 'to contain', '.', 'dont-compile', 'scripts', 'styles').and(
             'to have length',
             4
           ),
@@ -918,7 +918,7 @@ describe('baconize', function() {
       return bacon.then(num =>
         expect.promise.all([
           expect(num, 'to be', 9),
-          expect(dirs, 'to contain', '', 'dont-compile', 'scripts', 'styles').and(
+          expect(dirs, 'to contain', '.', 'dont-compile', 'scripts', 'styles').and(
             'to have length',
             4
           ),

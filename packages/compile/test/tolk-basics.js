@@ -32,7 +32,8 @@ describe('readCompiled', () => {
   it('should throw when reading a file that does not exist', () => {
     return expect(tolk.read(getPath('does-not-exist.txt')), 'when rejected', 'to satisfy', {
       code: 'ENOENT',
-      path: expect.it('to contain', join('fixtures', 'source', 'does-not-exist.txt')),
+      path: expect.it('to contain', 'fixtures', 'source', 'does-not-exist.txt'),
+      message: expect.it('to be non-empty'),
     });
   });
 
@@ -296,8 +297,8 @@ describe('readCompiled', () => {
   it('should throw when compiling a file that does not exist', () => {
     return expect(tolk.read(getPath('does-not-exist.scss')), 'when rejected', 'to satisfy', {
       code: 'ENOENT',
-      path: /fixtures\/source\/does-not-exist\.scss$/,
-      message: /^ENOENT.*?, open '.+?fixtures\/source\/does-not-exist\.scss'$/,
+      path: expect.it('to contain', 'fixtures', 'source', 'does-not-exist.scss'),
+      message: expect.it('to be non-empty'),
     });
   });
 

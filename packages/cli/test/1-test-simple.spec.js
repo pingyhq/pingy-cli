@@ -26,13 +26,15 @@ expect.use(unexpectedWebdriver());
 let wd;
 const projectPath = path.join(__dirname, 'simple-project');
 
-after(function(done) {
+after(function (done) {
+  this.timeout(20000);
   rimraf(projectPath, () => {
     if (wd) return wd.quit().then(done);
     done();
   });
 });
-before(function(done) {
+before(function (done) {
+  this.timeout(20000);
   rimraf(projectPath, () => mkdirp(projectPath, done));
 });
 
@@ -43,7 +45,7 @@ describe('cli simple', function cli() {
   const styles = path.join(projectPath, 'styles', 'main.css');
   let siteUrl;
   let stylesUrl;
-  this.timeout(10000);
+  this.timeout(100000);
 
   function addAutoprefixConfig() {
     const p = fs.readFileSync(pingyJsonPath, 'utf8');

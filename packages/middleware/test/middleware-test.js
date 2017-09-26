@@ -1,6 +1,6 @@
 'use strict';
 
-const Path = require('path');
+const Path = require('upath');
 const expect = require('unexpected')
   .clone()
   .installPlugin(require('unexpected-express'))
@@ -12,10 +12,11 @@ const babyTolk = require('@pingy/compile');
 const fs = require('fs');
 
 function getPath(path) {
-  return Path.join(process.cwd(), 'examples/site', path || '');
+  return Path.join(process.cwd(), 'examples', 'site', path || '');
 }
 
-describe('middleware', () => {
+describe('middleware', function () {
+  this.timeout(5000);
   let app;
   let compileCount = 0;
   let cssFileChanged = 0;
@@ -106,8 +107,8 @@ describe('middleware', () => {
     describe('add inner import', () => {
       before(function(done) {
         // Revert file back to original contents with import
-        // Allow 250ms for chokidar to notice the change
-        fs.writeFile(pathToCSS, fileContentsCSS, () => setTimeout(done, 250));
+        // Allow 2000ms for chokidar to notice the change
+        fs.writeFile(pathToCSS, fileContentsCSS, () => setTimeout(done, 2000));
       });
 
       it('should cause a file change event', () => {
@@ -136,7 +137,7 @@ describe('middleware', () => {
               'Content-Type': 'application/json; charset=UTF-8',
             },
             body: {
-              sources: ['/styles/_headings.styl', '/styles/main.styl'],
+              sources: expect.it('to contain', '/styles/_headings.styl', '/styles/main.styl'),
               mappings: expect.it('to be non-empty'),
             },
           },
@@ -152,14 +153,14 @@ describe('middleware', () => {
             fileContentsInnerCSS = contents;
             const newContents = `${contents}\nh2\n  color blue`;
 
-            fs.writeFile(pathToInnerCSS, newContents, () => setTimeout(done, 250));
+            fs.writeFile(pathToInnerCSS, newContents, () => setTimeout(done, 2000));
           });
         });
 
         after(function(done) {
           // Revert file back to original contents with import
-          // Allow 250ms for chokidar to notice the change
-          fs.writeFile(pathToInnerCSS, fileContentsInnerCSS, () => setTimeout(done, 250));
+          // Allow 2000ms for chokidar to notice the change
+          fs.writeFile(pathToInnerCSS, fileContentsInnerCSS, () => setTimeout(done, 2000));
         });
 
         it('should compile styl file', () => {
@@ -224,7 +225,7 @@ describe('middleware', () => {
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: {
-            sources: ['/styles/_headings.styl', '/styles/main.styl'],
+            sources: expect.it('to contain', '/styles/_headings.styl', '/styles/main.styl'),
             mappings: expect.it('to be non-empty'),
           },
         },
@@ -309,15 +310,15 @@ describe('middleware', () => {
       fs.readFile(pathToCSS, (err, contents) => {
         fileContents = contents;
         // Add space to end of file
-        // Allow 250ms for chokidar to notice the change
-        fs.writeFile(pathToCSS, `${contents} `, () => setTimeout(done, 250));
+        // Allow 2000ms for chokidar to notice the change
+        fs.writeFile(pathToCSS, `${contents} `, () => setTimeout(done, 2000));
       });
     });
 
     after(function(done) {
       // Revert file back to original contents
-      // Allow 250ms for chokidar to notice the change
-      fs.writeFile(pathToCSS, fileContents, () => setTimeout(done, 250));
+      // Allow 2000ms for chokidar to notice the change
+      fs.writeFile(pathToCSS, fileContents, () => setTimeout(done, 2000));
     });
 
     it('should recompile styl file', () => {
@@ -393,8 +394,8 @@ describe('middleware', () => {
       fs.readFile(pathToCSS, (err, contents) => {
         fileContentsCSS = contents;
         // Add space to end of file
-        // Allow 250ms for chokidar to notice the change
-        fs.writeFile(pathToCSS, 'sodifj5ij%$:@', () => setTimeout(halfDone, 250));
+        // Allow 2000ms for chokidar to notice the change
+        fs.writeFile(pathToCSS, 'sodifj5ij%$:@', () => setTimeout(halfDone, 2000));
       });
       fs.readFile(pathToJS, (err, contents) => {
         fileContentsJS = contents;
@@ -409,8 +410,8 @@ describe('middleware', () => {
         if (numDone === 2) done();
       }
       // Revert file back to original contents
-      // Allow 250ms for chokidar to notice the change
-      fs.writeFile(pathToCSS, fileContentsCSS, () => setTimeout(done, 250));
+      // Allow 2000ms for chokidar to notice the change
+      fs.writeFile(pathToCSS, fileContentsCSS, () => setTimeout(done, 2000));
       fs.writeFile(pathToJS, fileContentsJS, halfDone);
     });
 

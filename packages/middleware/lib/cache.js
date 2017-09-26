@@ -2,6 +2,7 @@
 
 const chokidar = require('chokidar');
 const e = require('events');
+const { normalize } = require('upath');
 
 module.exports = function Cache(mountPath, events) {
   // Set-up cache and watchers
@@ -68,7 +69,11 @@ module.exports = function Cache(mountPath, events) {
   }
 
   function _addWatcher(compiledPath, sources) {
+    compiledPath = normalize(compiledPath);
+    sources = sources.map(normalize);
+
     const fileChanged = function (sourcePath) {
+      sourcePath = normalize(sourcePath);
       del(compiledPath);
       events.emit('fileChanged', compiledPath, sourcePath);
     };

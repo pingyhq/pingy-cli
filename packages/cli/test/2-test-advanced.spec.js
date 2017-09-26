@@ -31,13 +31,15 @@ let wd;
 const projectPath = path.join(__dirname, 'advanced-project');
 const fixturesPath = path.join(__dirname, 'fixtures');
 
-after(function(done) {
+after(function (done) {
+  this.timeout(20000);
   rimraf(projectPath, () => {
     if (wd) return wd.quit().then(done);
     done();
   });
 });
-before(function(done) {
+before(function (done) {
+  this.timeout(10000);
   rimraf(projectPath, () => mkdirp(projectPath, done));
 });
 
@@ -51,7 +53,7 @@ describe('cli advanced', function cli() {
   let siteUrl;
   let stylesUrl;
   let scriptsUrl;
-  this.timeout(100000);
+  this.timeout(1000000);
 
   function addAutoprefixConfig() {
     const p = fs.readFileSync(pingyJsonPath, 'utf8');
@@ -224,10 +226,15 @@ describe('cli advanced', function cli() {
     });
 
     it('should add ejs to site', function() {
-      const npmCmd = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
-      return spawn(npmCmd, ['install', 'ejs', '--save-dev'], {
-        cwd: projectPath,
-      });
+      if (/^win/.test(process.platform)) {
+        return spawn('cmd.exe', ['/c', 'npm.cmd', 'install', 'ejs', '--save-dev'], {
+          cwd: projectPath,
+        });
+      } else {
+        return spawn('npm', ['install', 'ejs', '--save-dev'], {
+          cwd: projectPath,
+        });
+      }
     });
 
     let spawnedEjs;

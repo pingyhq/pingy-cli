@@ -3,7 +3,7 @@
 const babyTolk = require('@pingy/compile');
 const readdirp = require('readdirp');
 const through = require('through2');
-const path = require('path');
+const path = require('upath');
 const pathCompleteExtname = require('path-complete-extname');
 const when = require('when');
 const fs = require('fs');
@@ -76,6 +76,8 @@ const createHash = function (data) {
 const noop = () => null;
 
 module.exports = function (inputDir, outputDir, options) {
+  inputDir = path.normalize(inputDir);
+  outputDir = path.normalize(outputDir);
   const eventEmitter = new events.EventEmitter();
   const shasFilename = '.shas.json';
   const fileWhitelist = [shasFilename];
@@ -189,6 +191,11 @@ module.exports = function (inputDir, outputDir, options) {
           .pipe(
             through.obj(
               (file, _, next) => {
+                file.path = path.normalize(file.path);
+                file.fullPath = path.normalize(file.fullPath);
+                file.parentDir = path.normalize(file.parentDir);
+                file.fullParentDir = path.normalize(file.fullParentDir);
+
                 if (abortRequested) {
                   const err = new Error('Manually aborted by user');
                   err.code = 'ABORT';
@@ -256,7 +263,8 @@ module.exports = function (inputDir, outputDir, options) {
                           .map(source =>
                             path.relative(path.dirname(compiledOutputFullPath), source)
                           )
-                          .map(source => (extensionChanged ? source : addSrcExtension(source)));
+                          .map(source => (extensionChanged ? source : addSrcExtension(source)))
+                          .map(path.normalize);
 
                         const srcMapFileName = `${compiledOutputFullPath}.map`;
                         writeFiles.push(
@@ -337,7 +345,7 @@ module.exports = function (inputDir, outputDir, options) {
         return when.promise((resolve, reject) => {
           readdirp({
             root: outputDir,
-            fileFilter: file => fileWhitelist.indexOf(file.path) === -1,
+            fileFilter: file => fileWhitelist.indexOf(path.normalize(file.path)) === -1,
           })
             .pipe(
               through.obj(
@@ -374,12 +382,16 @@ module.exports = function (inputDir, outputDir, options) {
 };
 
 module.exports.preflight = function preflight(inputDir, outputDir) {
+  inputDir = path.normalize(inputDir);
   const checks = [
     checkDir(inputDir),
     checkDir(path.join(inputDir, 'node_modules')),
     checkDir(path.join(inputDir, 'bower_components'))
   ];
-  if (outputDir) checks.push(checkDir(outputDir));
+  if (outputDir) {
+    outputDir = path.normalize(outputDir);
+    checks.push(checkDir(outputDir));
+  }
   return Promise.all(checks).then((info) => {
     const mainDir = info[0];
     const nodeModules = info[1];

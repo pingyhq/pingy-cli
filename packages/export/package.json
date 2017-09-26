@@ -40,6 +40,7 @@
     "readdirp": "2.0.1",
     "rimraf": "^2.5.3",
     "through2": "^2.0.0",
+    "upath": "^1.0.0",
     "when": "^3.7.4"
   },
   "devDependencies": {

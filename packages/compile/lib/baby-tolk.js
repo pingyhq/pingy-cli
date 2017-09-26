@@ -259,6 +259,17 @@ module.exports = {
       if (options.minify) {
         compiled = minify(compiled, options);
       }
+
+      if (compiled.sourcemap) {
+        if (
+          compiled.sourcemap.constructor &&
+          compiled.sourcemap.constructor.name === 'SourceMapGenerator'
+        ) {
+          compiled.sourcemap = compiled.sourcemap.toJSON();
+        }
+        compiled.sourcemap.sources = compiled.sourcemap.sources.map(Path.normalize);
+      }
+
       if (options.outputSha) {
         compiled.outputSha = createHash(compiled.result);
       }
@@ -272,12 +283,6 @@ module.exports = {
         ];
         let shaSources;
         if (compiled.sourcemap) {
-          if (
-            compiled.sourcemap.constructor &&
-            compiled.sourcemap.constructor.name === 'SourceMapGenerator'
-          ) {
-            compiled.sourcemap = compiled.sourcemap.toJSON();
-          }
           shaSources = compiled.sourcemap.sources;
         } else if (compiled.manuallyTrackedSourceFiles) {
           shaSources = compiled.manuallyTrackedSourceFiles;
