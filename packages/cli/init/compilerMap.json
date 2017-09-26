@@ -2,62 +2,71 @@
   "HTML": [
     {
       "name": "Jade",
-      "module": "jade",
+      "module": "jade@1",
       "extension": "jade"
     },
     {
       "name": "Pug",
       "module": "pug",
       "extension": "pug"
-    }, {
+    },
+    {
       "name": "ejs",
-      "module": "ejs",
+      "module": "ejs@2",
       "extension": "ejs"
     }
   ],
   "CSS": [
     {
       "name": "Sass (.scss)",
-      "module": "node-sass",
+      "module": "node-sass@4",
       "extension": "scss"
-    }, {
+    },
+    {
       "name": "Sass (.sass)",
-      "module": "node-sass",
+      "module": "node-sass@4",
       "extension": "sass"
-    }, {
+    },
+    {
       "name": "Less",
-      "module": "less",
+      "module": "less@2.7.2",
       "extension": "less"
-    }, {
+    },
+    {
       "name": "Stylus",
-      "module": "stylus",
+      "module": "stylus@0.54",
       "extension": "styl"
     }
   ],
-  "JS" : [
+  "JS": [
     {
-      "name": "CoffeeScript",
-      "module": "coffee-script",
+      "name": "CoffeeScript (v1.x)",
+      "module": "coffee-script@1",
       "extension": "coffee"
-    }, {
+    },
+    {
       "name": "Babel",
-      "module": ["babel-core", "babel-preset-env"],
+      "module": ["babel-core@6", "babel-preset-env@1"],
       "extension": "babel"
-    }, {
+    },
+    {
       "name": "Bublé",
-      "module": "buble",
+      "module": "buble@0.16",
       "extension": "buble"
-    }, {
+    },
+    {
       "name": "TypeScript",
       "module": "typescript-compiler@^1.4",
       "extension": "ts"
-    }, {
+    },
+    {
       "name": "LiveScript",
-      "module": "livescript",
+      "module": "livescript@1",
       "extension": "ls"
-    }, {
+    },
+    {
       "name": "DogeScript",
-      "module": "dogescript",
+      "module": "dogescript@2",
       "extension": "djs"
     }
   ]
