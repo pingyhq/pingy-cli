@@ -1,7 +1,9 @@
 # Pingy CLI
 
 [![npm](https://img.shields.io/npm/v/@pingy/cli.svg)](https://www.npmjs.com/package/@pingy/cli)
-[![Build Status](https://travis-ci.org/pingyhq/pingy-cli.svg?branch=master)](https://travis-ci.org/pingyhq/pingy-cli)
+[![Build Status: Linux & Mac](https://travis-ci.org/pingyhq/pingy-cli.svg?branch=master)](https://travis-ci.org/pingyhq/pingy-cli)
+[![Build Status: Windows](https://ci.appveyor.com/api/projects/status/1dxlosw2p3iavo39/branch/master?svg=true&passingText=Windows%20Build%20-%20Passing)](https://ci.appveyor.com/project/davej/pingy-cli-str9v)
+
 
 > The Simple **Frontend Build** Tool. No Configuration, No Plugins.
 
