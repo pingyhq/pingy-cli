@@ -1,7 +1,7 @@
 {
   "name": "@pingy/instant",
   "private": false,
-  "version": "3.0.2",
+  "version": "3.1.0",
   "main": "lib",
   "author": "Felix Gnass <fgnass@gmail.com>",
   "description": "drop-in replacement for connect.static with live-reload support",
