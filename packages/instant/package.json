@@ -22,9 +22,9 @@
     "prepublish": "browserify client/index.js -o client/bundle.js"
   },
   "dependencies": {
+    "@pingy/sendevent": "^1.0.5",
     "filewatcher": "^2.2.0",
     "send": "^0.12.1",
-    "sendevent": "^1.0.4",
     "stacked": "^1.1.1",
     "tamper": "^0.1.0"
   },

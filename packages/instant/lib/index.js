@@ -1,4 +1,4 @@
-var sendevent = require('sendevent/index.js')
+var sendevent = require('@pingy/sendevent/index.js')
   , inject = require('./inject')
   , serve = require('./serve')
   , stack = require('stacked')
