@@ -1,4 +1,4 @@
-var on = require('@pingy/sendevent')
+var on = require('sendevent')
   , parse = require('./url')
   , find = require('./find')
   , replace = require('./replace')
