@@ -36,6 +36,7 @@ const toNodeTree = (paths) => {
 };
 
 function scaffold(pkgJsonPath, depsObj) {
+  const lastWhitespace = global.repeatLastInit && global.conf.get('lastInit.whitespace');
   const options = {
     html: { type: depsObj.html.extension || 'html' },
     styles: { type: depsObj.css.extension || 'css' },
@@ -44,7 +45,11 @@ function scaffold(pkgJsonPath, depsObj) {
 
   return scaffoldLib
     .preflight(process.cwd(), options)
-    .then(info => archy(toNodeTree(info.preparedFiles)).split('\n').join('\n  '))
+    .then(info =>
+      archy(toNodeTree(info.preparedFiles))
+        .split('\n')
+        .join('\n  ')
+    )
     .then(filesToWriteTxt =>
       inquirer.prompt([
         {
@@ -60,6 +65,7 @@ function scaffold(pkgJsonPath, depsObj) {
     .then(
       ({ doScaffold }) =>
         doScaffold &&
+        !lastWhitespace &&
         inquirer
           .prompt([
             {
@@ -82,15 +88,19 @@ function scaffold(pkgJsonPath, depsObj) {
               ],
             }
           ])
-          .then(({ whitespace }) =>
+          .then(({ whitespace }) => {
+            if (lastWhitespace) {
+              whitespace = global.conf.get('lastInit.whitespace');
+            }
+            global.conf.set('lastInit.whitespace', whitespace);
             // TODO: Support babel.js and buble.js
-            scaffoldLib(
+            return scaffoldLib(
               process.cwd(),
               Object.assign(options, {
                 whitespaceFormatting: whitespace,
               })
-            )
-          )
+            );
+          })
           .then(() => ora().succeed('Site files scaffolded'))
     );
 }

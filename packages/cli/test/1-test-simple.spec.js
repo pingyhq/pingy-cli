@@ -88,7 +88,7 @@ describe('cli simple', function cli() {
       } catch (e) {}
     });
     it('should create .pingy.json and scaffold using init command', function() {
-      const spawned = spawn('node', ['../../cli.js', 'init'], {
+      const spawned = spawn('node', ['../../cli.js', 'init', '--ask'], {
         cwd: projectPath,
       });
       const { stdout, stdin } = spawned.childProcess;

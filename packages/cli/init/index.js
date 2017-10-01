@@ -10,6 +10,7 @@ const updatePkgScripts = require('./updatePkgScripts');
 const installDeps = require('./installDeps');
 const npmInit = require('./npmInit');
 const scaffold = require('./scaffold');
+const renderLastInit = require('./renderLastInit');
 
 const pkgJsonPath = path.join(process.cwd(), 'package.json');
 const pingyJsonPath = path.join(process.cwd(), '.pingy.json');
@@ -40,7 +41,7 @@ const stage1 = [
   }
 ];
 
-function performActions(pkgJsonPath, answers, depsObj, options) {
+function performActions(answers, depsObj, options) {
   updatePkgScripts(pkgJsonPath, answers);
   return scaffold(pkgJsonPath, depsObj).then(() => installDeps(depsObj, options));
 }
@@ -52,18 +53,18 @@ function processAnswers(options) {
       css: nameToObj('CSS', answers.styles),
       js: nameToObj('JS', answers.scripts),
     };
+    global.conf.set('lastInit', answers);
 
-    if (pkgJsonExists) {
-      performActions(pkgJsonPath, answers, depsObj, options);
-    } else {
-      npmInit(quietMode)
-        .then(() => performActions(pkgJsonPath, answers, depsObj, options))
-        .catch(e => ora().fail(e.message));
-    }
+    const continuation = pkgJsonExists ? Promise.resolve() : npmInit(quietMode);
+
+    continuation
+      .then(() => performActions(answers, depsObj, options))
+      .catch(e => ora().fail(e.message));
   };
 }
 
 function prompt(options) {
+  const lastInit = global.conf.get('lastInit');
   return new Promise((resolve) => {
     if (pingyJsonExists && pkgJsonExists) {
       return inquirer
@@ -72,15 +73,38 @@ function prompt(options) {
             type: 'confirm',
             name: 'resume',
             default: false,
-            message: 'Looks like you have run `pingy init` already. Pingy has detected a .pingy.json and package.json in your project, do you want to continue anyway?',
+            message:
+              'Looks like you have run `pingy init` already. Pingy has detected a .pingy.json and package.json in your project, do you want to continue anyway?',
           }
         ])
         .then(answers => resolve(answers.resume));
     }
     return resolve(true);
-  }).then((resume) => {
-    if (resume) return inquirer.prompt(stage1).then(processAnswers(options));
-  });
+  })
+    .then((resume) => {
+      if (!resume || !lastInit || options.ask) return resume;
+      return inquirer
+        .prompt([
+          {
+            type: 'confirm',
+            name: 'repeatLastInit',
+            default: true,
+            message: `Do you want to initialize your project using the same settings as last time?${renderLastInit(
+              lastInit
+            )}`,
+          }
+        ])
+        .then((answers) => {
+          if (answers.repeatLastInit) {
+            global.repeatLastInit = true;
+          }
+          return resume;
+        });
+    })
+    .then((resume) => {
+      if (global.repeatLastInit) return processAnswers(options)(lastInit);
+      if (resume) inquirer.prompt(stage1).then(processAnswers(options));
+    });
 }
 
 function init(options) {

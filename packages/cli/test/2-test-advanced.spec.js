@@ -103,6 +103,9 @@ describe('cli advanced', function cli() {
         });
 
       nextStep('\n', '? ')
+        .then(() =>
+          nextStep('? Do you want to initialize your project using the same settings', 'n\n')
+        )
         .then(() => nextStep('? What document', '\u001B\u005B\u0042\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What styles', '\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What scripts', '\u001B\u005B\u0042\u001B\u005B\u0042\n'))

@@ -14,6 +14,10 @@ const pkgJson = require('./package');
 const pingy = require('./pingy');
 const init = require('./init');
 const { getPingyJson, setPingyJson } = require('./pingyJson');
+const Configstore = require('configstore');
+
+const conf = new Configstore(pkgJson.name, { version: pkgJson.version });
+global.conf = conf;
 
 function run() {
   logo('Pingy');
@@ -29,6 +33,7 @@ function run() {
       '--global-pingy',
       "Don't install local version of Pingy CLI, use global version instead"
     )
+    .option('--ask', "Ask for all init options (don't prompt to use existing init options)")
     // .option('-q, --quiet', "Assume defaults and don't ask any questions. Non-interactive mode")
     // .option('--html', 'Language to use for HTML docs')
     // .option('--styles', 'Language to use for styles')
