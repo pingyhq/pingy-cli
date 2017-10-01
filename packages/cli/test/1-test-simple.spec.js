@@ -109,7 +109,6 @@ describe('cli simple', function cli() {
         .then(() => nextStep('? What document'))
         .then(() => nextStep('? What styles'))
         .then(() => nextStep('? What scripts'))
-        .then(() => nextStep('? Choose the folder name to export'))
         .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
         .then(() => nextStep('? The most important question'))
         .then(() => nextStep('? Run this', 'n\n'));

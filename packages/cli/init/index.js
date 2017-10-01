@@ -37,16 +37,6 @@ const stage1 = [
     name: 'scripts',
     message: 'What scripts format do you wish to use',
     choices: createChoices('JS'),
-  },
-  {
-    type: 'input',
-    name: 'exportDir',
-    message: 'Choose the folder name to export compiled files to',
-    default: 'dist',
-    validate(input) {
-      if (!validFilename(input)) return 'Invalid folder name';
-      return true;
-    },
   }
 ];
 

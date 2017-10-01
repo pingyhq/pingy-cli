@@ -106,7 +106,6 @@ describe('cli advanced', function cli() {
         .then(() => nextStep('? What document', '\u001B\u005B\u0042\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What styles', '\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What scripts', '\u001B\u005B\u0042\u001B\u005B\u0042\n'))
-        .then(() => nextStep('? Choose the folder name to export'))
         .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
         .then(() => nextStep('? The most important question'))
         .then(() => nextStep('? Run this', 'y\n'));
