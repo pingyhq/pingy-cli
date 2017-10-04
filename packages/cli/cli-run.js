@@ -16,7 +16,8 @@ const init = require('./init');
 const { getPingyJson, setPingyJson } = require('./pingyJson');
 const Configstore = require('configstore');
 
-const conf = new Configstore(pkgJson.name, { version: pkgJson.version });
+const conf = new Configstore(pkgJson.name, {});
+conf.set('version', pkgJson.version);
 global.conf = conf;
 
 function run() {
