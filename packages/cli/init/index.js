@@ -17,6 +17,7 @@ const pingyJsonPath = path.join(process.cwd(), '.pingy.json');
 const pkgJsonExists = fs.existsSync(pkgJsonPath);
 const pingyJsonExists = fs.existsSync(pingyJsonPath);
 
+const requiredLastInitProps = ['html', 'scripts', 'styles'];
 const createChoices = type => [type, ...compilerMap[type].map(x => x.name)];
 const nameToObj = (type, prettyName) => compilerMap[type].find(x => x.name === prettyName) || {};
 
@@ -64,7 +65,8 @@ function processAnswers(options) {
 }
 
 function prompt(options) {
-  const lastInit = global.conf.get('lastInit');
+  const hasLastInit = !requiredLastInitProps.some(prop => !global.conf.has(`lastInit.${prop}`));
+  const lastInit = hasLastInit ? global.conf.get('lastInit') : null;
   return new Promise((resolve) => {
     if (pingyJsonExists && pkgJsonExists) {
       return inquirer
@@ -89,7 +91,7 @@ function prompt(options) {
             type: 'confirm',
             name: 'repeatLastInit',
             default: true,
-            message: `Do you want to initialize your project using the same settings as last time?${renderLastInit(
+            message: `Do you want to initialize your project using the same settings as last time?\n${renderLastInit(
               lastInit
             )}`,
           }
@@ -103,7 +105,7 @@ function prompt(options) {
     })
     .then((resume) => {
       if (global.repeatLastInit) return processAnswers(options)(lastInit);
-      if (resume) inquirer.prompt(stage1).then(processAnswers(options));
+      if (resume) return inquirer.prompt(stage1).then(processAnswers(options));
     });
 }
 
