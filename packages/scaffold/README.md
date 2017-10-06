@@ -5,7 +5,7 @@ Scaffold
 [![Build Status](https://travis-ci.org/davej/barnyard.svg?branch=master)](https://travis-ci.org/davej/barnyard)
 [![Coverage Status](https://img.shields.io/coveralls/davej/barnyard.svg)](https://coveralls.io/r/davej/barnyard?branch=master)
 
-Scaffold a project for use with [Piggy in the Middle](https://github.com/davej/piggy-in-the-middle) and [Baconize](https://github.com/davej/baconize).
+Scaffold a project for use with [Pingy Middleware](https://github.com/pingyhq/pingy-cli/tree/master/packages/middleware) and [Pingy Export](https://github.com/pingyhq/pingy-cli/tree/master/packages/export).
 
 
 Getting Started

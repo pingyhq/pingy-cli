@@ -1,24 +1,17 @@
 'use strict';
 
-var fs = require('mz/fs');
-var mark = require('markup-js');
-var detab = require('detab');
-var path = require('path');
-var getDirName = path.dirname;
-var join = path.join;
-var deepAssign = require('deep-extend');
-var checkdir = require('checkdir');
-var thenify = require('thenify');
-var mkdirp = thenify(require('mkdirp'));
-var readFile = fs.readFile;
-var writeFile = fs.writeFile;
-var babelPolyfillPath = require.resolve('babel-polyfill/dist/polyfill.js');
-var normalizeCssPath = require.resolve('normalize.css/normalize.css');
-var babelRCPath = require.resolve('./templates/.babelrc');
+const path = require('upath');
+const checkdir = require('checkdir');
+const scaffoldPrimitive = require('@pingy/scaffold-primitive');
 
-var templatesDir = join(__dirname, 'templates');
+const babelPolyfillPath = require.resolve('babel-polyfill/dist/polyfill.js');
+const normalizeCssPath = require.resolve('normalize.css/normalize.css');
+const babelRCPath = require.resolve('./templates/.babelrc');
 
-var defaults = {
+const join = path.join;
+const templatesDir = join(__dirname, 'templates');
+
+const defaults = {
   html: {
     file: 'index',
     type: 'html', // or 'jade'
@@ -38,7 +31,7 @@ var defaults = {
   whitespaceFormatting: 'tabs',
 };
 
-var fileMap = {
+const fileMap = {
   html: {
     html(name) {
       return `${name || defaults.html.file}.html`;
@@ -95,74 +88,59 @@ var fileMap = {
   },
 };
 
-function prepareFiles(options) {
-  function formatOutputObject(inputFile, outputFilename, requiresTemplating) {
-    return inputFile.then((data) => {
-      if (requiresTemplating) {
-        data = mark.up(data, options);
-      }
-      if (
-        typeof options.whitespaceFormatting === 'number' ||
-        !isNaN(options.whitespaceFormatting)
-      ) {
-        data = detab(data, parseInt(options.whitespaceFormatting, 10));
-      }
-      return {
-        data,
-        path: outputFilename,
-      };
+function transformOptions(options) {
+  const settings = Object.assign({}, defaults, options, {
+    html: Object.assign({}, defaults.html, options.html),
+    styles: Object.assign({}, defaults.styles, options.styles),
+    scripts: Object.assign({}, defaults.scripts, options.scripts),
+  });
+
+  const transformedOptions = {
+    copy: [],
+    templates: [],
+    whitespace: settings.whitespaceFormatting,
+  };
+
+  if (settings.babelPolyfill) {
+    transformedOptions.copy.push({
+      input: babelPolyfillPath,
+      output: join(settings.scripts.folder, 'polyfill.js'),
+    });
+  }
+  if (settings.normalizeCss) {
+    transformedOptions.copy.push({
+      input: normalizeCssPath,
+      output: join(settings.styles.folder, 'normalize.css'),
+    });
+  }
+  if (settings.scripts.type === 'babel') {
+    transformedOptions.copy.push({
+      input: babelRCPath,
+      output: '.babelrc',
     });
   }
 
-  function getFile(filename, outputPath) {
-    var inputFile = readFile(filename, 'utf8');
-    return formatOutputObject(inputFile, outputPath);
-  }
+  transformedOptions.templates.push({
+    input: fileMap.html[settings.html.type](defaults.html.file),
+    vars: {
+      babelPolyfill: settings.babelPolyfill,
+      normalizeCss: settings.normalizeCss,
+      styles: settings.styles,
+      scripts: settings.scripts,
+    },
+    output: fileMap.html[settings.html.type](settings.html.file),
+  });
 
-  function getTemplateFile(inputFilename, outputFilename, requiresTemplating) {
-    var inputFile = readFile(join(templatesDir, inputFilename), 'utf8');
-    return formatOutputObject(inputFile, outputFilename, requiresTemplating);
-  }
+  transformedOptions.copy.push({
+    input: fileMap.scripts[settings.scripts.type](defaults.scripts.file, defaults.scripts.folder),
+    output: fileMap.scripts[settings.scripts.type](settings.scripts.file, settings.scripts.folder),
+  });
 
-  function prepareHtml() {
-    var htmlLang = options.html.type;
-    var inputFilename = fileMap.html[htmlLang]();
-    var outputFilename = fileMap.html[htmlLang](options.html.file);
-    // HTML files require templating through marked.js so add `true` param
-    return getTemplateFile(inputFilename, outputFilename, true);
-  }
-
-  function prepareStyles() {
-    var cssLang = options.styles.type;
-    var inputFilename = fileMap.styles[cssLang]();
-    var outputFilename = fileMap.styles[cssLang](options.styles.file, options.styles.folder);
-    return getTemplateFile(inputFilename, outputFilename);
-  }
-
-  function prepareScripts() {
-    var scriptsLang = options.scripts.type;
-    var inputFilename = fileMap.scripts[scriptsLang]();
-    var outputFilename = fileMap.scripts[scriptsLang](options.scripts.file, options.scripts.folder);
-    return getTemplateFile(inputFilename, outputFilename);
-  }
-
-  options = deepAssign({}, defaults, options);
-
-  var files = [];
-  files.push(prepareHtml());
-  files.push(prepareStyles());
-  files.push(prepareScripts());
-  if (options.scripts.type === 'babel') {
-    files.push(getFile(babelRCPath, '.babelrc'));
-  }
-  if (options.babelPolyfill) {
-    files.push(getFile(babelPolyfillPath, join(options.scripts.folder, 'polyfill.js')));
-  }
-  if (options.normalizeCss) {
-    files.push(getFile(normalizeCssPath, join(options.styles.folder, 'normalize.css')));
-  }
-
-  return Promise.all(files);
+  transformedOptions.copy.push({
+    input: fileMap.styles[settings.styles.type](defaults.styles.file, defaults.styles.folder),
+    output: fileMap.styles[settings.styles.type](settings.styles.file, settings.styles.folder),
+  });
+  return transformedOptions;
 }
 
 /**
@@ -186,35 +164,25 @@ function prepareFiles(options) {
  *       },
  *      babelPolyfill: true/false, // include babel polyfill?
  *      normalizeCss: true/false, // include CSS normalizer file?
- *      whitespaceFormatting: 'tabs', // Pass in a number (e.g. 2) to use spaces for whitespace, otherwise tabs will be used
+ *      whitespaceFormatting: 'tabs', // Pass in a number (e.g. 2) to use spaces
+ *                                    // for whitespace, otherwise tabs will be used
  *    }
  *
- * @return {Promise<Array[string]>}            Files created during scaffolding
+ * @return {Promise<Array[string]>}   Files created during scaffolding
  */
 module.exports = function barnyard(projectDir, options) {
-  function outputFile(path, data) {
-    return mkdirp(getDirName(path)).then(() => writeFile(path, data).then(() => path));
-  }
-
-  function outputFiles(files) {
-    // TODO: reject promise when `join` fails
-    var outputFilesList = files.map((file) => {
-      var filePath = join(projectDir, file.path);
-      return outputFile(filePath, file.data);
-    });
-    return Promise.all(outputFilesList);
-  }
-
-  return prepareFiles(options).then(outputFiles);
+  return scaffoldPrimitive(templatesDir, projectDir, transformOptions(options));
 };
 
-module.exports.preflight = function (filePath, options) {
+module.exports.preflight = function preflight(filePath, options) {
   return checkdir(filePath, { ignoreDotFiles: true }).then((dirInfo) => {
     if (!dirInfo.exists || typeof options !== 'object') return dirInfo;
-    return prepareFiles(options).then(prepared =>
-      Object.assign(dirInfo, {
-        preparedFiles: prepared.map(info => info.path),
-      })
-    );
+    return scaffoldPrimitive
+      .preflight(templatesDir, filePath, transformOptions(options))
+      .then(outputFiles =>
+        Object.assign(dirInfo, {
+          preparedFiles: outputFiles,
+        })
+      );
   });
 };
