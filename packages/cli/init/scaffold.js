@@ -4,36 +4,19 @@ const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const archy = require('archy');
+const pathTree = require('tree-from-paths');
+const path = require('upath');
 const scaffoldLib = require('@pingy/scaffold');
 const confirmWithHelpText = require('./promptConfirmWithHelpText');
 
 inquirer.registerPrompt('confirmWithHelpText', confirmWithHelpText);
 
-const toNodeTree = (paths) => {
-  const rootPath = [];
-  const scriptsPath = [];
-  const stylesPath = [];
-
-  paths.forEach((path) => {
-    const [folder, file] = path.split('/');
-    if (!file) rootPath.push(folder);
-    else if (folder === 'scripts') scriptsPath.push(file);
-    else if (folder === 'styles') stylesPath.push(file);
-  });
-  return {
-    nodes: [
-      ...rootPath,
-      {
-        label: 'scripts',
-        nodes: scriptsPath,
-      },
-      {
-        label: 'styles',
-        nodes: stylesPath,
-      }
-    ],
-  };
-};
+const toNodeTree = (baseDir, paths) =>
+  pathTree
+    .render(paths, baseDir, (parent, file) => file)
+    .substring(1)
+    .split('\n')
+    .join('\n  ');
 
 function scaffold(pkgJsonPath, depsObj) {
   const lastWhitespace = global.repeatLastInit && global.conf.get('lastInit.whitespace');
@@ -45,11 +28,7 @@ function scaffold(pkgJsonPath, depsObj) {
 
   return scaffoldLib
     .preflight(process.cwd(), options)
-    .then(info =>
-      archy(toNodeTree(info.preparedFiles))
-        .split('\n')
-        .join('\n  ')
-    )
+    .then(info => toNodeTree(process.cwd(), info.preparedFiles))
     .then(filesToWriteTxt =>
       inquirer.prompt([
         {

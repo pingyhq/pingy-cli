@@ -105,7 +105,7 @@ describe('cli simple', function cli() {
           stdout.on('data', onData);
         });
 
-      nextStep('\n', '? ')
+      nextStep('\n', '')
         .then(() => nextStep('? What document'))
         .then(() => nextStep('? What styles'))
         .then(() => nextStep('? What scripts'))
@@ -385,6 +385,50 @@ describe('cli simple', function cli() {
             'to contain',
             'body,h4{display:-webkit-box;display:-ms-flexbox}'
           ),
+        })
+      );
+    });
+  });
+
+  describe('re-init', function() {
+    before(function() {
+      try {
+        fs.unlinkSync(pingyJsonPath);
+        fs.unlinkSync(indexHtml);
+        fs.unlinkSync(scripts);
+        fs.unlinkSync(styles);
+      } catch (e) {}
+    });
+    it('should create .pingy.json and scaffold using init command', function() {
+      const spawned = spawn('node', ['../../cli.js', 'init'], {
+        cwd: projectPath,
+      });
+      const { stdout, stdin } = spawned.childProcess;
+
+      const nextStep = (matchString, write = '\n') =>
+        new Promise((resolve) => {
+          const onData = (data) => {
+            if (data.toString().includes(matchString)) {
+              stdout.removeListener('data', onData);
+              resolve();
+              stdin.write(write);
+            }
+          };
+          stdout.on('data', onData);
+        });
+
+      nextStep('\n', 'y')
+        .then(() => nextStep('? Do you want to initialize your', 'y\n'))
+        .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
+        .then(() => nextStep('? Run this', 'n\n'));
+
+      const exists = file => expect(fs.existsSync(file), 'to be true');
+      return spawned.then(() =>
+        expect.promise.all({
+          dir: exists(pingyJsonPath),
+          indexHtml: exists(indexHtml),
+          scripts: exists(scripts),
+          styles: exists(styles),
         })
       );
     });
