@@ -66,43 +66,42 @@ function scaffold(pkgJsonPath, depsObj) {
       ({ doScaffold }) =>
         doScaffold &&
         !lastWhitespace &&
-        inquirer
-          .prompt([
-            {
-              type: 'list',
-              name: 'whitespace',
-              message: 'The most important question: Tabs or spaces',
-              choices: [
-                {
-                  name: '2 spaces',
-                  value: '2',
-                },
-                {
-                  name: '4 spaces',
-                  value: '4',
-                },
-                {
-                  name: 'Tabs',
-                  value: 'tabs',
-                }
-              ],
-            }
-          ])
-          .then(({ whitespace }) => {
-            if (lastWhitespace) {
-              whitespace = global.conf.get('lastInit.whitespace');
-            }
-            global.conf.set('lastInit.whitespace', whitespace);
-            // TODO: Support babel.js and buble.js
-            return scaffoldLib(
-              process.cwd(),
-              Object.assign(options, {
-                whitespaceFormatting: whitespace,
-              })
-            );
-          })
-          .then(() => ora().succeed('Site files scaffolded'))
-    );
+        inquirer.prompt([
+          {
+            type: 'list',
+            name: 'whitespace',
+            message: 'The most important question: Tabs or spaces',
+            choices: [
+              {
+                name: '2 spaces',
+                value: '2',
+              },
+              {
+                name: '4 spaces',
+                value: '4',
+              },
+              {
+                name: 'Tabs',
+                value: 'tabs',
+              }
+            ],
+          }
+        ])
+    )
+    .then(({ whitespace }) => {
+      if (lastWhitespace) {
+        whitespace = global.conf.get('lastInit.whitespace');
+      }
+      global.conf.set('lastInit.whitespace', whitespace);
+      // TODO: Support babel.js and buble.js
+      return scaffoldLib(
+        process.cwd(),
+        Object.assign(options, {
+          whitespaceFormatting: whitespace,
+        })
+      );
+    })
+    .then(() => ora().succeed('Site files scaffolded'));
 }
 
 module.exports = scaffold;
