@@ -1,6 +1,6 @@
 {
   "name": "@pingy/scaffold-primitive",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lower-level lib that allows you to scaffold a project for use with Pingy CLI",
   "main": "index.js",
   "scripts": {

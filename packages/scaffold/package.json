@@ -1,6 +1,6 @@
 {
   "name": "@pingy/scaffold",
-  "version": "5.2.4",
+  "version": "6.0.0",
   "description": "Bootstrap/Scaffold a project for use with Piggy in the Middle and Baconize",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/davej/barnyard#readme",
   "dependencies": {
-    "@pingy/scaffold-primitive": "^1.0.0",
+    "@pingy/scaffold-primitive": "^1.0.1",
     "babel-polyfill": "^6.16.0",
     "checkdir": "^1.1.0",
     "deep-extend": "^0.4.1",

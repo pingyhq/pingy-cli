@@ -1,7 +1,7 @@
 {
   "name": "@pingy/accord",
   "description": "A unified interface for compiled languages and templates in JavaScript",
-  "version": "0.28.3",
+  "version": "0.28.4",
   "author": "Jeff Escalante",
   "bugs": "https://github.com/jescalan/accord",
   "dependencies": {
