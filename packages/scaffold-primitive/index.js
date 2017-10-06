@@ -5,7 +5,6 @@ const mark = require('markup-js');
 const detab = require('detab');
 const path = require('path');
 const isAbsolute = require('is-absolute');
-const sniff = require('supersniff');
 
 const maybeTab = (str, options) =>
   typeof options.whitespace === 'number' || !isNaN(options.whitespace)
@@ -23,12 +22,6 @@ const addInputString = x =>
 const returnOutputFilePath = objs => () => objs.map(x => x.output);
 const tabTemplateAndOutput = options => x =>
   fs.outputFile(x.output, maybeTab(maybeTemplate(x), options));
-
-// function processFiles(dirToScaffoldFrom, dirToScaffoldTo, options) {
-//   return Promise.all(
-//     copy.map(fixPaths(dirToScaffoldFrom, dirToScaffoldTo)).map(addInputString)
-//   ).then(objs => Promise.all(objs.map(tabTemplateAndOutput)).then(returnOutputFilePath(objs)));
-// }
 
 function doCopy(dirToScaffoldFrom, dirToScaffoldTo, options) {
   if (!Array.isArray(options.copy)) return [];
@@ -73,39 +66,3 @@ module.exports.preflight = function scaffoldPrimitivePreflight(
       : []
   ]).then(arr => [].concat(arr[0], arr[1]));
 };
-
-// var options = {
-//   baseDir: '~/scaffolds/default',
-//   templates: {
-//     'index.html': {
-//       vars: {
-//         babelPolyfill: true,
-//         normalizeCss: true
-//       }
-//     }
-//   }
-//   copy: ['.babelrc', 'scripts/main.babel.js', 'styles/main.scss']
-//   whitespace: 2,
-//   deps: {},
-//   devDeps: {},
-// };
-
-// const defaults = {
-//   templates: {}
-//   copy: [],
-//   whitespace: 2,
-//   deps: {},
-//   devDeps: {},
-//   dotPingyJson: {
-//     exportDir: distDir || 'dist',
-//     minify: true,
-//     compile: true,
-//     "exclusions": [{
-//       path: 'node_modules',
-//       action: 'exclude',
-//       type: 'dir'
-//     }]
-//   },
-//   compatibility: [],
-//   description: ''
-// };
