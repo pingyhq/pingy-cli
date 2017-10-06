@@ -1,0 +1,20 @@
+{
+  "name": "@pingy/scaffold-primitive",
+  "version": "1.0.0",
+  "description": "Lower-level lib that allows you to scaffold a project for use with Pingy CLI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Warning: no test specified\" && exit 0"
+  },
+  "author": "Dave Jeffery <dave@davejeffery.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "detab": "^2.0.1",
+    "fs-extra": "^4.0.2",
+    "is-absolute": "^1.0.0",
+    "markup-js": "^1.5.21"
+  }
+}

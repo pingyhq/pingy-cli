@@ -20,7 +20,7 @@ describe('barnyard', () => {
   const scriptsDir = Path.join(tmpDir, 'scripts/');
   const stylesDir = Path.join(tmpDir, 'styles/');
 
-  const makeRelative = files => files.map(file => file.replace(tmpDir, ''));
+  const makeRelative = files => files.map(file => file && file.replace(tmpDir, ''));
   const _clearTmpDir = cb => mkdirp(tmpDir).then(() => rimraf(tmpDir, cb));
   const clearTmpDir = Q.denodeify(_clearTmpDir);
 
@@ -502,12 +502,12 @@ describe('barnyard', () => {
         preparedFiles: expect
           .it(
             'to contain',
-            'index.html',
-            '.babelrc',
-            join('scripts', 'main.babel.js'),
-            join('styles', 'main.css'),
-            join('scripts', 'polyfill.js'),
-            join('styles', 'normalize.css')
+            join(tmpDir, 'index.html'),
+            join(tmpDir, '.babelrc'),
+            join(tmpDir, 'scripts', 'main.babel.js'),
+            join(tmpDir, 'styles', 'main.css'),
+            join(tmpDir, 'scripts', 'polyfill.js'),
+            join(tmpDir, 'styles', 'normalize.css')
           )
           .and('to have length', 6),
       });
