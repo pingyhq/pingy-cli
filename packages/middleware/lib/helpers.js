@@ -1,13 +1,14 @@
 'use strict';
 
-var when = require('when');
-var node = require('when/node');
-var fs = node.liftAll(require('fs'));
-var path = require('upath');
-var mime = require('mime');
-var urlLib = require('url');
+const fs = require('fs-extra');
+const path = require('upath');
+const mime = require('mime');
+const urlLib = require('url');
 
-var helpers = {
+const helpers = {
+  getCharset(mimeType) {
+    return /^text\/|^application\/(javascript|json)/.test(mimeType) ? 'UTF-8' : null;
+  },
   /**
    * Render a response
    * @param  {number}  statusCode     HTTP status code (e.g. 200)
@@ -17,12 +18,12 @@ var helpers = {
    * @param  {Object}  rsp            Connect/Express response Object
    */
   render: function render(statusCode, pth, compiled, isSrcMap, rsp) {
-    var extension = path.extname(pth);
-    var mimeType = mime.lookup(extension);
-    var charset = mime.charsets.lookup(mimeType);
+    const extension = path.extname(pth);
+    const mimeType = mime.getType(extension);
+    const charset = helpers.getCharset(mimeType);
     rsp.statusCode = statusCode;
 
-    var body;
+    let body;
     if (isSrcMap) {
       body = compiled.sourcemap;
     } else {
@@ -61,7 +62,7 @@ var helpers = {
   fixSourceMapLinks: function fixSourceMapLinks(mountPath, compiled) {
     if (compiled && compiled.sourcemap) {
       compiled.sourcemap.sources = compiled.sourcemap.sources.map((source) => {
-        var newSource;
+        let newSource;
         // HACK: This is because Babel gives us sources that are relative to the inputPath
         // TODO: Fix this upstream in Accord instead
         if (source.indexOf('/') === -1 && compiled.inputPath) {
@@ -79,7 +80,7 @@ var helpers = {
    * @return {string} fixedUrl  URL with index.html served on doc root
    */
   fixReqRoot: function fixReqRoot(reqUrl) {
-    if (path.extname(reqUrl) === '') return `${reqUrl}index.html`
+    if (path.extname(reqUrl) === '') return `${reqUrl}index.html`;
     return reqUrl;
   },
 
@@ -95,8 +96,8 @@ var helpers = {
     if (url.indexOf('://')) {
       url = urlLib.parse(url).pathname;
     }
-    var base = unescape(url.split('?')[0]);
-    var fullPath = path.join(mountPath, base);
+    const base = unescape(url.split('?')[0]);
+    let fullPath = path.join(mountPath, base);
 
     // converts unix paths to windows path on windows (not sure if this is a good thing)
     fullPath = path.normalize(fullPath);
@@ -129,8 +130,8 @@ var helpers = {
    * @return {Array}               paths to potential source files
    */
   listPotentialSourceFiles: function listPotentialSourceFiles(compiledFile, babyTolk) {
-    var compiledExtension = path.extname(compiledFile);
-    var targetExtensions = babyTolk.sourceExtensionMap[compiledExtension] || [];
+    const compiledExtension = path.extname(compiledFile);
+    const targetExtensions = babyTolk.sourceExtensionMap[compiledExtension] || [];
 
     return targetExtensions.map(extension => compiledFile.replace(compiledExtension, extension));
   },
@@ -141,25 +142,25 @@ var helpers = {
    * @return {Promise<string, null>}              path to source file or reject with null
    */
   findSourceFile: function findSourceFile(compiledFile, babyTolk) {
-    var dir = path.dirname(compiledFile);
-    var potentialSourceFiles = this.listPotentialSourceFiles(compiledFile, babyTolk);
+    const dir = path.dirname(compiledFile);
+    const potentialSourceFiles = this.listPotentialSourceFiles(compiledFile, babyTolk);
     if (!potentialSourceFiles.length) {
       // Exit early instead of doing pointless IO
-      return when.reject(null);
+      return Promise.reject(null);
     }
 
     return fs.readdir(dir).then(
       (files) => {
         // Find the first source file match in dir
-        var sourceFile = files
+        const sourceFile = files
           .map(file =>
             // Give files their full path
             path.join(dir, file)
           )
           .find(file => potentialSourceFiles.find(potentialSource => potentialSource === file));
-        return sourceFile || when.reject(null);
+        return sourceFile || Promise.reject(null);
       },
-      () => when.reject(null)
+      () => Promise.reject(null)
     );
   },
 };

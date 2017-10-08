@@ -3,7 +3,7 @@
 'use strict';
 
 const semver = require('semver');
-const path = require('path');
+const path = require('upath');
 
 const cliRunName = './cli-run';
 const pkgName = './package';

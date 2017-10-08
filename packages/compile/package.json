@@ -44,11 +44,11 @@
   "dependencies": {
     "@pingy/accord": "^0.28.4",
     "app-module-path": "1.1.0",
-    "autoprefixer": "7.0.1",
+    "autoprefixer": "7.1.5",
     "clean-css": "^3.4.18",
     "html-minifier": "3.0.3",
     "path-complete-extname": "0.1.0",
-    "postcss": "6.0.1",
+    "postcss": "6.0.13",
     "uglify-js": "^2.7.0",
     "upath": "1.0.0",
     "when": "^3.7.5"

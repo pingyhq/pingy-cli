@@ -25,10 +25,10 @@
     "@pingy/compile": "^6.2.2",
     "chokidar": "^1.6.0",
     "csserror": "^2.0.2",
+    "fs-extra": "^4.0.2",
     "jserror": "^1.0.0",
-    "mime": "^1.3.4",
-    "upath": "^1.0.0",
-    "when": "^3.7.3"
+    "mime": "^2.0.3",
+    "upath": "^1.0.0"
   },
   "devDependencies": {
     "@pingy/instant": "^3.1.4",
@@ -44,7 +44,7 @@
     "serve-static": "^1.11.1",
     "sinon": "^1.17.4",
     "stylus": "^0.54.5",
-    "unexpected": "^10.13.3",
+    "unexpected": "^10.36.0",
     "unexpected-express": "^9.0.0",
     "unexpected-messy": "^7.0.0",
     "unexpected-sinon": "^10.2.1"

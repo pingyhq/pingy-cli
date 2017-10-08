@@ -3,13 +3,14 @@
 'use strict';
 
 const program = require('commander');
-const logo = require('turbo-logo');
-const path = require('path');
+const fs = require('fs');
+const path = require('upath');
 const getPort = require('get-port');
 const ora = require('ora');
-const chalk = require('chalk');
 const opn = require('opn');
 const { inspect } = require('util');
+const colors = require('colors/safe');
+const chalk = require('chalk');
 const pkgJson = require('./package');
 const pingy = require('./pingy');
 const init = require('./init');
@@ -20,9 +21,14 @@ const conf = new Configstore(pkgJson.name, {});
 conf.set('version', pkgJson.version);
 global.conf = conf;
 
+const pingyAscii = fs.readFileSync(require.resolve('./pingy-ascii.txt'), 'utf8');
+
 function run() {
-  logo('Pingy');
-  console.log('\n');
+  try {
+    console.log(colors.rainbow(pingyAscii));
+  } catch (err) {
+    console.log(colors.red(`logo ${err}`));
+  }
 
   program.version(pkgJson.version);
 

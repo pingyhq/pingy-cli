@@ -1,11 +1,8 @@
 'use strict';
 
-const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
-const archy = require('archy');
 const pathTree = require('tree-from-paths');
-const path = require('upath');
 const scaffoldLib = require('@pingy/scaffold');
 const confirmWithHelpText = require('./promptConfirmWithHelpText');
 
