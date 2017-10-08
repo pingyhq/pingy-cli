@@ -40,7 +40,7 @@ describe('baconize', () => {
           }
         ],
         compile: true,
-        sourcemaps: false,
+        sourceMap: false,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -141,7 +141,7 @@ describe('baconize', () => {
     });
   });
 
-  describe('compile with sourcemaps', () => {
+  describe('compile with sourceMap', () => {
     before(clearDir);
     after(clearDir);
 
@@ -160,7 +160,7 @@ describe('baconize', () => {
           }
         ],
         compile: true,
-        sourcemaps: true,
+        sourceMap: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -311,7 +311,7 @@ describe('baconize', () => {
           }
         ],
         compile: true,
-        sourcemaps: false,
+        sourceMap: false,
         minify: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
@@ -410,7 +410,7 @@ describe('baconize', () => {
     });
   });
 
-  describe('compile minified with sourcemaps', () => {
+  describe('compile minified with sourceMap', () => {
     before(clearDir);
     after(clearDir);
 
@@ -430,7 +430,7 @@ describe('baconize', () => {
         ],
         compile: true,
         minify: true,
-        sourcemaps: true,
+        sourceMap: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -612,7 +612,7 @@ describe('baconize', () => {
           }
         ],
         compile: true,
-        sourcemaps: false,
+        sourceMap: false,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 

@@ -91,11 +91,11 @@ module.exports = function (inputDir, outputDir, options) {
 
   // Default compile and minify options to `true`
   options.compile = options.compile !== false;
-  options.sourcemaps = options.sourcemaps !== false;
+  options.sourceMap = options.sourceMap !== false;
 
   const babyTolkOptions = {
     minify: options.minify,
-    sourceMap: options.sourcemaps,
+    sourceMap: options.sourceMap,
     autoprefix: options.autoprefix,
     inputSha: true,
   };
@@ -317,11 +317,11 @@ module.exports = function (inputDir, outputDir, options) {
 
                   if (shouldCompile) {
                     // compile
-                    compile().then(() => (options.sourcemaps ? copy() : fileDone()), reject);
+                    compile().then(() => (options.sourceMap ? copy() : fileDone()), reject);
                   } else if (shouldMinify || shouldAutoprefix) {
                     // minify
                     compile().then(
-                      () => (options.sourcemaps ? copy(true) : fileDone()),
+                      () => (options.sourceMap ? copy(true) : fileDone()),
                       () => copy()
                     );
                   } else {

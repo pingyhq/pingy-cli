@@ -30,7 +30,7 @@ describe('baconize', function() {
         blacklist: ['dont-compile/**'],
         directoryFilter: ['!dont-copy'],
         compile: true,
-        sourcemaps: false,
+        sourceMap: false,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -133,7 +133,7 @@ describe('baconize', function() {
     });
   });
 
-  describe('compile with sourcemaps', function() {
+  describe('compile with sourceMap', function() {
     before(clearDir);
     after(clearDir);
 
@@ -142,7 +142,7 @@ describe('baconize', function() {
         blacklist: ['dont-compile/**'],
         directoryFilter: ['!dont-copy'],
         compile: true,
-        sourcemaps: true,
+        sourceMap: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -284,7 +284,7 @@ describe('baconize', function() {
         directoryFilter: ['!dont-copy'],
         compile: false,
         minify: true,
-        sourcemaps: false,
+        sourceMap: false,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -378,7 +378,7 @@ describe('baconize', function() {
         blacklist: ['dont-compile/**'],
         directoryFilter: ['!dont-copy'],
         compile: true,
-        sourcemaps: false,
+        sourceMap: false,
         minify: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
@@ -477,7 +477,7 @@ describe('baconize', function() {
     });
   });
 
-  describe('compile minified with sourcemaps (with broken js)', function() {
+  describe('compile minified with sourceMap (with broken js)', function() {
     let originalJSContents;
     before(() => {
       // REMINDER: This will be re-compiled in next test
@@ -501,7 +501,7 @@ describe('baconize', function() {
         directoryFilter: ['!dont-copy'],
         compile: true,
         minify: true,
-        sourcemaps: true,
+        sourceMap: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
@@ -651,7 +651,7 @@ describe('baconize', function() {
     });
   });
 
-  describe('compile minified with sourcemaps (SHA test)', function() {
+  describe('compile minified with sourceMap (SHA test)', function() {
     let originalStylContents;
     before(() => {
       // Mess up the dir a bit to make sure we recompile files as needed.
@@ -684,7 +684,7 @@ describe('baconize', function() {
         directoryFilter: ['!dont-copy'],
         compile: true,
         minify: true,
-        sourcemaps: true,
+        sourceMap: true,
         autoprefix: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
@@ -879,7 +879,7 @@ describe('baconize', function() {
     });
   });
 
-  describe('compile minified with sourcemaps (SHA test repeated)', function() {
+  describe('compile minified with sourceMap (SHA test repeated)', function() {
     after(clearDir);
 
     it('should compile compilable files and copy all others', function() {
@@ -888,7 +888,7 @@ describe('baconize', function() {
         directoryFilter: ['!dont-copy'],
         compile: true,
         minify: true,
-        sourcemaps: true,
+        sourceMap: true,
         autoprefix: true,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
@@ -948,7 +948,7 @@ describe('baconize', function() {
         blacklist: ['dont-compile/**'],
         directoryFilter: ['!dont-copy'],
         compile: true,
-        sourcemaps: false,
+        sourceMap: false,
       };
       const bacon = baconize(getPathIn(), getPathOut(), options);
 
