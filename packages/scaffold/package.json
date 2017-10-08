@@ -36,6 +36,7 @@
     "istanbul": "^0.4.4",
     "mocha": "^4.0.1",
     "mocha-lcov-reporter": "^1.0.0",
+    "q": "^1.5.0",
     "rimraf": "^2.6.2",
     "supersniff": "^1.1.0",
     "unexpected": "^10.36.0"
