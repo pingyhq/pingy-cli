@@ -12,9 +12,10 @@ const scaffold = require('./scaffold');
 const renderLastInit = require('./renderLastInit');
 
 const pkgJsonPath = path.join(process.cwd(), 'package.json');
-const pingyJsonPath = path.join(process.cwd(), '.pingy.json');
+const dotPingyJsonPath = path.join(process.cwd(), '.pingy.json');
+const pingyJsonPath = path.join(process.cwd(), 'pingy.json');
 const pkgJsonExists = fs.existsSync(pkgJsonPath);
-const pingyJsonExists = fs.existsSync(pingyJsonPath);
+const pingyJsonExists = fs.existsSync(pingyJsonPath) || fs.existsSync(dotPingyJsonPath);
 
 const requiredLastInitProps = ['html', 'scripts', 'styles'];
 const createChoices = type => [type, ...compilerMap[type].map(x => x.name)];
@@ -75,7 +76,7 @@ function prompt(options) {
             name: 'resume',
             default: false,
             message:
-              'Looks like you have run `pingy init` already. Pingy has detected a .pingy.json and package.json in your project, do you want to continue anyway?',
+              'Looks like you have run `pingy init` already. Pingy has detected a pingy.json and package.json in your project, do you want to continue anyway?',
           }
         ])
         .then(answers => resolve(answers.resume));
@@ -105,20 +106,11 @@ function prompt(options) {
     .then((resume) => {
       if (global.repeatLastInit) return processAnswers(options)(lastInit);
       if (resume) return inquirer.prompt(stage1).then(processAnswers(options));
+      return null;
     });
 }
 
 function init(options) {
-  // if (args.length > 0) {
-  //   return processAnswers(
-  //     {
-  //       html: args.html || 'HTML',
-  //       scripts: args.scripts || 'JS',
-  //       styles: args.styles || 'CSS',
-  //     },
-  //     true
-  //   );
-  // }
   return prompt(options);
 }
 

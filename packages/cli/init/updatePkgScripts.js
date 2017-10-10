@@ -6,7 +6,7 @@ const path = require('path');
 const dotPingyTmpl = require('./dotPingyTmpl');
 
 function createDotPingy(name) {
-  const filename = '.pingy.json';
+  const filename = 'pingy.json';
   const spinner = ora(`Creating ${filename}`).start();
   try {
     fs.writeFileSync(path.join(process.cwd(), filename), dotPingyTmpl(name), 'utf8');

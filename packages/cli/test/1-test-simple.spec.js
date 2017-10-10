@@ -39,7 +39,7 @@ before(function (done) {
 });
 
 describe('cli simple', function cli() {
-  const pingyJsonPath = path.join(projectPath, '.pingy.json');
+  const pingyJsonPath = path.join(projectPath, 'pingy.json');
   const indexHtml = path.join(projectPath, 'index.html');
   const scripts = path.join(projectPath, 'scripts', 'main.js');
   const styles = path.join(projectPath, 'styles', 'main.css');
@@ -87,7 +87,7 @@ describe('cli simple', function cli() {
         fs.unlinkSync(styles);
       } catch (e) {}
     });
-    it('should create .pingy.json and scaffold using init command', function() {
+    it('should create pingy.json and scaffold using init command', function() {
       const spawned = spawn('node', ['../../cli.js', 'init', '--ask'], {
         cwd: projectPath,
       });
@@ -399,7 +399,7 @@ describe('cli simple', function cli() {
         fs.unlinkSync(styles);
       } catch (e) {}
     });
-    it('should create .pingy.json and scaffold using init command', function() {
+    it('should create pingy.json and scaffold using init command', function() {
       const spawned = spawn('node', ['../../cli.js', 'init'], {
         cwd: projectPath,
       });

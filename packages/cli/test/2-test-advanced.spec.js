@@ -44,7 +44,7 @@ before(function (done) {
 });
 
 describe('cli advanced', function cli() {
-  const pingyJsonPath = path.join(projectPath, '.pingy.json');
+  const pingyJsonPath = path.join(projectPath, 'pingy.json');
   const indexHtml = path.join(projectPath, 'index.pug');
   const scripts = path.join(projectPath, 'scripts', 'main.babel.js');
   const styles = path.join(projectPath, 'styles', 'main.scss');
@@ -84,7 +84,7 @@ describe('cli advanced', function cli() {
   };
 
   describe('init', function() {
-    it('should create .pingy.json and scaffold using init command', function() {
+    it('should create pingy.json and scaffold using init command', function() {
       const spawnedInit = spawn('node', ['../../cli.js', 'init', '--global-pingy'], {
         cwd: projectPath,
       });

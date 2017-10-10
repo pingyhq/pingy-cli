@@ -6,11 +6,11 @@ const chalk = require('chalk');
 const findUp = require('find-up');
 
 function getPingyJson() {
-  const jsonPath = findUp.sync(['.pingy.json', '.pingy']);
+  const jsonPath = findUp.sync(['pingy.json', '.pingy.json']);
   if (!jsonPath) {
     console.log(
       chalk.red(
-        `${chalk.bold('File not found')}: .pingy.json.\nPlease create it or run \`pingy init\`.`
+        `${chalk.bold('File not found')}: pingy.json.\nPlease create it or run \`pingy init\`.`
       )
     );
     return false;
