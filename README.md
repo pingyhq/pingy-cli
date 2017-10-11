@@ -36,8 +36,10 @@ Initialise a new or existing website using Pingy
 
 Options:
 
-  -h, --help  output usage information
-  --yarn  Use Yarn instead of NPM for installing packages
+  --yarn          Use Yarn instead of NPM for installing packages
+  --global-pingy  Don't install local version of Pingy CLI, use global version instead
+  --ask           Ask for all init options (don't prompt to use existing init options)
+  -h, --help      output usage information
 ```
 
 `pingy init` will initialise a new or existing website in the current directory.
@@ -46,8 +48,6 @@ dependencies (e.g. Sass, Less, Babel, CoffeeScript etc..). Optionally, `init` ca
 also scaffold some boilerplate files for your website.
 
 Pingy is zero-configuration but it does place a `.pingy.json` file in your website folder to help Pingy identify the root of your website. Currently, this only contains the default folder name exporting files to ('dist'), you can change this if you like.
-
-*Coming soon: A non-interactive version of the init command*
 
 ### `dev`
 
