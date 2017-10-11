@@ -65,15 +65,16 @@ function scaffold(pkgJsonPath, depsObj) {
         ])
     )
     .then(({ whitespace }) => {
+      let whitespaceFormatting = whitespace;
       if (lastWhitespace) {
-        whitespace = global.conf.get('lastInit.whitespace');
+        whitespaceFormatting = global.conf.get('lastInit.whitespace');
       }
-      global.conf.set('lastInit.whitespace', whitespace);
+      global.conf.set('lastInit.whitespace', whitespaceFormatting);
       // TODO: Support babel.js and buble.js
       return scaffoldLib(
         process.cwd(),
         Object.assign(options, {
-          whitespaceFormatting: whitespace,
+          whitespaceFormatting,
         })
       );
     })
