@@ -1,6 +1,5 @@
 'use strict';
 
-const chokidar = require('chokidar');
 const fs = require('fs');
 const { normalize, join, relative } = require('upath');
 const isAbsolute = require('is-absolute');
@@ -81,21 +80,12 @@ module.exports = function Cache(mountPath, events) {
 
   function _addWatcher(compiledPath, sources) {
     compiledPath = normalize(compiledPath);
-    sources = sources.map(normalize);
-
-    const fileChanged = function (sourcePath) {
-      sourcePath = normalize(sourcePath);
-      del(compiledPath);
-      events.emit('fileChanged', compiledPath, sourcePath);
-    };
 
     sources.forEach((source) => {
       const absoluteSource = absolutePath(mountPath, source);
       const relativeSource = relativizePath(mountPath, absoluteSource);
 
       fs.watch(absoluteSource, () => {
-        // console.log(compiledPath, source);
-        // source = normalize(source);
         if (fileChangedRecently[relativeSource]) return;
         fileChangedRecently[relativeSource] = true;
         setTimeout(() => (fileChangedRecently[relativeSource] = false), 200);
@@ -104,13 +94,6 @@ module.exports = function Cache(mountPath, events) {
       });
     });
 
-    // chokidar
-    //   .watch(sources, {
-    //     cwd: mountPath,
-    //   })
-    //   // TODO: Trigger a browser reload event on change/unlink
-    //   .on('change', fileChanged)
-    //   .on('unlink', fileChanged);
     if (!watchers[compiledPath]) {
       watchers[compiledPath] = sources;
     } else {

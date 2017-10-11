@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@pingy/compile": "^6.2.3",
-    "chokidar": "^1.6.0",
     "csserror": "^2.0.2",
     "fs-extra": "^4.0.2",
     "is-absolute": "^1.0.0",
