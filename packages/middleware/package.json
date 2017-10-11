@@ -26,6 +26,7 @@
     "chokidar": "^1.6.0",
     "csserror": "^2.0.2",
     "fs-extra": "^4.0.2",
+    "is-absolute": "^1.0.0",
     "jserror": "^1.0.0",
     "mime": "^2.0.3",
     "upath": "^1.0.0"

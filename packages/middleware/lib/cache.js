@@ -1,13 +1,15 @@
 'use strict';
 
 const chokidar = require('chokidar');
-const e = require('events');
-const { normalize } = require('upath');
+const fs = require('fs');
+const { normalize, join, relative } = require('upath');
+const isAbsolute = require('is-absolute');
 
 module.exports = function Cache(mountPath, events) {
   // Set-up cache and watchers
   const cache = {};
   const watchers = {};
+  const fileChangedRecently = {};
 
   function exists(compiledPath) {
     return compiledPath in cache;
@@ -68,6 +70,15 @@ module.exports = function Cache(mountPath, events) {
     }
   }
 
+  function absolutePath(mountPath, source) {
+    if (isAbsolute(source)) return source;
+    return join(mountPath, source);
+  }
+
+  function relativizePath(mountPath, absoluteSource) {
+    return relative(mountPath, absoluteSource);
+  }
+
   function _addWatcher(compiledPath, sources) {
     compiledPath = normalize(compiledPath);
     sources = sources.map(normalize);
@@ -78,13 +89,28 @@ module.exports = function Cache(mountPath, events) {
       events.emit('fileChanged', compiledPath, sourcePath);
     };
 
-    chokidar
-      .watch(sources, {
-        cwd: mountPath,
-      })
-      // TODO: Trigger a browser reload event on change/unlink
-      .on('change', fileChanged)
-      .on('unlink', fileChanged);
+    sources.forEach((source) => {
+      const absoluteSource = absolutePath(mountPath, source);
+      const relativeSource = relativizePath(mountPath, absoluteSource);
+
+      fs.watch(absoluteSource, () => {
+        // console.log(compiledPath, source);
+        // source = normalize(source);
+        if (fileChangedRecently[relativeSource]) return;
+        fileChangedRecently[relativeSource] = true;
+        setTimeout(() => (fileChangedRecently[relativeSource] = false), 200);
+        del(compiledPath);
+        events.emit('fileChanged', compiledPath, relativeSource);
+      });
+    });
+
+    // chokidar
+    //   .watch(sources, {
+    //     cwd: mountPath,
+    //   })
+    //   // TODO: Trigger a browser reload event on change/unlink
+    //   .on('change', fileChanged)
+    //   .on('unlink', fileChanged);
     if (!watchers[compiledPath]) {
       watchers[compiledPath] = sources;
     } else {
