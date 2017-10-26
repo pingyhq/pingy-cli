@@ -85,13 +85,18 @@ module.exports = function Cache(mountPath, events) {
       const absoluteSource = absolutePath(mountPath, source);
       const relativeSource = relativizePath(mountPath, absoluteSource);
 
-      fs.watch(absoluteSource, () => {
-        if (fileChangedRecently[relativeSource]) return;
-        fileChangedRecently[relativeSource] = true;
-        setTimeout(() => (fileChangedRecently[relativeSource] = false), 200);
-        del(compiledPath);
-        events.emit('fileChanged', compiledPath, relativeSource);
-      });
+      try {
+        fs.watch(absoluteSource, () => {
+          if (fileChangedRecently[relativeSource]) return;
+          fileChangedRecently[relativeSource] = true;
+          setTimeout(() => (fileChangedRecently[relativeSource] = false), 200);
+          del(compiledPath);
+          events.emit('fileChanged', compiledPath, relativeSource);
+        });
+      } catch (e) {
+        if (e.code === 'ENOENT') return;
+        throw e;
+      }
     });
 
     if (!watchers[compiledPath]) {
