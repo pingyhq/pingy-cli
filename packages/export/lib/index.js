@@ -317,16 +317,15 @@ module.exports = function (inputDir, outputDir, options) {
 
                   if (shouldCompile) {
                     // compile
-                    compile().then(() => (options.sourceMap ? copy() : fileDone()), reject);
+                    return compile().then(() => (options.sourceMap ? copy() : fileDone()), reject);
                   } else if (shouldMinify || shouldAutoprefix) {
                     // minify
-                    compile().then(
+                    return compile().then(
                       () => (options.sourceMap ? copy(true) : fileDone()),
                       () => copy()
                     );
-                  } else {
-                    copy();
                   }
+                  return copy();
                 };
 
                 const dir = path.dirname(outputFullPath);

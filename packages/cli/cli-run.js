@@ -95,6 +95,9 @@ function run() {
       const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();
       const exporting = pingy.exportSite(inputDir, outputDir, pingyJson.json);
 
+      const spinners = {};
+      let currentFile = null;
+
       exporting.then(
         () => {
           exportingSpinner.succeed();
@@ -103,19 +106,22 @@ function run() {
           }, 10);
         },
         (err) => {
-          exportingSpinner.fail(`Failed export to ${chalk.bold(outputDir)}`);
+          if (currentFile) spinners[currentFile].fail();
           console.log(inspect(err));
+          exportingSpinner.fail(`Failed export to ${chalk.bold(outputDir)}`);
           setTimeout(() => {
             process.exit(1);
           }, 10);
         }
       );
-      const spinners = {};
+
       exporting.events.on('compile-start', (file) => {
         spinners[file.path] = ora(`Compiling ${file.name}`).start();
+        currentFile = file.path;
       });
       exporting.events.on('compile-done', (file) => {
         spinners[file.path].succeed();
+        currentFile = null;
       });
     });
 
