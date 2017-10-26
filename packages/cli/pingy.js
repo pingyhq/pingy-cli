@@ -1,6 +1,7 @@
 'use strict';
 
-const path = require('path');
+const path = require('upath');
+const fs = require('fs');
 const connect = require('connect');
 const serveStatic = require('serve-static');
 const instant = require('@pingy/instant');
@@ -24,8 +25,15 @@ function serveSite(sitePath, options) {
       options.autoprefix = 'last 2 versions';
     }
     server.use((req, res, next) => {
-      if (path.extname(req.url) === '.css') {
-        return autoprefixer({ browsers: options.autoprefix, cascade: false })(req, res, next);
+      const cleanUrl = req.url.split('?')[0];
+      if (path.extname(cleanUrl) === '.css') {
+        const filePath = path.join(sitePath, cleanUrl);
+        if (fs.existsSync(filePath)) {
+          // Fix: https://github.com/gustavnikolaj/express-autoprefixer/pull/18
+          req.url = req.originalUrl = cleanUrl;
+          // Only run autoprefixer if it's vanilla css otherwise @pingy/compile will run it
+          return autoprefixer({ browsers: options.autoprefix, cascade: false })(req, res, next);
+        }
       }
       return next();
     });
