@@ -267,7 +267,10 @@ module.exports = {
         ) {
           compiled.sourcemap = compiled.sourcemap.toJSON();
         }
-        compiled.sourcemap.sources = compiled.sourcemap.sources.map(Path.normalize);
+        compiled.sourcemap.sources = compiled.sourcemap.sources
+          // FIX: https://github.com/pingyhq/pingy-cli/issues/15
+          .filter(x => x !== '$stdin')
+          .map(x => Path.normalize(x === '$stdin' ? compiled.inputPath : x));
       }
 
       if (options.outputSha) {
