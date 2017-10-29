@@ -1,19 +1,19 @@
-var on = require('sendevent')
-  , parse = require('./url')
-  , find = require('./find')
-  , replace = require('./replace')
-  , connectionLost = require('./connectionLost')
+let on = require('sendevent'),
+  parse = require('./url'),
+  find = require('./find'),
+  replace = require('./replace'),
+  connectionLost = require('./connectionLost')
 
-var token
-var latestHeartbeatTime
+let token
+let latestHeartbeatTime
 
-on('/instant/events', function(ev) {
+on('/instant/events', (ev) => {
   if (ev.token) {
     if (!token) token = ev.token
     if (token != ev.token) return location.reload()
-    setInterval(function() {
+    setInterval(() => {
       if (latestHeartbeatTime) {
-        var diff = Date.now() - latestHeartbeatTime
+        const diff = Date.now() - latestHeartbeatTime
         if (diff > 1000 * 12) connectionLost()
       }
     }, 1000 * 10)
@@ -36,22 +36,36 @@ on('/instant/events', function(ev) {
   }
 
   // resolve the URL
-  var url = parse(ev.url)
+  const url = parse(ev.url)
 
   // Remove query and hash strings
-  var normalizedLocationHref = location.href.split('#')[0].split('?')[0]
+  const normalizedLocationHref = location.href.split('#')[0].split('?')[0]
 
   // reload the page
-  if (url.href.replace('index.html','') == normalizedLocationHref) {
+  if (url.href.replace('index.html', '') == normalizedLocationHref) {
     location.reload()
     return
   }
 
   // look for a stylesheet
-  var el = find.byURL('link', 'href', url)
-  if (el) return replace(el, url.pathname + '?v=' + new Date().getTime())
+  let el = find.byURL('link', 'href', url)
+  if (el) return replace(el, `${url.pathname}?v=${new Date().getTime()}`)
 
   // look for a script
   el = find.byURL('script', 'src', url)
-  if (el) location.reload()
+  if (el) {
+    location.reload()
+    return
+  }
+
+  // If we're using script type="module" then reload on every js change
+  console.log(url.href, parse.getExt(url.href))
+  if (parse.getExt(url.href) === '.js') {
+    el = find.bySelector('script[type=module]')
+    console.log(el)
+
+    if (el) {
+      location.reload()
+    }
+  }
 })
