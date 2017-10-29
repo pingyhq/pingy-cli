@@ -1,12 +1,12 @@
 {
   "name": "@pingy/cli",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "",
   "main": "index.js",
   "dependencies": {
     "@pingy/export": "^5.0.1",
-    "@pingy/instant": "^3.1.4",
-    "@pingy/middleware": "^4.0.0",
+    "@pingy/instant": "^3.2.0",
+    "@pingy/middleware": "^4.0.1",
     "@pingy/scaffold": "^6.0.1",
     "autoprefixer": "^7.1.6",
     "chalk": "^2.3.0",

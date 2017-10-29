@@ -1,6 +1,6 @@
 {
   "name": "@pingy/middleware",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
   "main": "lib/middleware.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "upath": "^1.0.0"
   },
   "devDependencies": {
-    "@pingy/instant": "^3.1.4",
+    "@pingy/instant": "^3.2.0",
     "coffee-script": "^1.10.0",
     "connect": "^3.4.0",
     "express": "^4.13.3",
