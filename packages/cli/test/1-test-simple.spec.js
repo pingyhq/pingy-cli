@@ -215,6 +215,10 @@ describe('cli simple', function cli() {
           return fetch(stylesUrl).then(res => res.text());
         })
         .then(css => expect(css, 'to contain', '-ms-flexbox'))
+        .then(() =>
+          // Test for https://github.com/gustavnikolaj/express-autoprefixer/pull/18
+           fetch(`${siteUrl}/styles/main.css?v=123`).then(res => res.text()))
+        .then(css => expect(css, 'to contain', '-ms-flexbox'))
         .then(() => {
           wd.goto(siteUrl);
           return expect(wd.find('script'), 'to exist');

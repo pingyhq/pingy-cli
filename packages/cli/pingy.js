@@ -29,8 +29,6 @@ function serveSite(sitePath, options) {
       if (path.extname(cleanUrl) === '.css') {
         const filePath = path.join(sitePath, cleanUrl);
         if (fs.existsSync(filePath)) {
-          // Fix: https://github.com/gustavnikolaj/express-autoprefixer/pull/18
-          req.url = req.originalUrl = cleanUrl;
           // Only run autoprefixer if it's vanilla css otherwise @pingy/compile will run it
           return autoprefixer({ browsers: options.autoprefix, cascade: false })(req, res, next);
         }
