@@ -1,11 +1,12 @@
 {
-  "name": "@pingy/scaffold",
+  "name": "@pingy/init",
   "version": "6.0.1",
-  "description": "Bootstrap/Scaffold a project for use with Piggy in the Middle and Baconize",
+  "description": "Initialize a project for use with Pingy CLI",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "coverage":
+      "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "travis": "npm run coverage"
   },
   "engines": {
@@ -14,14 +15,17 @@
   "engineStrict": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davej/barnyard.git"
+    "url": "git+https://github.com/pingyhq/pingy-cli.git"
   },
   "author": "Dave Jeffery <dave@davejeffery.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/davej/barnyard/issues"
+    "url": "https://github.com/pingyhq/pingy-cli/issues"
   },
-  "homepage": "https://github.com/davej/barnyard#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/pingyhq/pingy-cli/tree/master/packages/init#readme",
   "dependencies": {
     "@pingy/scaffold-primitive": "^1.0.2",
     "babel-polyfill": "^6.26.0",

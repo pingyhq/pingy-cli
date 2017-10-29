@@ -3,7 +3,7 @@
 const ora = require('ora');
 const inquirer = require('inquirer');
 const pathTree = require('tree-from-paths');
-const scaffoldLib = require('@pingy/scaffold');
+const scaffoldLib = require('@pingy/init');
 const confirmWithHelpText = require('./promptConfirmWithHelpText');
 
 inquirer.registerPrompt('confirmWithHelpText', confirmWithHelpText);

@@ -1,5 +1,5 @@
-Scaffold
-========
+Init
+====
 
 [![npm version](https://badge.fury.io/js/barnyard.svg)](https://badge.fury.io/js/barnyard)
 [![Build Status](https://travis-ci.org/davej/barnyard.svg?branch=master)](https://travis-ci.org/davej/barnyard)
@@ -13,15 +13,15 @@ Getting Started
 
 To install:
 ```sh
-npm install @pingy/scaffold
+npm install @pingy/init
 ```
 
 To scaffold out a project using `html`, `scss`, `babel`, you could do:
 
 ```javascript
-var scaffold = require('@pingy/scaffold');
+var init = require('@pingy/init');
 
-var scaffoldDir = '/path/to/dir';
+var initDir = '/path/to/dir';
 var options = {
   styles: { type: 'scss' },
   scripts: { type: 'babel' },
@@ -30,7 +30,7 @@ var options = {
   normalizeCss: true,
 };
 
-scaffold(scaffoldDir, options).then([successFn],[errorFn]);
+init(initDir, options).then([successFn],[errorFn]);
 // [successFn] will be passed an array of the files that were created during the scaffold
 ```
 
