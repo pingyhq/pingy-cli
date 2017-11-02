@@ -2,24 +2,29 @@
 
 const ora = require('ora');
 const spawn = require('child_process').spawn;
+const { npmInit } = require('@pingy/scaffold-primitive');
 
-function npmInit(quietMode) {
-  return new Promise((resolve, reject) => {
-    const npmCmd = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
-    const subcommand = ['init', '--yes'];
-    if (quietMode) subcommand.push('--quiet');
-    const spinner = ora('Creating package.json').start();
-    const cmd = spawn(npmCmd, subcommand, { stdio: ['pipe', 'pipe', process.stdout] });
-    cmd.on('exit', (code) => {
-      if (code === 0) {
-        spinner.succeed('Created package.json');
-        resolve(code);
-      } else {
-        spinner.fail('Failed to create package.json');
-        reject(new Error(`npm init failed with code: ${code}`));
-      }
+function npmInitCLI() {
+  const spinner = ora('Creating package.json').start();
+  return npmInit(process.cwd()).then((initCmd) => {
+    if (!initCmd) {
+      spinner.succeed('package.json already exists');
+      return null;
+    }
+
+    const spawnCmd = spawn(initCmd.cmd, initCmd.args, { stdio: ['pipe', 'pipe', process.stdout] });
+    return new Promise((resolve, reject) => {
+      spawnCmd.on('exit', (code) => {
+        if (code === 0) {
+          spinner.succeed('Created package.json');
+          resolve(code);
+        } else {
+          spinner.fail('Failed to create package.json');
+          reject(new Error(`npm init failed with code: ${code}`));
+        }
+      });
     });
   });
 }
 
-module.exports = npmInit;
+module.exports = npmInitCLI;

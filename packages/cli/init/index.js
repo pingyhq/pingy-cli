@@ -4,6 +4,7 @@ const inquirer = require('inquirer');
 const ora = require('ora');
 const fs = require('fs');
 const path = require('upath');
+const pingyInit = require('@pingy/init');
 const compilerMap = require('./compilerMap');
 const updatePkgScripts = require('./updatePkgScripts');
 const installDeps = require('./installDeps');
@@ -19,7 +20,6 @@ const pingyJsonExists = fs.existsSync(pingyJsonPath) || fs.existsSync(dotPingyJs
 
 const requiredLastInitProps = ['html', 'scripts', 'styles'];
 const createChoices = type => [type, ...compilerMap[type].map(x => x.name)];
-const nameToObj = (type, prettyName) => compilerMap[type].find(x => x.name === prettyName) || {};
 
 const stage1 = [
   {
@@ -42,25 +42,20 @@ const stage1 = [
   }
 ];
 
-function performActions(answers, depsObj, options) {
-  updatePkgScripts(pkgJsonPath, answers);
-  return scaffold(pkgJsonPath, depsObj).then(() => installDeps(depsObj, options));
+function performActions(answers, options) {
+  const scaffoldOptions = pingyInit.transformOptions(answers, options);
+
+  updatePkgScripts();
+  return scaffold(scaffoldOptions).then(() => installDeps(scaffoldOptions, options));
 }
 
 function processAnswers(options) {
-  return (answers, quietMode) => {
-    const depsObj = {
-      html: nameToObj('HTML', answers.html),
-      css: nameToObj('CSS', answers.styles),
-      js: nameToObj('JS', answers.scripts),
-    };
+  return (answers) => {
     global.conf.set('lastInit', answers);
 
-    const continuation = pkgJsonExists ? Promise.resolve() : npmInit(quietMode);
-
-    continuation
-      .then(() => performActions(answers, depsObj, options))
-      .catch(e => ora().fail(e.message));
+    npmInit()
+      .then(() => performActions(answers, options))
+      .catch(e => ora().fail(e.stack));
   };
 }
 

@@ -12,6 +12,7 @@
     "access": "public"
   },
   "dependencies": {
+    "checkdir": "^1.1.0",
     "detab": "^2.0.1",
     "fs-extra": "^4.0.2",
     "is-absolute": "^1.0.0",

@@ -1,35 +1,31 @@
 'use strict';
 
 const ora = require('ora');
-const fs = require('fs');
-const path = require('path');
-const dotPingyTmpl = require('./dotPingyTmpl');
+const { addPkgScripts, addPingyJson } = require('@pingy/scaffold-primitive');
 
-function createDotPingy(name) {
-  const filename = 'pingy.json';
-  const spinner = ora(`Creating ${filename}`).start();
-  try {
-    fs.writeFileSync(path.join(process.cwd(), filename), dotPingyTmpl(name), 'utf8');
-  } catch (err) {
-    spinner.fail(err);
-    return;
-  }
-  spinner.succeed(`Created ${filename}`);
+function createDotPingy() {
+  const spinner = ora('Creating pingy.json').start();
+  return addPingyJson(process.cwd()).then(
+    () => {
+      spinner.succeed('Created pingy.json');
+    },
+    (err) => {
+      spinner.fail(err.stack);
+    }
+  );
 }
 
-function updatePkgScripts(pkgJsonPath, answers) {
+function updatePkgScripts() {
   const spinner = ora('Adding pingy scripts to package.json').start();
-  try {
-    const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-    if (!pkgJson.scripts) pkgJson.scripts = {};
-    pkgJson.scripts.start = 'pingy dev';
-    pkgJson.scripts.export = 'pingy export';
-    fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, '\t'));
-    spinner.succeed('Pingy scripts added to package.json');
-    createDotPingy(pkgJson.name, answers.exportDir);
-  } catch (err) {
-    spinner.fail(err);
-  }
+  return addPkgScripts(process.cwd()).then(
+    () => {
+      spinner.succeed('Pingy scripts added to package.json');
+      return createDotPingy();
+    },
+    (err) => {
+      spinner.fail(err.stack);
+    }
+  );
 }
 
 module.exports = updatePkgScripts;

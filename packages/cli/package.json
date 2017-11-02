@@ -5,9 +5,10 @@
   "main": "index.js",
   "dependencies": {
     "@pingy/export": "^5.0.1",
+    "@pingy/init": "^6.0.1",
     "@pingy/instant": "^3.2.0",
     "@pingy/middleware": "^4.0.1",
-    "@pingy/init": "^6.0.1",
+    "@pingy/scaffold-primitive": "^1.0.2",
     "autoprefixer": "^7.1.6",
     "chalk": "^2.3.0",
     "colors": "^1.1.2",

@@ -3,7 +3,7 @@
 const ora = require('ora');
 const inquirer = require('inquirer');
 const pathTree = require('tree-from-paths');
-const scaffoldLib = require('@pingy/init');
+const initLib = require('@pingy/init');
 const confirmWithHelpText = require('./promptConfirmWithHelpText');
 
 inquirer.registerPrompt('confirmWithHelpText', confirmWithHelpText);
@@ -15,16 +15,11 @@ const toNodeTree = (baseDir, paths) =>
     .split('\n')
     .join('\n  ');
 
-function scaffold(pkgJsonPath, depsObj) {
+function scaffold(scaffoldOptions) {
   const lastWhitespace = global.repeatLastInit && global.conf.get('lastInit.whitespace');
-  const options = {
-    html: { type: depsObj.html.extension || 'html' },
-    styles: { type: depsObj.css.extension || 'css' },
-    scripts: { type: depsObj.js.extension || 'js' },
-  };
 
-  return scaffoldLib
-    .preflight(process.cwd(), options)
+  return initLib
+    .preflight(process.cwd(), scaffoldOptions)
     .then(info => toNodeTree(process.cwd(), info.preparedFiles))
     .then(filesToWriteTxt =>
       inquirer.prompt([
@@ -65,16 +60,15 @@ function scaffold(pkgJsonPath, depsObj) {
         ])
     )
     .then(({ whitespace }) => {
-      let whitespaceFormatting = whitespace;
+      let whitespaceVal = whitespace;
       if (lastWhitespace) {
-        whitespaceFormatting = global.conf.get('lastInit.whitespace');
+        whitespaceVal = global.conf.get('lastInit.whitespace');
       }
-      global.conf.set('lastInit.whitespace', whitespaceFormatting);
-      // TODO: Support babel.js and buble.js
-      return scaffoldLib(
+      global.conf.set('lastInit.whitespace', whitespaceVal);
+      return initLib.scaffold(
         process.cwd(),
-        Object.assign(options, {
-          whitespaceFormatting,
+        Object.assign(scaffoldOptions, {
+          whitespace: whitespaceVal,
         })
       );
     })

@@ -1,15 +1,15 @@
 'use strict';
 
 const path = require('upath');
-const checkdir = require('checkdir');
 const scaffoldPrimitive = require('@pingy/scaffold-primitive');
 
-const babelPolyfillPath = require.resolve('babel-polyfill/dist/polyfill.js');
-const normalizeCssPath = require.resolve('normalize.css/normalize.css');
 const babelRCPath = require.resolve('./templates/.babelrc');
+const compilerMap = require('./compilerMap');
 
 const join = path.join;
 const templatesDir = join(__dirname, 'templates');
+
+const toArray = maybeArr => (Array.isArray(maybeArr) ? [...maybeArr] : [maybeArr]);
 
 const defaults = {
   html: {
@@ -26,9 +26,6 @@ const defaults = {
     file: 'main',
     type: 'js', // or 'babel', 'coffee'
   },
-  babelPolyfill: false,
-  normalizeCss: false,
-  whitespaceFormatting: 'tabs',
 };
 
 const fileMap = {
@@ -87,64 +84,69 @@ const fileMap = {
     },
   },
 };
+const nameToObj = (type, prettyName) => compilerMap[type].find(x => x.name === prettyName) || {};
 
-function transformOptions(options) {
-  const settings = Object.assign({}, defaults, options, {
-    html: Object.assign({}, defaults.html, options.html),
-    styles: Object.assign({}, defaults.styles, options.styles),
-    scripts: Object.assign({}, defaults.scripts, options.scripts),
-  });
-
-  const transformedOptions = {
-    copy: [],
-    templates: [],
-    whitespace: settings.whitespaceFormatting,
+function transformOptions(answers, cliOptions) {
+  const depsObj = {
+    html: nameToObj('HTML', answers.html),
+    css: nameToObj('CSS', answers.styles),
+    js: nameToObj('JS', answers.scripts),
   };
 
-  if (settings.babelPolyfill) {
-    transformedOptions.copy.push({
-      input: babelPolyfillPath,
-      output: join(settings.scripts.folder, 'polyfill.js'),
-    });
-  }
-  if (settings.normalizeCss) {
-    transformedOptions.copy.push({
-      input: normalizeCssPath,
-      output: join(settings.styles.folder, 'normalize.css'),
-    });
-  }
+  const settings = Object.assign({}, defaults, {
+    html: Object.assign({}, defaults.html, { type: depsObj.html.extension || defaults.html.type }),
+    styles: Object.assign({}, defaults.styles, {
+      type: depsObj.css.extension || defaults.styles.type,
+    }),
+    scripts: Object.assign({}, defaults.scripts, {
+      type: depsObj.js.extension || defaults.scripts.type,
+    }),
+  });
+
+  const files = [];
+
   if (settings.scripts.type === 'babel') {
-    transformedOptions.copy.push({
+    files.push({
       input: babelRCPath,
       output: '.babelrc',
     });
   }
 
-  transformedOptions.templates.push({
+  files.push({
     input: fileMap.html[settings.html.type](defaults.html.file),
     vars: {
-      babelPolyfill: settings.babelPolyfill,
-      normalizeCss: settings.normalizeCss,
       styles: settings.styles,
       scripts: settings.scripts,
     },
     output: fileMap.html[settings.html.type](settings.html.file),
   });
 
-  transformedOptions.copy.push({
+  files.push({
     input: fileMap.scripts[settings.scripts.type](defaults.scripts.file, defaults.scripts.folder),
     output: fileMap.scripts[settings.scripts.type](settings.scripts.file, settings.scripts.folder),
   });
 
-  transformedOptions.copy.push({
+  files.push({
     input: fileMap.styles[settings.styles.type](defaults.styles.file, defaults.styles.folder),
     output: fileMap.styles[settings.styles.type](settings.styles.file, settings.styles.folder),
   });
-  return transformedOptions;
+
+  const htmlModules = toArray(depsObj.html.module);
+  const cssModules = toArray(depsObj.css.module);
+  const jsModules = toArray(depsObj.js.module);
+
+  const devDependencies = [...htmlModules, ...cssModules, ...jsModules].filter(x => !!x);
+
+  return {
+    files,
+    devDependencies,
+  };
 }
 
+module.exports.transformOptions = transformOptions;
+
 /**
- * Barnyard - Bootstrap/Scaffold a project for use with Piggy in the Middle and Baconize
+ * Initialise a project for use with Pingy CLI
  * @param  {string} projectDir Directory to scaffold the generated project to
  * @param  {Object} options
  *     {
@@ -170,19 +172,10 @@ function transformOptions(options) {
  *
  * @return {Promise<Array[string]>}   Files created during scaffolding
  */
-module.exports = function barnyard(projectDir, options) {
-  return scaffoldPrimitive(templatesDir, projectDir, transformOptions(options));
+module.exports.scaffold = function barnyard(projectDir, options) {
+  return scaffoldPrimitive.scaffold(templatesDir, projectDir, options);
 };
 
-module.exports.preflight = function preflight(filePath, options) {
-  return checkdir(filePath, { ignoreDotFiles: true }).then((dirInfo) => {
-    if (!dirInfo.exists || typeof options !== 'object') return dirInfo;
-    return scaffoldPrimitive
-      .preflight(templatesDir, filePath, transformOptions(options))
-      .then(outputFiles =>
-        Object.assign(dirInfo, {
-          preparedFiles: outputFiles,
-        })
-      );
-  });
+module.exports.preflight = function preflight(projectDir, options) {
+  return scaffoldPrimitive.preflight(templatesDir, projectDir, options);
 };
