@@ -18,7 +18,10 @@ const { getPingyJson, setPingyJson } = require('./pingyJson');
 const Configstore = require('configstore');
 
 const conf = new Configstore(pkgJson.name, {});
-conf.set('version', pkgJson.version);
+if (isNaN(conf.get('version'))) conf.delete('lastInit');
+// Version config so we can easily invalidate it
+conf.set('version', 2);
+conf.set('cliVersion', pkgJson.version);
 global.conf = conf;
 
 const pingyAscii = fs.readFileSync(require.resolve('./pingy-ascii.txt'), 'utf8');

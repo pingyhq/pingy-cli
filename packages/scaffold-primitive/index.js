@@ -12,7 +12,7 @@ const path = require('path');
 const checkdir = require('checkdir');
 
 function doFiles(dirToScaffoldFrom, dirToScaffoldTo, options) {
-  if (!Array.isArray(options.files)) return [];
+  if (!Array.isArray(options.files)) return Promise.resolve([]);
   return Promise.all(
     options.files.map(fixPaths(dirToScaffoldFrom, dirToScaffoldTo)).map(addInputString)
   ).then(objs =>
@@ -57,10 +57,7 @@ module.exports.preflight = function preflight(dirToScaffoldFrom, dirToScaffoldTo
       ? options.files.map(fixPaths(dirToScaffoldFrom, dirToScaffoldTo)).map(x => x.output)
       : [];
 
-    return {
-      ...dirInfo,
-      preparedFiles,
-    };
+    return Object.assign({}, dirInfo, { preparedFiles });
   });
 };
 

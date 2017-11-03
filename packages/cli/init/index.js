@@ -4,7 +4,6 @@ const inquirer = require('inquirer');
 const ora = require('ora');
 const fs = require('fs');
 const path = require('upath');
-const pingyInit = require('@pingy/init');
 const compilerMap = require('@pingy/init/compilerMap');
 const updatePkgScripts = require('./updatePkgScripts');
 const installDeps = require('./installDeps');
@@ -19,31 +18,47 @@ const pkgJsonExists = fs.existsSync(pkgJsonPath);
 const pingyJsonExists = fs.existsSync(pingyJsonPath) || fs.existsSync(dotPingyJsonPath);
 
 const requiredLastInitProps = ['html', 'scripts', 'styles'];
-const createChoices = type => [type, ...compilerMap[type].map(x => x.name)];
+const createChoices = type => [
+  { name: type.toUpperCase(), value: type },
+  ...compilerMap[type].map(x => ({
+    name: x.name,
+    value: x.extension,
+  }))
+];
 
 const stage1 = [
   {
     type: 'list',
     name: 'html',
     message: 'What document format do you wish to use',
-    choices: createChoices('HTML'),
+    choices: createChoices('html'),
   },
   {
     type: 'list',
     name: 'styles',
     message: 'What styles format do you wish to use',
-    choices: createChoices('CSS'),
+    choices: createChoices('css'),
   },
   {
     type: 'list',
     name: 'scripts',
     message: 'What scripts format do you wish to use',
-    choices: createChoices('JS'),
+    choices: createChoices('js'),
   }
 ];
 
 function performActions(answers, options) {
-  const scaffoldOptions = pingyInit.transformOptions(answers, options);
+  const scaffoldOptions = {
+    html: {
+      type: answers.html,
+    },
+    scripts: {
+      type: answers.scripts,
+    },
+    styles: {
+      type: answers.styles,
+    },
+  };
 
   updatePkgScripts();
   return scaffold(scaffoldOptions).then(() => installDeps(scaffoldOptions, options));

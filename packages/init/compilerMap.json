@@ -1,5 +1,5 @@
 {
-  "HTML": [
+  "html": [
     {
       "name": "Jade",
       "module": "jade@1",
@@ -16,7 +16,7 @@
       "extension": "ejs"
     }
   ],
-  "CSS": [
+  "css": [
     {
       "name": "Sass (.scss)",
       "module": "node-sass@4",
@@ -38,7 +38,7 @@
       "extension": "styl"
     }
   ],
-  "JS": [
+  "js": [
     {
       "name": "CoffeeScript (v1.x)",
       "module": "coffee-script@1",

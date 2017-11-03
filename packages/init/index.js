@@ -3,6 +3,8 @@
 const path = require('upath');
 const scaffoldPrimitive = require('@pingy/scaffold-primitive');
 
+const babelPolyfillPath = require.resolve('babel-polyfill/dist/polyfill.js');
+const normalizeCssPath = require.resolve('normalize.css/normalize.css');
 const babelRCPath = require.resolve('./templates/.babelrc');
 const compilerMap = require('./compilerMap');
 
@@ -84,26 +86,35 @@ const fileMap = {
     },
   },
 };
-const nameToObj = (type, prettyName) => compilerMap[type].find(x => x.name === prettyName) || {};
+const nameToObj = (type, ext) => compilerMap[type].find(x => x.extension === ext) || {};
 
-function transformOptions(answers, cliOptions) {
-  const depsObj = {
-    html: nameToObj('HTML', answers.html),
-    css: nameToObj('CSS', answers.styles),
-    js: nameToObj('JS', answers.scripts),
-  };
-
-  const settings = Object.assign({}, defaults, {
-    html: Object.assign({}, defaults.html, { type: depsObj.html.extension || defaults.html.type }),
-    styles: Object.assign({}, defaults.styles, {
-      type: depsObj.css.extension || defaults.styles.type,
-    }),
-    scripts: Object.assign({}, defaults.scripts, {
-      type: depsObj.js.extension || defaults.scripts.type,
-    }),
+function transformOptions(options) {
+  const settings = Object.assign({}, defaults, options, {
+    html: Object.assign({}, defaults.html, options.html),
+    styles: Object.assign({}, defaults.styles, options.styles),
+    scripts: Object.assign({}, defaults.scripts, options.scripts),
   });
 
+  const depsObj = {
+    html: nameToObj('html', settings.html.type),
+    css: nameToObj('css', settings.styles.type),
+    js: nameToObj('js', settings.scripts.type),
+  };
+
   const files = [];
+
+  if (settings.babelPolyfill) {
+    files.push({
+      input: babelPolyfillPath,
+      output: join(settings.scripts.folder, 'polyfill.js'),
+    });
+  }
+  if (settings.normalizeCss) {
+    files.push({
+      input: normalizeCssPath,
+      output: join(settings.styles.folder, 'normalize.css'),
+    });
+  }
 
   if (settings.scripts.type === 'babel') {
     files.push({
@@ -117,6 +128,8 @@ function transformOptions(answers, cliOptions) {
     vars: {
       styles: settings.styles,
       scripts: settings.scripts,
+      babelPolyfill: options.babelPolyfill,
+      normalizeCss: options.normalizeCss,
     },
     output: fileMap.html[settings.html.type](settings.html.file),
   });
@@ -140,10 +153,9 @@ function transformOptions(answers, cliOptions) {
   return {
     files,
     devDependencies,
+    whitespace: options.whitespace,
   };
 }
-
-module.exports.transformOptions = transformOptions;
 
 /**
  * Initialise a project for use with Pingy CLI
@@ -166,16 +178,20 @@ module.exports.transformOptions = transformOptions;
  *       },
  *      babelPolyfill: true/false, // include babel polyfill?
  *      normalizeCss: true/false, // include CSS normalizer file?
- *      whitespaceFormatting: 'tabs', // Pass in a number (e.g. 2) to use spaces
- *                                    // for whitespace, otherwise tabs will be used
+ *      whitespace: 'tabs', // Pass in a number (e.g. 2) to use spaces
+ *                          // for whitespace, otherwise tabs will be used
  *    }
  *
  * @return {Promise<Array[string]>}   Files created during scaffolding
  */
 module.exports.scaffold = function barnyard(projectDir, options) {
-  return scaffoldPrimitive.scaffold(templatesDir, projectDir, options);
+  return scaffoldPrimitive.scaffold(templatesDir, projectDir, transformOptions(options || {}));
 };
 
 module.exports.preflight = function preflight(projectDir, options) {
-  return scaffoldPrimitive.preflight(templatesDir, projectDir, options);
+  return scaffoldPrimitive.preflight(templatesDir, projectDir, transformOptions(options || {}));
+};
+
+module.exports.installDev = function installDev(scaffoldOptions, options) {
+  return scaffoldPrimitive.installDev(transformOptions(scaffoldOptions || {}), options);
 };

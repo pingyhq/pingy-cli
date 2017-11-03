@@ -4,7 +4,7 @@ const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const spawn = require('child_process').spawn;
-const { installDev } = require('@pingy/scaffold-primitive');
+const { installDev } = require('@pingy/init');
 
 function installDeps(scaffoldOptions, options) {
   return installDev(scaffoldOptions, options).then((install) => {

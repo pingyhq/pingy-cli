@@ -3,7 +3,7 @@
 'use strict';
 
 const expect = require('unexpected').clone();
-const barnyard = require('../');
+const {scaffold, preflight} = require('../');
 const Path = require('path');
 const rimraf = require('rimraf');
 const _mkdirp = require('mkdirp');
@@ -30,7 +30,7 @@ describe('barnyard', () => {
     before(clearTmpDir);
     it('should complete successfully', () => {
       const options = {};
-      const barn = barnyard(tmpDir, options);
+      const barn = scaffold(tmpDir, options);
 
       return barn.then(files =>
         expect(
@@ -96,8 +96,8 @@ describe('barnyard', () => {
           type: 'coffee',
         },
       };
-      const barn = barnyard(tmpDir, options);
-
+      const barn = scaffold(tmpDir, options);
+      
       return barn.then(files =>
         expect(
           makeRelative(files),
@@ -162,8 +162,8 @@ describe('barnyard', () => {
             type: 'babel',
           },
         };
-        const barn = barnyard(tmpDir, options);
-
+        const barn = scaffold(tmpDir, options);
+        
         return barn.then(files =>
           expect(
             makeRelative(files),
@@ -211,8 +211,8 @@ describe('barnyard', () => {
             type: 'babel',
           },
         };
-        const barn = barnyard(tmpDir, options);
-
+        const barn = scaffold(tmpDir, options);
+        
         return barn.then(files =>
           expect(
             makeRelative(files),
@@ -265,8 +265,8 @@ describe('barnyard', () => {
           type: 'coffee',
         },
       };
-      const barn = barnyard(tmpDir, options);
-
+      const barn = scaffold(tmpDir, options);
+      
       return barn.then(files =>
         expect(
           makeRelative(files),
@@ -338,8 +338,8 @@ describe('barnyard', () => {
           folder: 'js',
         },
       };
-      const barn = barnyard(tmpDir, options);
-
+      const barn = scaffold(tmpDir, options);
+      
       return barn.then(files =>
         expect(
           makeRelative(files),
@@ -398,8 +398,8 @@ describe('barnyard', () => {
     describe('tabs', () => {
       before(clearTmpDir);
 
-      it('should complete successfully', () => {
-        return barnyard(tmpDir, { whitespaceFormatting: 'tabs' }).then(files =>
+      it('should complete successfully', () => {        
+        return scaffold(tmpDir, { whitespace: 'tabs' }).then(files =>
           expect(makeRelative(files), 'to have length', 3)
         );
       });
@@ -416,7 +416,7 @@ describe('barnyard', () => {
       before(clearTmpDir);
 
       it('should complete successfully', () => {
-        return barnyard(tmpDir, { whitespaceFormatting: 2 }).then(files =>
+        return scaffold(tmpDir, { whitespace: 2 }).then(files =>
           expect(makeRelative(files), 'to have length', 3)
         );
       });
@@ -433,7 +433,7 @@ describe('barnyard', () => {
       before(clearTmpDir);
 
       it('should complete successfully', () => {
-        return barnyard(tmpDir, { whitespaceFormatting: 4 }).then(files =>
+        return scaffold(tmpDir, { whitespace: 4 }).then(files =>
           expect(makeRelative(files), 'to have length', 3)
         );
       });
@@ -455,8 +455,7 @@ describe('barnyard', () => {
     });
 
     it('should warn that dir is not empty', () => {
-      const preflight = barnyard.preflight(tmpDir);
-      return expect(preflight, 'to be fulfilled with', {
+      return expect(preflight(tmpDir), 'to be fulfilled with', {
         empty: false,
         exists: true,
         files: 1,
@@ -470,8 +469,7 @@ describe('barnyard', () => {
     });
 
     it('should say dir is empty', () => {
-      const preflight = barnyard.preflight(tmpDir);
-      return expect(preflight, 'to be fulfilled with', {
+      return expect(preflight(tmpDir), 'to be fulfilled with', {
         empty: true,
         exists: true,
         files: 0,
@@ -485,7 +483,7 @@ describe('barnyard', () => {
     });
 
     it('should say dir is empty', () => {
-      const preflight = barnyard.preflight(tmpDir, {
+      const $preflight = preflight(tmpDir, {
         babelPolyfill: true,
         normalizeCss: true,
         html: {
@@ -495,7 +493,7 @@ describe('barnyard', () => {
           type: 'babel',
         },
       });
-      return expect(preflight, 'to be fulfilled with', {
+      return expect($preflight, 'to be fulfilled with', {
         empty: true,
         exists: true,
         files: 0,
@@ -520,8 +518,7 @@ describe('barnyard', () => {
     });
 
     it("should say dir doesn't exist", () => {
-      const preflight = barnyard.preflight(tmpDir);
-      return expect(preflight, 'to be fulfilled with', {
+      return expect(preflight(tmpDir), 'to be fulfilled with', {
         empty: true,
         exists: false,
         files: 0,
