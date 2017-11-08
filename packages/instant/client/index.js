@@ -59,10 +59,8 @@ on('/instant/events', (ev) => {
   }
 
   // If we're using script type="module" then reload on every js change
-  console.log(url.href, parse.getExt(url.href))
   if (parse.getExt(url.href) === '.js') {
     el = find.bySelector('script[type=module]')
-    console.log(el)
 
     if (el) {
       location.reload()
