@@ -1,5 +1,7 @@
 # Pingy CLI
 
+[![Join the chat at https://gitter.im/pingy-cli/Lobby](https://badges.gitter.im/pingy-cli/Lobby.svg)](https://gitter.im/pingy-cli/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![npm](https://img.shields.io/npm/v/@pingy/cli.svg)](https://www.npmjs.com/package/@pingy/cli)
 [![Build Status: Linux & Mac](https://travis-ci.org/pingyhq/pingy-cli.svg?branch=master)](https://travis-ci.org/pingyhq/pingy-cli)
 [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/1dxlosw2p3iavo39/branch/master?svg=true&passingText=Windows%20Build%20-%20Passing)](https://ci.appveyor.com/project/davej/pingy-cli-str9v)
