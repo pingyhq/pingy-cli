@@ -87,9 +87,10 @@ module.exports = function Cache(mountPath, events) {
 
       try {
         fs.watch(absoluteSource, () => {
-          if (fileChangedRecently[relativeSource]) return;
-          fileChangedRecently[relativeSource] = true;
-          setTimeout(() => (fileChangedRecently[relativeSource] = false), 200);
+          // TODO: Code below needs more testing on mac before enabling it
+          // if (fileChangedRecently[relativeSource]) return;
+          // fileChangedRecently[relativeSource] = true;
+          // setTimeout(() => (fileChangedRecently[relativeSource] = false), 50);
           del(compiledPath);
           events.emit('fileChanged', compiledPath, relativeSource);
         });
