@@ -3,7 +3,7 @@
 'use strict';
 
 const expect = require('unexpected').clone();
-const {scaffold, preflight} = require('../');
+const { scaffold, preflight, transformOptions } = require('../');
 const Path = require('path');
 const rimraf = require('rimraf');
 const _mkdirp = require('mkdirp');
@@ -30,7 +30,7 @@ describe('barnyard', () => {
     before(clearTmpDir);
     it('should complete successfully', () => {
       const options = {};
-      const barn = scaffold(tmpDir, options);
+      const barn = scaffold(tmpDir, transformOptions(options));
 
       return barn.then(files =>
         expect(
@@ -96,7 +96,7 @@ describe('barnyard', () => {
           type: 'coffee',
         },
       };
-      const barn = scaffold(tmpDir, options);
+      const barn = scaffold(tmpDir, transformOptions(options));
       
       return barn.then(files =>
         expect(
@@ -162,7 +162,7 @@ describe('barnyard', () => {
             type: 'babel',
           },
         };
-        const barn = scaffold(tmpDir, options);
+        const barn = scaffold(tmpDir, transformOptions(options));
         
         return barn.then(files =>
           expect(
@@ -211,7 +211,7 @@ describe('barnyard', () => {
             type: 'babel',
           },
         };
-        const barn = scaffold(tmpDir, options);
+        const barn = scaffold(tmpDir, transformOptions(options));
         
         return barn.then(files =>
           expect(
@@ -265,7 +265,7 @@ describe('barnyard', () => {
           type: 'coffee',
         },
       };
-      const barn = scaffold(tmpDir, options);
+      const barn = scaffold(tmpDir, transformOptions(options));
       
       return barn.then(files =>
         expect(
@@ -338,7 +338,7 @@ describe('barnyard', () => {
           folder: 'js',
         },
       };
-      const barn = scaffold(tmpDir, options);
+      const barn = scaffold(tmpDir, transformOptions(options));
       
       return barn.then(files =>
         expect(
@@ -399,7 +399,7 @@ describe('barnyard', () => {
       before(clearTmpDir);
 
       it('should complete successfully', () => {        
-        return scaffold(tmpDir, { whitespace: 'tabs' }).then(files =>
+        return scaffold(tmpDir, transformOptions({ whitespace: 'tabs' })).then(files =>
           expect(makeRelative(files), 'to have length', 3)
         );
       });
@@ -416,7 +416,7 @@ describe('barnyard', () => {
       before(clearTmpDir);
 
       it('should complete successfully', () => {
-        return scaffold(tmpDir, { whitespace: 2 }).then(files =>
+        return scaffold(tmpDir, transformOptions({ whitespace: 2 })).then(files =>
           expect(makeRelative(files), 'to have length', 3)
         );
       });
@@ -433,7 +433,7 @@ describe('barnyard', () => {
       before(clearTmpDir);
 
       it('should complete successfully', () => {
-        return scaffold(tmpDir, { whitespace: 4 }).then(files =>
+        return scaffold(tmpDir, transformOptions({ whitespace: 4 })).then(files =>
           expect(makeRelative(files), 'to have length', 3)
         );
       });
@@ -483,7 +483,7 @@ describe('barnyard', () => {
     });
 
     it('should say dir is empty', () => {
-      const $preflight = preflight(tmpDir, {
+      const $preflight = preflight(tmpDir, transformOptions({
         babelPolyfill: true,
         normalizeCss: true,
         html: {
@@ -492,7 +492,7 @@ describe('barnyard', () => {
         scripts: {
           type: 'babel',
         },
-      });
+      }));
       return expect($preflight, 'to be fulfilled with', {
         empty: true,
         exists: true,

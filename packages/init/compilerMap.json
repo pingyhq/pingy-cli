@@ -1,72 +1,85 @@
 {
-  "html": [
+  "docs": [
     {
-      "name": "Jade",
-      "module": "jade@1",
-      "extension": "jade"
+      "name": "HTML",
+      "module": {},
+      "extension": "html"
     },
     {
       "name": "Pug",
-      "module": "pug",
+      "module": { "pug": "" },
       "extension": "pug"
     },
     {
       "name": "ejs",
-      "module": "ejs@2",
+      "module": { "ejs": "^2" },
       "extension": "ejs"
     }
   ],
-  "css": [
+  "styles": [
+    {
+      "name": "CSS",
+      "module": {},
+      "extension": "css"
+    },
     {
       "name": "Sass (.scss)",
-      "module": "node-sass@4",
+      "module": { "node-sass": "^4" },
       "extension": "scss"
     },
     {
       "name": "Sass (.sass)",
-      "module": "node-sass@4",
+      "module": { "node-sass": "^4" },
       "extension": "sass"
     },
     {
       "name": "Less",
-      "module": "less@2.7.2",
+      "module": { "less": "^2" },
       "extension": "less"
     },
     {
       "name": "Stylus",
-      "module": "stylus@0.54",
+      "module": { "stylus": "^0.54" },
       "extension": "styl"
     }
   ],
-  "js": [
+  "scripts": [
+    {
+      "name": "Javascript",
+      "module": {},
+      "extension": "js"
+    },
     {
       "name": "CoffeeScript (v1.x)",
-      "module": "coffee-script@1",
+      "module": { "coffee-script": "^1" },
       "extension": "coffee"
     },
     {
       "name": "Babel",
-      "module": ["babel-core@6", "babel-preset-env@1"],
+      "module": {
+        "babel-core": "^6",
+        "babel-preset-env": "^1"
+      },
       "extension": "babel"
     },
     {
       "name": "Bublé",
-      "module": "buble@0.16",
+      "module": { "buble": "^0.16" },
       "extension": "buble"
     },
     {
       "name": "TypeScript",
-      "module": "typescript-compiler@^1.4",
+      "module": { "typescript-compiler": "^1.4" },
       "extension": "ts"
     },
     {
       "name": "LiveScript",
-      "module": "livescript@1",
+      "module": { "livescript": "^1" },
       "extension": "ls"
     },
     {
       "name": "DogeScript",
-      "module": "dogescript@2",
+      "module": { "dogescript": "^2" },
       "extension": "djs"
     }
   ]

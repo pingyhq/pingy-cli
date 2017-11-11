@@ -11,8 +11,6 @@ const compilerMap = require('./compilerMap');
 const join = path.join;
 const templatesDir = join(__dirname, 'templates');
 
-const toArray = maybeArr => (Array.isArray(maybeArr) ? [...maybeArr] : [maybeArr]);
-
 const defaults = {
   html: {
     file: 'index',
@@ -88,6 +86,32 @@ const fileMap = {
 };
 const nameToObj = (type, ext) => compilerMap[type].find(x => x.extension === ext) || {};
 
+/**
+ * Transform options a project for use with scaffold-primitive
+ * @param  {Object} options
+ *     {
+ *       html: {
+ *         file: 'index',
+ *         type: 'html', // or 'jade'
+ *       },
+ *       styles: {
+ *         folder: 'styles',
+ *         file: 'main',
+ *         type: 'css', // or 'scss', 'sass', 'less', 'styl'
+ *       },
+ *       scripts: {
+ *         folder: 'scripts',
+ *         file: 'main',
+ *         type: 'js', // or 'babel', 'coffee'
+ *       },
+ *      babelPolyfill: true/false, // include babel polyfill?
+ *      normalizeCss: true/false, // include CSS normalizer file?
+ *      whitespace: 'tabs', // Pass in a number (e.g. 2) to use spaces
+ *                          // for whitespace, otherwise tabs will be used
+ *    }
+ *
+ * @return {Object}   options compatible with scaffold-primitive
+ */
 function transformOptions(options) {
   const settings = Object.assign({}, defaults, options, {
     html: Object.assign({}, defaults.html, options.html),
@@ -96,9 +120,9 @@ function transformOptions(options) {
   });
 
   const depsObj = {
-    html: nameToObj('html', settings.html.type),
-    css: nameToObj('css', settings.styles.type),
-    js: nameToObj('js', settings.scripts.type),
+    html: nameToObj('docs', settings.html.type),
+    css: nameToObj('styles', settings.styles.type),
+    js: nameToObj('scripts', settings.scripts.type),
   };
 
   const files = [];
@@ -144,11 +168,12 @@ function transformOptions(options) {
     output: fileMap.styles[settings.styles.type](settings.styles.file, settings.styles.folder),
   });
 
-  const htmlModules = toArray(depsObj.html.module);
-  const cssModules = toArray(depsObj.css.module);
-  const jsModules = toArray(depsObj.js.module);
-
-  const devDependencies = [...htmlModules, ...cssModules, ...jsModules].filter(x => !!x);
+  const devDependencies = Object.assign(
+    {},
+    depsObj.html.module,
+    depsObj.css.module,
+    depsObj.js.module
+  );
 
   return {
     files,
@@ -157,41 +182,12 @@ function transformOptions(options) {
   };
 }
 
-/**
- * Initialise a project for use with Pingy CLI
- * @param  {string} projectDir Directory to scaffold the generated project to
- * @param  {Object} options
- *     {
- *       html: {
- *         file: 'index',
- *         type: 'html', // or 'jade'
- *       },
- *       styles: {
- *         folder: 'styles',
- *         file: 'main',
- *         type: 'css', // or 'scss', 'sass', 'less', 'styl'
- *       },
- *       scripts: {
- *         folder: 'scripts',
- *         file: 'main',
- *         type: 'js', // or 'babel', 'coffee'
- *       },
- *      babelPolyfill: true/false, // include babel polyfill?
- *      normalizeCss: true/false, // include CSS normalizer file?
- *      whitespace: 'tabs', // Pass in a number (e.g. 2) to use spaces
- *                          // for whitespace, otherwise tabs will be used
- *    }
- *
- * @return {Promise<Array[string]>}   Files created during scaffolding
- */
-module.exports.scaffold = function barnyard(projectDir, options) {
-  return scaffoldPrimitive.scaffold(templatesDir, projectDir, transformOptions(options || {}));
+module.exports.scaffold = function scaffold(projectDir, options) {
+  return scaffoldPrimitive.scaffold(templatesDir, projectDir, options);
 };
 
 module.exports.preflight = function preflight(projectDir, options) {
-  return scaffoldPrimitive.preflight(templatesDir, projectDir, transformOptions(options || {}));
+  return scaffoldPrimitive.preflight(templatesDir, projectDir, options);
 };
 
-module.exports.installDev = function installDev(scaffoldOptions, options) {
-  return scaffoldPrimitive.installDev(transformOptions(scaffoldOptions || {}), options);
-};
+module.exports.transformOptions = transformOptions;
