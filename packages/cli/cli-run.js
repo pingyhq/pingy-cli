@@ -44,18 +44,20 @@ function run() {
       "Don't install local version of Pingy CLI, use global version instead"
     )
     .option('--ask', "Ask for all init options (don't prompt to use existing init options)")
-    // .option('-q, --quiet', "Assume defaults and don't ask any questions. Non-interactive mode")
-    // .option('--html', 'Language to use for HTML docs')
-    // .option('--styles', 'Language to use for styles')
-    // .option('--scripts', 'Language to use for scripts')
-    // .option('--dist', 'Folder name to export distibution-ready site to')
-    // .option('--no-scaffold', "Don't scaffold files for this site")
-    // .option('--no-install', "Don't install project dependencies automatically")
     .action((options) => {
-      // if (options.quiet) {
-      //   TODO: Non-interactive more
-      // }
       init(options);
+    });
+
+  program
+    .command('scaffold <url>')
+    .description('Scaffold a new website using a third-party project template')
+    .option('--yarn', 'Use Yarn instead of NPM for installing packages')
+    .option(
+      '--global-pingy',
+      "Don't install local version of Pingy CLI, use global version instead"
+    )
+    .action((url, options) => {
+      init.scaffold(url, options);
     });
 
   program
@@ -93,6 +95,12 @@ function run() {
       const pingyJson = getPingyJson();
       if (!pingyJson) return;
       const inputDir = pingyJson.dir;
+      if (!pingyJson.json.exportDir) {
+        console.error(
+          chalk.red.bold('Please add an "exportDir" property to your pingy.json file.')
+        );
+        return;
+      }
       const outputDir = path.join(inputDir, pingyJson.json.exportDir);
 
       const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();

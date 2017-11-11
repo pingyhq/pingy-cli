@@ -1,7 +1,7 @@
 'use strict';
 
 const ora = require('ora');
-const spawn = require('child_process').spawn;
+const spawn = require('cross-spawn');
 const { npmInit } = require('@pingy/scaffold-primitive');
 
 function npmInitCLI() {
@@ -17,11 +17,10 @@ function npmInitCLI() {
       spawnCmd.on('exit', (code) => {
         if (code === 0) {
           spinner.succeed('Created package.json');
-          resolve(code);
-        } else {
-          spinner.fail('Failed to create package.json');
-          reject(new Error(`npm init failed with code: ${code}`));
+          return resolve(code);
         }
+        spinner.fail('Failed to create package.json');
+        return reject(new Error(`npm init failed with code: ${code}`));
       });
     });
   });

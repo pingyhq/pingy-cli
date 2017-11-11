@@ -8,8 +8,8 @@ const fetch = require('node-fetch');
 const rimraf = require('rimraf');
 const webdriver = require('friendly-webdriver');
 const unexpectedWebdriver = require('unexpected-webdriver');
-const unexpected = require('unexpected');
 const mkdirp = require('mkdirp');
+require('./assertions')(expect);
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const appendToFile = (file, contents) => {
@@ -111,15 +111,14 @@ describe('cli simple', function cli() {
         .then(() => nextStep('? What scripts'))
         .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
         .then(() => nextStep('? The most important question'))
-        .then(() => nextStep('? Run this', 'n\n'));
+        .then(() => nextStep('? Ready ', 'n\n'));
 
-      const exists = file => expect(fs.existsSync(file), 'to be true');
       return spawned.then(() =>
         expect.promise.all({
-          dir: exists(pingyJsonPath),
-          indexHtml: exists(indexHtml),
-          scripts: exists(scripts),
-          styles: exists(styles),
+          dir: expect(pingyJsonPath, 'to exist'),
+          indexHtml: expect(indexHtml, 'to exist'),
+          scripts: expect(scripts, 'to exist'),
+          styles: expect(styles, 'to exist'),
         })
       );
     });
@@ -296,8 +295,8 @@ describe('cli simple', function cli() {
 
       return hasExportedSite(spawned).then(() =>
         expect.promise.all({
-          dir: expect(fs.existsSync(distDir), 'to be true'),
-          shas: expect(fs.existsSync(shas), 'to be true'),
+          dir: expect(distDir, 'to exist'),
+          shas: expect(shas, 'to exist'),
           index: expect(fs.readFileSync(distIndexPath, 'utf8'), 'to contain', '<h1>Hello'),
           styles: expect(
             fs.readFileSync(stylesDistFile, 'utf8'),
@@ -342,8 +341,8 @@ describe('cli simple', function cli() {
 
       return hasExportedSite(spawned).then(() =>
         expect.promise.all({
-          dir: expect(fs.existsSync(distDir), 'to be true'),
-          shas: expect(fs.existsSync(shas), 'to be true'),
+          dir: expect(distDir, 'to exist'),
+          shas: expect(shas, 'to exist'),
           styles: expect(
             fs.readFileSync(stylesDistFile, 'utf8'),
             'to contain',
@@ -424,15 +423,14 @@ describe('cli simple', function cli() {
       nextStep('\n', 'y')
         .then(() => nextStep('? Do you want to initialize your', 'y\n'))
         .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
-        .then(() => nextStep('? Run this', 'n\n'));
+        .then(() => nextStep('? Ready ', 'n\n'));
 
-      const exists = file => expect(fs.existsSync(file), 'to be true');
       return spawned.then(() =>
         expect.promise.all({
-          dir: exists(pingyJsonPath),
-          indexHtml: exists(indexHtml),
-          scripts: exists(scripts),
-          styles: exists(styles),
+          dir: expect(pingyJsonPath, 'to exist'),
+          indexHtml: expect(indexHtml, 'to exist'),
+          scripts: expect(scripts, 'to exist'),
+          styles: expect(styles, 'to exist'),
         })
       );
     });

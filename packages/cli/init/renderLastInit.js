@@ -9,13 +9,15 @@ const valToName = (type, ext) =>
 module.exports = (lastInit) => {
   const lines = [];
   if (lastInit.html) {
-    lines.push(`    ${chalk.reset('Documents')}: ${chalk.bold(valToName('html', lastInit.html))}`);
+    lines.push(`    ${chalk.reset('Documents')}: ${chalk.bold(valToName('docs', lastInit.html))}`);
   }
   if (lastInit.scripts) {
-    lines.push(`    ${chalk.reset('Scripts')}: ${chalk.bold(valToName('css', lastInit.scripts))}`);
+    lines.push(
+      `    ${chalk.reset('Scripts')}: ${chalk.bold(valToName('scripts', lastInit.scripts))}`
+    );
   }
   if (lastInit.styles) {
-    lines.push(`    ${chalk.reset('Styles')}: ${chalk.bold(valToName('js', lastInit.styles))}`);
+    lines.push(`    ${chalk.reset('Styles')}: ${chalk.bold(valToName('styles', lastInit.styles))}`);
   }
   if (lastInit.whitespace) {
     lines.push(

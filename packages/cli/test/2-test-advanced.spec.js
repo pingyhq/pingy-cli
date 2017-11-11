@@ -8,8 +8,8 @@ const fetch = require('node-fetch');
 const rimraf = require('rimraf');
 const webdriver = require('friendly-webdriver');
 const unexpectedWebdriver = require('unexpected-webdriver');
-const unexpected = require('unexpected');
 const mkdirp = require('mkdirp');
+require('./assertions')(expect);
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const appendToFile = (file, contents) => {
@@ -33,7 +33,7 @@ const fixturesPath = path.join(__dirname, 'fixtures');
 
 after(function (done) {
   this.timeout(20000);
-  rimraf(projectPath, () => {
+  rimraf(projectPath, function () {
     if (wd) return wd.quit().then(done);
     done();
   });
@@ -83,8 +83,8 @@ describe('cli advanced', function cli() {
     },
   };
 
-  describe('init', function() {
-    it('should create pingy.json and scaffold using init command', function() {
+  describe('init', () => {
+    it('should create pingy.json and scaffold using init command', () => {
       const spawnedInit = spawn('node', ['../../cli.js', 'init', '--global-pingy'], {
         cwd: projectPath,
       });
@@ -106,30 +106,29 @@ describe('cli advanced', function cli() {
         .then(() =>
           nextStep('? Do you want to initialize your project using the same settings', 'n\n')
         )
-        .then(() => nextStep('? What document', '\u001B\u005B\u0042\u001B\u005B\u0042\n'))
+        .then(() => nextStep('? What document', '\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What styles', '\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What scripts', '\u001B\u005B\u0042\u001B\u005B\u0042\n'))
         .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
         .then(() => nextStep('? The most important question'))
-        .then(() => nextStep('? Run this', 'y\n'));
+        .then(() => nextStep('? Ready ', 'y\n\n'));
 
-      const exists = file => expect(fs.existsSync(file), 'to be true');
       return spawnedInit.then(() =>
         expect.promise.all({
-          dir: exists(pingyJsonPath),
-          indexHtml: exists(indexHtml),
-          scripts: exists(scripts),
-          styles: exists(styles),
-          modules: exists(modules),
+          dir: expect(pingyJsonPath, 'to exist'),
+          indexHtml: expect(indexHtml, 'to exist'),
+          scripts: expect(scripts, 'to exist'),
+          styles: expect(styles, 'to exist'),
+          modules: expect(modules, 'to exist'),
         })
       );
     });
   });
 
-  describe('dev', function() {
+  describe('dev', () => {
     let spawned;
 
-    it('should serve site', function() {
+    it('should serve site', () => {
       spawned = spawn('node', ['../../cli.js', 'dev', '--no-open'], {
         cwd: projectPath,
       }).catch((err) => {});
@@ -165,7 +164,7 @@ describe('cli advanced', function cli() {
         );
     });
 
-    it('should work with live-reload', function() {
+    it('should work with live-reload', () => {
       return new Promise(resolve =>
         resolve(appendToFile(styles, 'body { background: rgba(255, 255, 0, 1) }'))
       )
@@ -182,7 +181,7 @@ describe('cli advanced', function cli() {
         .then(() => delay(1000));
     });
 
-    it('should render correct files after changes', function() {
+    it('should render correct files after changes', () => {
       return fetch(stylesUrl)
         .then(res => res.text())
         .then(css => expect(css, 'to contain', 'display:flex').and('not to contain', '-ms-flexbox'))
@@ -190,7 +189,7 @@ describe('cli advanced', function cli() {
         .then(js => expect(js, 'to contain', '"rgba(255, 255, 255, 1)";'));
     });
 
-    it('should also live-reload after included files are added and edited', function() {
+    it('should also live-reload after included files are added and edited', () => {
       return new Promise(resolve =>
         resolve(appendToFile(styles, 'p { background: rgba(0, 255, 0, 1) }'))
       )
@@ -227,7 +226,7 @@ describe('cli advanced', function cli() {
         );
     });
 
-    it('should add ejs to site', function() {
+    it('should add ejs to site', () => {
       if (/^win/.test(process.platform)) {
         return spawn('cmd.exe', ['/c', 'npm.cmd', 'install', 'ejs', '--save-dev'], {
           cwd: projectPath,
@@ -244,7 +243,7 @@ describe('cli advanced', function cli() {
     const newIndexHtml = path.join(projectPath, 'index.ejs');
     const newInnerHtml = path.join(projectPath, '_inner.ejs');
 
-    it('should serve ejs site', function() {
+    it('should serve ejs site', () => {
       try {
         fs.unlinkSync(indexHtml);
         addFile(path.join(fixturesPath, 'index.ejs'), newIndexHtml);
@@ -265,7 +264,7 @@ describe('cli advanced', function cli() {
         .then(() => expect(wd.find('h2'), 'to contain text', 'Hello World'));
     });
 
-    it('should also live-reload after included files are added and edited', function() {
+    it('should also live-reload after included files are added and edited', () => {
       addFile(path.join(fixturesPath, '_inner.ejs'), newInnerHtml);
       appendToFile(newIndexHtml, "\n<%- include('_inner'); %>");
       return delay(1000)
@@ -283,11 +282,8 @@ describe('cli advanced', function cli() {
     });
   });
 
-  describe('export', function() {
+  describe('export', () => {
     const distDir = path.join(projectPath, 'dist');
-    const scriptsDir = path.join(projectPath, 'scripts');
-    const stylesDir = path.join(projectPath, 'styles');
-    const indexPath = path.join(projectPath, 'index.html');
     const shas = path.join(distDir, '.shas.json');
     const distIndexPath = path.join(distDir, 'index.html');
     const stylesDistFile = path.join(distDir, 'styles', 'main.css');
@@ -295,13 +291,7 @@ describe('cli advanced', function cli() {
     const hasExportedSite = spawned =>
       new Promise(resolve => spawned.childProcess.on('exit', resolve));
 
-    // after(function(done) {
-    //   fs.unlinkSync(pingyJsonPath);
-    //   fs.unlinkSync(indexPath);
-    //   rimraf(distDir, () => rimraf(scriptsDir, () => rimraf(stylesDir, done)));
-    // });
-
-    it('should export site (minified)', function() {
+    it('should export site (minified)', () => {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
       const newPingyContent = pingyContent.replace('"minify": false,', '"minify": true,');
       fs.writeFileSync(pingyJsonPath, newPingyContent);
@@ -312,8 +302,8 @@ describe('cli advanced', function cli() {
         })
       ).then(() =>
         expect.promise.all({
-          dir: expect(fs.existsSync(distDir), 'to be true'),
-          shas: expect(fs.existsSync(shas), 'to be true'),
+          dir: expect(distDir, 'to exist'),
+          shas: expect(shas, 'to exist'),
           index: expect(
             fs.readFileSync(distIndexPath, 'utf8'),
             'to contain',
@@ -328,7 +318,7 @@ describe('cli advanced', function cli() {
       );
     });
 
-    it('should export site (autoprefixed + minified)', function() {
+    it('should export site (autoprefixed + minified)', () => {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
       const newPingyContent = pingyContent.replace('"minify": true,', '"minify": false,');
       fs.writeFileSync(pingyJsonPath, newPingyContent);
@@ -348,7 +338,7 @@ describe('cli advanced', function cli() {
       );
     });
 
-    it('should export site (autoprefixed)', () => {
+    it('should export site (autoprefixed)', function() {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
       const newPingyContent = pingyContent
         .replace('"minify": true,', '"minify": false,')
@@ -362,8 +352,8 @@ describe('cli advanced', function cli() {
         })
       ).then(() =>
         expect.promise.all({
-          dir: expect(fs.existsSync(distDir), 'to be true'),
-          shas: expect(fs.existsSync(shas), 'to be true'),
+          dir: expect(distDir, 'to exist'),
+          shas: expect(shas, 'to exist'),
           styles: expect(
             fs.readFileSync(stylesDistFile, 'utf8'),
             'to contain',
@@ -373,7 +363,7 @@ describe('cli advanced', function cli() {
       );
     });
 
-    it('should export site (autoprefixed + minified)', () => {
+    it('should export site (autoprefixed + minified)', function() {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
       const newPingyContent = pingyContent.replace('"minify": false,', '"minify": true,');
       fs.writeFileSync(pingyJsonPath, newPingyContent);
@@ -393,7 +383,7 @@ describe('cli advanced', function cli() {
       );
     });
 
-    it('should export site (after edit)', () => {
+    it('should export site (after edit)', function() {
       const css = fs.readFileSync(styles, 'utf8');
       const newCss = `${css}\nh4 { display: flex }`;
       fs.writeFileSync(styles, newCss);
