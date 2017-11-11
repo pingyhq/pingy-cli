@@ -1,0 +1,23 @@
+{
+  "name": "@pingy/scaffold",
+  "version": "7.0.0",
+  "description": "Scaffold a Pingy project from Github or local filesystem",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Warning: no test specified\" && exit 0"
+  },
+  "author": "Dave Jeffery <dave@davejeffery.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "fs-extra": "^4.0.2",
+    "gh-got": "^6.0.0",
+    "git-pull-or-clone": "^1.1.0",
+    "is-git-url": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "upath": "^1.0.0",
+    "util.promisify": "^1.0.0"
+  }
+}
