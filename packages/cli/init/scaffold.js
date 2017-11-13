@@ -37,6 +37,7 @@ const whitespaceConfirm = () =>
         type: 'list',
         name: 'whitespace',
         message: 'The most important question: Tabs or spaces',
+        default: global.conf.get('lastInit.whitespace'),
         choices: [
           {
             name: '2 spaces',
