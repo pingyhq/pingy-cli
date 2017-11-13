@@ -71,43 +71,45 @@ module.exports = function Cache(mountPath, events) {
     }
   }
 
-  function absolutePath(mountPath, source) {
+  function absolutePath(source) {
     if (isAbsolute(source)) return source;
     return join(mountPath, source);
   }
 
-  function relativizePath(mountPath, absoluteSource) {
+  function relativizePath(absoluteSource) {
     return relative(mountPath, absoluteSource);
   }
 
+  const onFileChange = (relativeSource, compiledPath) => () => {
+    // TODO: Code below needs more testing on mac before enabling it
+    if (!isMac) {
+      if (fileChangedRecently[relativeSource]) return;
+      fileChangedRecently[relativeSource] = true;
+      setTimeout(() => (fileChangedRecently[relativeSource] = false), 50);
+    }
+    del(compiledPath);
+    events.emit('fileChanged', compiledPath, relativeSource);
+  };
+
   function _addWatcher(compiledPath, sources) {
-    compiledPath = normalize(compiledPath);
+    const normalizedCompilePath = normalize(compiledPath);
 
     sources.forEach((source) => {
-      const absoluteSource = absolutePath(mountPath, source);
-      const relativeSource = relativizePath(mountPath, absoluteSource);
+      const absoluteSource = absolutePath(source);
+      const relativeSource = relativizePath(absoluteSource);
 
       try {
-        fs.watch(absoluteSource, () => {
-          // TODO: Code below needs more testing on mac before enabling it
-          if (!isMac) {
-            if (fileChangedRecently[relativeSource]) return;
-            fileChangedRecently[relativeSource] = true;
-            setTimeout(() => (fileChangedRecently[relativeSource] = false), 50);
-          }
-          del(compiledPath);
-          events.emit('fileChanged', compiledPath, relativeSource);
-        });
+        fs.watch(absoluteSource, onFileChange(relativeSource, normalizedCompilePath));
       } catch (e) {
         if (e.code === 'ENOENT') return;
         throw e;
       }
     });
 
-    if (!watchers[compiledPath]) {
-      watchers[compiledPath] = sources;
+    if (!watchers[normalizedCompilePath]) {
+      watchers[normalizedCompilePath] = sources;
     } else {
-      watchers[compiledPath] = watchers[compiledPath].concat(sources);
+      watchers[normalizedCompilePath] = watchers[normalizedCompilePath].concat(sources);
     }
   }
 
