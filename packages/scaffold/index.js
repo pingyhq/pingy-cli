@@ -6,6 +6,7 @@ const github = require('gh-got');
 const isGitUrl = require('is-git-url');
 const crypto = require('crypto');
 const gitPullOrCloneCB = require('git-pull-or-clone');
+const rimrafCB = require('rimraf');
 const mkdirpCB = require('mkdirp');
 const { homedir } = require('os');
 const util = require('util');
@@ -13,6 +14,7 @@ require('util.promisify').shim();
 
 const gitPullOrClone = util.promisify(gitPullOrCloneCB);
 const mkdirp = util.promisify(mkdirpCB);
+const rimraf = util.promisify(rimrafCB);
 const cacheDir = join(homedir(), '.pingy', 'scaffolds');
 const scaffoldFileName = 'pingy-scaffold.json';
 
@@ -97,7 +99,13 @@ function scaffoldFs(scaffoldFrom) {
 function scaffoldGit(url) {
   return mkdirp(cacheDir).then(() => {
     const repoDir = join(cacheDir, shaDigest(url));
-    return gitPullOrClone(url, repoDir).then(() => scaffoldFs(repoDir));
+    return gitPullOrClone(url, repoDir)
+      .then(
+        () => null,
+        // If we get an error then try and rimraf the dir and clone from scratch
+        () => rimraf(repoDir).then(() => gitPullOrClone(url, repoDir))
+      )
+      .then(() => scaffoldFs(repoDir));
   });
 }
 

@@ -17,6 +17,7 @@
     "git-pull-or-clone": "^1.1.0",
     "is-git-url": "^1.0.0",
     "mkdirp": "^0.5.1",
+    "rimraf": "^2.6.2",
     "upath": "^1.0.0",
     "util.promisify": "^1.0.0"
   }
