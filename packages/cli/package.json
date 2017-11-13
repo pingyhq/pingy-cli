@@ -38,7 +38,7 @@
     "mocha": "^4.0.1",
     "node-fetch": "^1.7.3",
     "rimraf": "^2.6.2",
-    "unexpected": "^10.36.0",
+    "unexpected": "^10.36.1",
     "unexpected-webdriver": "^2.0.0"
   },
   "scripts": {
