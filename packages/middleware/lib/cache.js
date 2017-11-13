@@ -4,6 +4,8 @@ const fs = require('fs');
 const { normalize, join, relative } = require('upath');
 const isAbsolute = require('is-absolute');
 
+const isMac = process.platform === 'darwin';
+
 module.exports = function Cache(mountPath, events) {
   // Set-up cache and watchers
   const cache = {};
@@ -88,9 +90,11 @@ module.exports = function Cache(mountPath, events) {
       try {
         fs.watch(absoluteSource, () => {
           // TODO: Code below needs more testing on mac before enabling it
-          // if (fileChangedRecently[relativeSource]) return;
-          // fileChangedRecently[relativeSource] = true;
-          // setTimeout(() => (fileChangedRecently[relativeSource] = false), 50);
+          if (!isMac) {
+            if (fileChangedRecently[relativeSource]) return;
+            fileChangedRecently[relativeSource] = true;
+            setTimeout(() => (fileChangedRecently[relativeSource] = false), 50);
+          }
           del(compiledPath);
           events.emit('fileChanged', compiledPath, relativeSource);
         });
