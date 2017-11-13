@@ -1,8 +1,7 @@
 {
   "name": "@pingy/middleware",
   "version": "4.0.1",
-  "description":
-    "Express/Connect middleware for transpiling to html/css/js on-the-fly",
+  "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
   "main": "lib/middleware.js",
   "scripts": {
     "test": "mocha --exit",
@@ -40,7 +39,7 @@
     "jade": "^1.11.0",
     "magicpen-media": "^1.5.1",
     "messy": "^6.10.0",
-    "mocha": "^3.3.0",
+    "mocha": "^4.0.1",
     "node-sass": "^4.6.1",
     "serve-static": "^1.11.1",
     "sinon": "^1.17.4",
