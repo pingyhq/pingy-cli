@@ -1,10 +1,11 @@
 {
   "name": "@pingy/middleware",
   "version": "4.0.1",
-  "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
+  "description":
+    "Express/Connect middleware for transpiling to html/css/js on-the-fly",
   "main": "lib/middleware.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --exit",
     "example": "node examples/basic-connect-server.js"
   },
   "engines": {
