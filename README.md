@@ -69,6 +69,27 @@ Will create a local development server and open the site in your default web bro
 *Note: If you created your project with `pingy init`, then Pingy will try to add a `run` script (if it doesn't already exist) to your `package.json`. In this case, you can run `npm start`, instead of `pingy dev`.*
 
 
+### `scaffold`
+
+
+```
+Usage: scaffold [options] <url>
+
+Scaffold a new website using a third-party project template
+
+
+Options:
+
+  --yarn          Use Yarn instead of NPM for installing packages
+  --global-pingy  Don't install local version of Pingy CLI, use global version instead
+  -h, --help      output usage information
+```
+
+`<url>` can be:
+  * Git URL: `https://github.com/pingyhq/pingy-scaffold-bootstrap-jumbotron.git`
+  * Shorthand GitHub URL: `pingyhq/bootstrap-jumbotron`
+  * Filesystem path: `/Users/dave/code/pingy-scaffolds/bootstrap-jumbotron`
+
 ### `export`
 
 `pingy export` will export the website so that it's ready to be uploaded wherever you like. Assets will be minified so that your website is super fast.
