@@ -1,12 +1,11 @@
 {
   "name": "@pingy/init",
-  "version": "6.0.1",
+  "version": "7.0.0",
   "description": "Initialize a project for use with Pingy CLI",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "coverage":
-      "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "travis": "npm run coverage"
   },
   "engines": {
@@ -27,7 +26,7 @@
   },
   "homepage": "https://github.com/pingyhq/pingy-cli/tree/master/packages/init#readme",
   "dependencies": {
-    "@pingy/scaffold-primitive": "^1.0.2",
+    "@pingy/scaffold-primitive": "^2.0.0",
     "babel-polyfill": "^6.26.0",
     "checkdir": "^1.1.0",
     "mkdirp": "^0.5.1",
