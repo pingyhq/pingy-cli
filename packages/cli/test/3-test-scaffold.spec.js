@@ -34,7 +34,7 @@ describe('cli scaffold', function cli() {
 
   this.timeout(100000);
 
-  describe('shorthand github scaffold', () => {
+  describe('shorthand github scaffold', function() {
     let spawnedInit;
     let stdin;
     let stdout;
@@ -51,7 +51,7 @@ describe('cli scaffold', function cli() {
         stdout.on('data', onData);
       });
 
-    it('should spawn scaffold command', () => {
+    it('should spawn scaffold command', function() {
       spawnedInit = spawn(
         'node',
         ['../../cli.js', 'scaffold', 'pingyhq/bootstrap-jumbotron', '--global-pingy'],
@@ -63,15 +63,15 @@ describe('cli scaffold', function cli() {
       stdin = spawnedInit.stdin;
     });
 
-    it('should choose to scaffold files', () => {
+    it('should choose to scaffold files', function() {
       return nextStep('? Do you want Pingy to scaffold', 'y\n');
     });
 
-    it('with 2 spaces', () => {
+    it('with 2 spaces', function() {
       return nextStep('? The most important question');
     });
 
-    it('and install modules', () => {
+    it('and install modules', function() {
       return nextStep('Run npm install ', '\n');
     });
 
@@ -85,7 +85,7 @@ describe('cli scaffold', function cli() {
       });
     });
 
-    it('should have pingy.json', () => {
+    it('should have pingy.json', function() {
       expect(pingyJsonPath, 'to exist');
       expect(
         pingyJsonPath,
@@ -94,26 +94,26 @@ describe('cli scaffold', function cli() {
       );
     });
 
-    it('should not have pingy-scaffold.json', () => {
+    it('should not have pingy-scaffold.json', function() {
       expect(pingyScaffoldJsonPath, 'not to exist');
     });
 
-    it('should have package.json', () => {
+    it('should have package.json', function() {
       expect(pkgJsonPath, 'to exist');
     });
 
-    it('should have website docs', () => {
+    it('should have website docs', function() {
       expect(indexHtml, 'to exist');
       expect(scripts, 'to exist');
       expect(styles, 'to exist');
     });
 
-    it('should have node_modules', () => {
+    it('should have node_modules', function() {
       expect(modules, 'to exist');
     });
   });
 
-  describe('longhand github scaffold without scaffolding files or npm install', () => {
+  describe('longhand github scaffold without scaffolding files or npm install', function() {
     let spawnedInit;
     let stdin;
     let stdout;
@@ -131,7 +131,7 @@ describe('cli scaffold', function cli() {
 
     before(clearAndCreateDir);
 
-    it('should spawn scaffold command', () => {
+    it('should spawn scaffold command', function() {
       spawnedInit = spawn(
         'node',
         [
@@ -148,11 +148,11 @@ describe('cli scaffold', function cli() {
       stdin = spawnedInit.stdin;
     });
 
-    it('should choose not to scaffold files', () => {
+    it('should choose not to scaffold files', function() {
       return nextStep('? Do you want Pingy to scaffold', 'n\n');
     });
 
-    it('and not install modules', () => {
+    it('and not install modules', function() {
       return nextStep('Run npm install ', 'n\n');
     });
 
@@ -160,7 +160,7 @@ describe('cli scaffold', function cli() {
       spawnedInit.on('exit', done);
     });
 
-    it('should have pingy.json', () => {
+    it('should have pingy.json', function() {
       expect(pingyJsonPath, 'to exist');
       expect(
         pingyJsonPath,
@@ -169,21 +169,21 @@ describe('cli scaffold', function cli() {
       );
     });
 
-    it('should not have pingy-scaffold.json', () => {
+    it('should not have pingy-scaffold.json', function() {
       expect(pingyScaffoldJsonPath, 'not to exist');
     });
 
-    it('should have package.json', () => {
+    it('should have package.json', function() {
       expect(pkgJsonPath, 'to exist');
     });
 
-    it('should not have website docs', () => {
+    it('should not have website docs', function() {
       expect(indexHtml, 'not to exist');
       expect(scripts, 'not to exist');
       expect(styles, 'not to exist');
     });
 
-    it('should have node_modules', () => {
+    it('should have node_modules', function() {
       expect(modules, 'not to exist');
     });
   });

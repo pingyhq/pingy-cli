@@ -49,9 +49,11 @@ module.exports.identifyUrlType = (url) => {
       const [user, repo] = url.split('/');
       const prefixedUrl = `${user}/pingy-scaffold-${repo}`;
       const unprefixedUrl = url;
+      const token = process.env.PINGY_GITHUB_TOKEN;
+      const options = token ? { token } : null;
       return Promise.all([
-        github(`repos/${prefixedUrl}`).catch(handleGithubError),
-        github(`repos/${unprefixedUrl}`).catch(handleGithubError)
+        github(`repos/${prefixedUrl}`, options).catch(handleGithubError),
+        github(`repos/${unprefixedUrl}`, options).catch(handleGithubError)
       ]).then((res) => {
         let chosenRes;
         if (res[0] && res[0].body && res[0].body.git_url) {
