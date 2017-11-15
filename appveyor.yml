@@ -2,6 +2,8 @@ environment:
   matrix:
   - nodejs_version: "6"
   - nodejs_version: "9"
+  PINGY_GITHUB_TOKEN:
+    secure: SVLm+MLbe5h3HXFxDF5HmHrhYm8RGh87f3u5puMzSTffgtn88a2+dkN+VgTz9zJL
 
 install:
   - ps: Install-Product node $env:nodejs_version
@@ -13,7 +15,3 @@ test_script:
   - npm test
 
 build: off
-
-environment:
-  PINGY_GITHUB_TOKEN:
-    secure: SVLm+MLbe5h3HXFxDF5HmHrhYm8RGh87f3u5puMzSTffgtn88a2+dkN+VgTz9zJL
