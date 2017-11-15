@@ -13,3 +13,7 @@ test_script:
   - npm test
 
 build: off
+
+environment:
+  PINGY_GITHUB_TOKEN:
+    secure: SVLm+MLbe5h3HXFxDF5HmHrhYm8RGh87f3u5puMzSTffgtn88a2+dkN+VgTz9zJL

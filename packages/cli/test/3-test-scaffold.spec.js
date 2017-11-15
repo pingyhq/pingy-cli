@@ -41,7 +41,6 @@ describe('cli scaffold', function cli() {
     const nextStep = (matchString, write = '\n') =>
       new Promise((resolve) => {
         const onData = (data) => {
-          console.log(data.toString())
           if (data.toString().includes(matchString)) {
             stdout.removeAllListeners('data');
             resolve();
