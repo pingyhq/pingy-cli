@@ -77,6 +77,12 @@ Usage: scaffold [options] <url>
 
 Scaffold a new website using a third-party project template
 
+<url> can be:
+
+  Git URL: https://github.com/pingyhq/pingy-scaffold-bootstrap-jumbotron.git
+  Shorthand GitHub URL: pingyhq/bootstrap-jumbotron
+  Filesystem path: /Users/dave/code/pingy-scaffolds/bootstrap-jumbotron
+
 
 Options:
 
@@ -84,11 +90,6 @@ Options:
   --global-pingy  Don't install local version of Pingy CLI, use global version instead
   -h, --help      output usage information
 ```
-
-`<url>` can be:
-  * Git URL: `https://github.com/pingyhq/pingy-scaffold-bootstrap-jumbotron.git`
-  * Shorthand GitHub URL: `pingyhq/bootstrap-jumbotron`
-  * Filesystem path: `/Users/dave/code/pingy-scaffolds/bootstrap-jumbotron`
 
 ### `export`
 

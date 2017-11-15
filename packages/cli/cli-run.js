@@ -50,7 +50,17 @@ function run() {
 
   program
     .command('scaffold <url>')
-    .description('Scaffold a new website using a third-party project template')
+    .description(
+      [
+        'Scaffold a new website using a third-party project template',
+        '',
+        '  <url> can be:',
+        '',
+        '    Git URL: https://github.com/pingyhq/pingy-scaffold-bootstrap-jumbotron.git',
+        '    Shorthand GitHub URL: pingyhq/bootstrap-jumbotron',
+        '    Filesystem path: /Users/dave/code/pingy-scaffolds/bootstrap-jumbotron'
+      ].join('\n')
+    )
     .option('--yarn', 'Use Yarn instead of NPM for installing packages')
     .option(
       '--global-pingy',
