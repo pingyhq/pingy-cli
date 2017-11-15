@@ -1,8 +1,8 @@
 'use strict';
 
 const expect = require('unexpected').clone();
-const spawn = require('child-process-promise').spawn;
-const path = require('path');
+const spawn = require('cross-spawn');
+const path = require('upath');
 const rimraf = require('rimraf');
 const unexpectedWebdriver = require('unexpected-webdriver');
 const mkdirp = require('mkdirp');
@@ -12,14 +12,16 @@ expect.use(unexpectedWebdriver());
 
 const projectPath = path.join(__dirname, 'scaffolded-project');
 
-after(function (done) {
+function clearDir(done) {
   this.timeout(20000);
-  rimraf(projectPath, () => done());
-});
-before(function (done) {
+  rimraf(projectPath, err => done(err));
+}
+function clearAndCreateDir(done) {
   this.timeout(10000);
   rimraf(projectPath, () => mkdirp(projectPath, done));
-});
+}
+before(clearAndCreateDir);
+after(clearDir);
 
 describe('cli scaffold', function cli() {
   const pingyJsonPath = path.join(projectPath, 'pingy.json');
@@ -30,9 +32,9 @@ describe('cli scaffold', function cli() {
   const styles = path.join(projectPath, 'styles', 'main.scss');
   const modules = path.join(projectPath, 'node_modules');
 
-  this.timeout(1000000);
+  this.timeout(100000);
 
-  describe('shorthand github scaffold', function() {
+  describe('shorthand github scaffold', () => {
     let spawnedInit;
     let stdin;
     let stdout;
@@ -48,7 +50,7 @@ describe('cli scaffold', function cli() {
         stdout.on('data', onData);
       });
 
-    before(function() {
+    it('should spawn scaffold command', () => {
       spawnedInit = spawn(
         'node',
         ['../../cli.js', 'scaffold', 'pingyhq/bootstrap-jumbotron', '--global-pingy'],
@@ -56,31 +58,33 @@ describe('cli scaffold', function cli() {
           cwd: projectPath,
         }
       );
-      stdout = spawnedInit.childProcess.stdout;
-      stdin = spawnedInit.childProcess.stdin;
-    });
-    after(function (done) {
-      this.timeout(10000);
-      rimraf(projectPath, () => mkdirp(projectPath, done));
+      stdout = spawnedInit.stdout;
+      stdin = spawnedInit.stdin;
     });
 
-    it('should choose to scaffold files', function() {
+    it('should choose to scaffold files', () => {
       return nextStep('? Do you want Pingy to scaffold', 'y\n');
     });
 
-    it('with 2 spaces', function() {
+    it('with 2 spaces', () => {
       return nextStep('? The most important question');
     });
 
-    it('and install modules', function() {
+    it('and install modules', () => {
       return nextStep('Run npm install ', '\n');
     });
 
-    it('and wait for install to finish', function() {
-      return spawnedInit;
+    it('and wait for finish', function(done) {
+      spawnedInit.stderr.on('data', (data) => {
+        if (data.toString().includes('Installed')) {
+          spawnedInit.stderr.removeAllListeners('data');
+          spawnedInit.kill();
+          done();
+        }
+      });
     });
 
-    it('should have pingy.json', function() {
+    it('should have pingy.json', () => {
       expect(pingyJsonPath, 'to exist');
       expect(
         pingyJsonPath,
@@ -89,26 +93,26 @@ describe('cli scaffold', function cli() {
       );
     });
 
-    it('should not have pingy-scaffold.json', function() {
+    it('should not have pingy-scaffold.json', () => {
       expect(pingyScaffoldJsonPath, 'not to exist');
     });
 
-    it('should have package.json', function() {
+    it('should have package.json', () => {
       expect(pkgJsonPath, 'to exist');
     });
 
-    it('should have website docs', function() {
+    it('should have website docs', () => {
       expect(indexHtml, 'to exist');
       expect(scripts, 'to exist');
       expect(styles, 'to exist');
     });
 
-    it('should have node_modules', function() {
+    it('should have node_modules', () => {
       expect(modules, 'to exist');
     });
   });
 
-  describe('longhand github scaffold without scaffolding files or npm install', function() {
+  describe('longhand github scaffold without scaffolding files or npm install', () => {
     let spawnedInit;
     let stdin;
     let stdout;
@@ -123,7 +127,10 @@ describe('cli scaffold', function cli() {
         };
         stdout.on('data', onData);
       });
-    before(function() {
+
+    before(clearAndCreateDir);
+
+    it('should spawn scaffold command', () => {
       spawnedInit = spawn(
         'node',
         [
@@ -136,23 +143,23 @@ describe('cli scaffold', function cli() {
           cwd: projectPath,
         }
       );
-      stdout = spawnedInit.childProcess.stdout;
-      stdin = spawnedInit.childProcess.stdin;
+      stdout = spawnedInit.stdout;
+      stdin = spawnedInit.stdin;
     });
 
-    it('should choose not to scaffold files', function() {
+    it('should choose not to scaffold files', () => {
       return nextStep('? Do you want Pingy to scaffold', 'n\n');
     });
 
-    it('and not install modules', function() {
+    it('and not install modules', () => {
       return nextStep('Run npm install ', 'n\n');
     });
 
-    it('and wait for finish', function() {
-      return spawnedInit;
+    it('and wait for finish', function(done) {
+      spawnedInit.on('exit', done);
     });
 
-    it('should have pingy.json', function() {
+    it('should have pingy.json', () => {
       expect(pingyJsonPath, 'to exist');
       expect(
         pingyJsonPath,
@@ -161,21 +168,21 @@ describe('cli scaffold', function cli() {
       );
     });
 
-    it('should not have pingy-scaffold.json', function() {
+    it('should not have pingy-scaffold.json', () => {
       expect(pingyScaffoldJsonPath, 'not to exist');
     });
 
-    it('should have package.json', function() {
+    it('should have package.json', () => {
       expect(pkgJsonPath, 'to exist');
     });
 
-    it('should not have website docs', function() {
+    it('should not have website docs', () => {
       expect(indexHtml, 'not to exist');
       expect(scripts, 'not to exist');
       expect(styles, 'not to exist');
     });
 
-    it('should have node_modules', function() {
+    it('should have node_modules', () => {
       expect(modules, 'not to exist');
     });
   });
