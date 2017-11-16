@@ -292,21 +292,22 @@ module.exports = {
         }
         if (compiled.sourcemap || compiled.manuallyTrackedSourceFiles) {
           inputSha = inputSha.concat(
-            shaSources
-              .map((path) => {
-                if (Path.normalize(path) === pathName) {
-                  return null;
-                }
-                return fsp.readFile(path, 'utf8').then(content => ({
+            shaSources.map((path) => {
+              if (Path.normalize(path) === pathName) {
+                return null;
+              }
+              return fsp.readFile(path, 'utf8').then(
+                content => ({
                   file: path,
                   sha: createHash(content),
-                }));
-              })
-              .filter(x => Boolean(x))
+                }),
+                () => null
+              );
+            })
           );
         }
-        return when.all(inputSha).then((inputSha) => {
-          compiled.inputSha = inputSha;
+        return when.all(inputSha).then((shas) => {
+          compiled.inputSha = shas.filter(x => Boolean(x));
           return compiled;
         });
       }
