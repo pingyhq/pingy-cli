@@ -109,7 +109,7 @@ describe('cli advanced', function cli() {
         .then(() => nextStep('? What document', '\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What styles', '\u001B\u005B\u0042\n'))
         .then(() => nextStep('? What scripts', '\u001B\u005B\u0042\u001B\u005B\u0042\n'))
-        .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
+        .then(() => nextStep('? You are about to scaffold', 'y\n'))
         .then(() => nextStep('? The most important question'))
         .then(() => nextStep('? Ready ', 'y\n\n'));
 

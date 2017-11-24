@@ -63,7 +63,7 @@ describe('cli scaffold', function cli() {
     });
 
     it('should choose to scaffold files', function() {
-      return nextStep('? Do you want Pingy to scaffold', 'y\n');
+      return nextStep('? You are about to scaffold', 'y\n');
     });
 
     it('with 2 spaces', function() {
@@ -148,7 +148,7 @@ describe('cli scaffold', function cli() {
     });
 
     it('should choose not to scaffold files', function() {
-      return nextStep('? Do you want Pingy to scaffold', 'n\n');
+      return nextStep('? You are about to scaffold', '\u001B\u005B\u0042\n');
     });
 
     it('and not install modules', function() {

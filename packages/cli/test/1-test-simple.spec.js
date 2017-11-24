@@ -109,7 +109,7 @@ describe('cli simple', function cli() {
         .then(() => nextStep('? What document'))
         .then(() => nextStep('? What styles'))
         .then(() => nextStep('? What scripts'))
-        .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
+        .then(() => nextStep('? You are about to scaffold', 'y\n'))
         .then(() => nextStep('? The most important question'))
         .then(() => nextStep('? Ready ', 'n\n'));
 
@@ -422,7 +422,7 @@ describe('cli simple', function cli() {
 
       nextStep('\n', 'y')
         .then(() => nextStep('? Do you want to initialize your', 'y\n'))
-        .then(() => nextStep('? Do you want Pingy to scaffold', 'y\n'))
+        .then(() => nextStep('? You are about to scaffold', 'y\n'))
         .then(() => nextStep('? Ready ', 'n\n'));
 
       return spawned.then(() =>

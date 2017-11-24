@@ -5,28 +5,43 @@ const inquirer = require('inquirer');
 const pathTree = require('tree-from-paths');
 const initLib = require('@pingy/init');
 const scaffoldLib = require('@pingy/scaffold-primitive');
-const confirmWithHelpText = require('./promptConfirmWithHelpText');
+const listWithHelpText = require('./promptListWithHelpText');
+const { basename } = require('path');
 
-inquirer.registerPrompt('confirmWithHelpText', confirmWithHelpText);
+inquirer.registerPrompt('listWithHelpText', listWithHelpText);
 
 const toNodeTree = (baseDir, paths) =>
-  pathTree
+  `  ${basename(baseDir)}/\n${pathTree
     .render(paths, baseDir, (parent, file) => file)
     .substring(1)
     .split('\n')
-    .join('\n  ');
+    .join('\n  ')}`;
 
 const cwdNodeTree = info => toNodeTree(process.cwd(), info.preparedFiles);
 
 const scaffoldConfirm = filesToWriteTxt =>
   inquirer.prompt([
     {
-      type: 'confirmWithHelpText',
+      type: 'listWithHelpText',
       name: 'doScaffold',
       // TODO: If any existing files exist then put up a red warning.
-      message: 'Do you want Pingy to scaffold the following files for you?',
-      default: true,
+      message: 'You are about to scaffold the following files',
       helpText: `${filesToWriteTxt}`,
+      choices: [
+        {
+          name: 'Yes, go ahead',
+          value: true,
+        },
+        {
+          name: 'No, but continue',
+          value: false,
+        },
+        {
+          name: 'No and abort',
+          value: 'x',
+        }
+      ],
+      default: true,
     }
   ]);
 
@@ -84,8 +99,15 @@ const performScaffold = (lastWhitespace, params) => ({ whitespace, doScaffold })
   );
 };
 
-const shouldAskWhitespace = whitespace => ({ doScaffold }) =>
-  doScaffold && !whitespace ? whitespaceConfirm() : { whitespace, doScaffold };
+const shouldAskWhitespace = whitespace => ({ doScaffold }) => {
+  if (doScaffold === 'x') {
+    ora().warn('Aborting…');
+    return process.exit();
+  } else if (doScaffold && !whitespace) {
+    return whitespaceConfirm();
+  }
+  return { whitespace, doScaffold };
+};
 
 function init(params) {
   const { scaffoldOptions, url, isCustomScaffold } = params;
@@ -100,7 +122,12 @@ function init(params) {
     .then(scaffoldConfirm)
     .then(shouldAskWhitespace(lastWhitespace))
     .then(performScaffold(lastWhitespace, params))
-    .then(() => ora().succeed('Site files scaffolded'));
+    .then(
+      wasScaffolded =>
+        wasScaffolded
+          ? ora().succeed('Site files scaffolded')
+          : ora().info('Site files scaffold skipped')
+    );
 }
 
 module.exports.init = scaffoldOptions =>

@@ -65,6 +65,7 @@ function performInitActions(answers, options) {
 
   return scaffold
     .init(scaffoldOptions)
+    .then(() => npmInit())
     .then(() => updatePkgScripts(scaffoldOptions, options))
     .then(() => installDeps(scaffoldOptions, options));
 }
@@ -72,6 +73,7 @@ function performInitActions(answers, options) {
 function performScaffoldActions(scaffoldOptions, options, url) {
   return scaffold
     .scaffold(scaffoldOptions, url)
+    .then(() => npmInit())
     .then(() => updatePkgScripts(scaffoldOptions, options))
     .then(() => installDeps(scaffoldOptions, options));
 }
@@ -80,9 +82,7 @@ function processAnswers(options) {
   return (answers) => {
     global.conf.set('lastInit', answers);
 
-    npmInit()
-      .then(() => performInitActions(answers, options))
-      .catch(e => ora().fail(e.stack));
+    performInitActions(answers, options).catch(e => ora().fail(e.stack));
   };
 }
 
@@ -172,9 +172,7 @@ function scaffoldCmd(unverifiedUrl, options) {
         console.log(`Scaffolding ${chalk.bold(name)}`);
         console.log(description);
         console.log();
-        return npmInit()
-          .then(() => performScaffoldActions(json, options, scaffoldPath))
-          .catch(e => ora().fail(e.stack));
+        return performScaffoldActions(json, options, scaffoldPath).catch(e => ora().fail(e.stack));
       })
       .catch(err => console.log(chalk.red.bold(err)));
   });

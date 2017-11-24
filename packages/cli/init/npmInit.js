@@ -8,7 +8,7 @@ function npmInitCLI() {
   const spinner = ora('Creating package.json').start();
   return npmInit(process.cwd()).then((initCmd) => {
     if (!initCmd) {
-      spinner.succeed('package.json already exists');
+      spinner.succeed('Package.json already exists');
       return null;
     }
 
