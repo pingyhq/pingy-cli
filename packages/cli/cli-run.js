@@ -18,8 +18,10 @@ const { getPingyJson, setPingyJson } = require('./pingyJson');
 const Configstore = require('configstore');
 
 const conf = new Configstore(pkgJson.name, {});
-if (Number.isNaN(conf.get('version'))) conf.delete('lastInit');
-// Version config so we can easily invalidate it
+// `+` below will convert numeric string to number
+if (Number.isFinite(+conf.get('version'))) conf.delete('lastInit');
+
+// Version config so we can easily invalidate it in future
 conf.set('version', 2);
 conf.set('cliVersion', pkgJson.version);
 global.conf = conf;

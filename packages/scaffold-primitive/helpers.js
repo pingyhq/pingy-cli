@@ -9,7 +9,8 @@ const promiseAllProps = require('promise-all-props');
 const mapObj = require('map-obj');
 
 const isValidWhitespace = options =>
-  typeof options.whitespace === 'number' || !Number.isNaN(options.whitespace);
+  // `+` will convert numeric string to number
+  Number.isInteger(+options.whitespace);
 const maybeTab = (str, options) =>
   isValidWhitespace(options)
     ? detab(str, parseInt(options.whitespace, 10))
