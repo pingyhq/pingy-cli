@@ -122,12 +122,10 @@ function init(params) {
     .then(scaffoldConfirm)
     .then(shouldAskWhitespace(lastWhitespace))
     .then(performScaffold(lastWhitespace, params))
-    .then(
-      wasScaffolded =>
-        wasScaffolded
-          ? ora().succeed('Site files scaffolded')
-          : ora().info('Site files scaffold skipped')
-    );
+    .then(wasScaffolded =>
+      (wasScaffolded
+        ? ora().succeed('Site files scaffolded')
+        : ora().info('Site files scaffold skipped')));
 }
 
 module.exports.init = scaffoldOptions =>

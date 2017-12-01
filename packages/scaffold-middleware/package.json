@@ -1,0 +1,20 @@
+{
+  "name": "@pingy/scaffold-middleware",
+  "version": "0.0.0",
+  "description": "Middleware for doing dynamic Pingy Scaffolds",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Warning: no test specified\" && exit 0"
+  },
+  "author": "Dave Jeffery <dave@davejeffery.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "connect-injector": "^0.4.4",
+    "express": "^4.16.2",
+    "fs-extra": "^4.0.2",
+    "markup-js": "^1.5.21"
+  }
+}

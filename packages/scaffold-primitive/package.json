@@ -16,6 +16,8 @@
     "detab": "^2.0.1",
     "fs-extra": "^4.0.2",
     "is-absolute": "^1.0.0",
-    "markup-js": "^1.5.21"
+    "map-obj": "^2.0.0",
+    "markup-js": "^1.5.21",
+    "promise-all-props": "^1.0.1"
   }
 }

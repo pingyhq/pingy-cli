@@ -7,6 +7,9 @@ const serveStatic = require('serve-static');
 const instant = require('@pingy/instant');
 const enableDestroy = require('server-destroy');
 const autoprefixer = require('express-autoprefixer');
+const scaffold = require('@pingy/scaffold-middleware');
+const express = require('express');
+const getPort = require('get-port');
 
 function serveSite(sitePath, options) {
   const pingyMiddleware = require('@pingy/middleware');
@@ -30,7 +33,11 @@ function serveSite(sitePath, options) {
         const filePath = path.join(sitePath, cleanUrl);
         if (fs.existsSync(filePath)) {
           // Only run autoprefixer if it's vanilla css otherwise @pingy/compile will run it
-          return autoprefixer({ browsers: options.autoprefix, cascade: false })(req, res, next);
+          return autoprefixer({ browsers: options.autoprefix, cascade: false })(
+            req,
+            res,
+            next
+          );
         }
       }
       return next();
@@ -52,6 +59,36 @@ function serveSite(sitePath, options) {
   };
 }
 
+function serveScaffolder(scaffoldPath) {
+  return getPort().then(freePort => {
+    const app = express();
+
+    const $serveStatic = serveStatic(scaffoldPath);
+
+    app.use(scaffold.inject);
+    app.use($serveStatic);
+    let scaffoldComplete = new Promise(resolve => {
+      app.use('/__pingy__', scaffold.api(resolve, scaffoldPath));
+    });
+    app.use('/__pingy__.js', scaffold.servePingyJs);
+
+    let server = app.listen(freePort);
+    enableDestroy(server);
+    const scaffoldUrl = `http://localhost:${freePort}`;
+
+    scaffoldComplete = scaffoldComplete.then(scaffoldJson => {
+      server.destroy();
+      server = null;
+      return scaffoldJson;
+    });
+
+    return {
+      scaffoldUrl,
+      scaffoldComplete,
+    };
+  });
+}
+
 function exportSite(inputDir, outputDir, options) {
   return require('@pingy/export')(inputDir, outputDir, options);
 }
@@ -59,4 +96,5 @@ function exportSite(inputDir, outputDir, options) {
 module.exports = {
   serveSite,
   exportSite,
+  serveScaffolder,
 };

@@ -24,7 +24,10 @@ conf.set('version', 2);
 conf.set('cliVersion', pkgJson.version);
 global.conf = conf;
 
-const pingyAscii = fs.readFileSync(require.resolve('./pingy-ascii.txt'), 'utf8');
+const pingyAscii = fs.readFileSync(
+  require.resolve('./pingy-ascii.txt'),
+  'utf8'
+);
 
 function run() {
   try {
@@ -43,8 +46,11 @@ function run() {
       '--global-pingy',
       "Don't install local version of Pingy CLI, use global version instead"
     )
-    .option('--ask', "Ask for all init options (don't prompt to use existing init options)")
-    .action((options) => {
+    .option(
+      '--ask',
+      "Ask for all init options (don't prompt to use existing init options)"
+    )
+    .action(options => {
       init(options);
     });
 
@@ -73,18 +79,25 @@ function run() {
   program
     .command('dev')
     .description('Serve local development version of website')
-    .option('-p, --port [port]', 'Use chosen port (otherwise random port will be used)')
+    .option(
+      '-p, --port [port]',
+      'Use chosen port (otherwise random port will be used)'
+    )
     .option('-q, --no-open', "Don't automatically launch site in web browser")
-    .action((options) => {
+    .action(options => {
       const pingyJson = getPingyJson();
       if (!pingyJson) return;
       const jsonPort = pingyJson.json.port;
       const customPort = Number(options.port || jsonPort);
       const port = customPort || null;
-      getPort(port).then((freePort) => {
+      getPort(port).then(freePort => {
         if (typeof port === 'number' && port !== freePort) {
           console.log(
-            chalk.red.bold(`Port ${port} is not available, using random port ${freePort} instead\n`)
+            chalk.red.bold(
+              `Port ${port} is not available, using random port ${
+                freePort
+              } instead\n`
+            )
           );
         }
         const serveOptions = { port: freePort };
@@ -93,7 +106,7 @@ function run() {
           Object.assign({}, pingyJson.json, serveOptions)
         );
         console.log(`Serving at ${url}`);
-        if (options.open) opn(url);
+        if (options.open) opn(url, { wait: false });
         if (jsonPort !== freePort) setPingyJson(serveOptions);
       });
     });
@@ -107,13 +120,17 @@ function run() {
       const inputDir = pingyJson.dir;
       if (!pingyJson.json.exportDir) {
         console.error(
-          chalk.red.bold('Please add an "exportDir" property to your pingy.json file.')
+          chalk.red.bold(
+            'Please add an "exportDir" property to your pingy.json file.'
+          )
         );
         return;
       }
       const outputDir = path.join(inputDir, pingyJson.json.exportDir);
 
-      const exportingSpinner = ora(`Exporting to ${chalk.bold(outputDir)}`).start();
+      const exportingSpinner = ora(
+        `Exporting to ${chalk.bold(outputDir)}`
+      ).start();
       const exporting = pingy.exportSite(inputDir, outputDir, pingyJson.json);
 
       const spinners = {};
@@ -126,7 +143,7 @@ function run() {
             process.exit(0);
           }, 10);
         },
-        (err) => {
+        err => {
           if (currentFile) spinners[currentFile].fail();
           console.log(inspect(err));
           exportingSpinner.fail(`Failed export to ${chalk.bold(outputDir)}`);
@@ -136,11 +153,11 @@ function run() {
         }
       );
 
-      exporting.events.on('compile-start', (file) => {
+      exporting.events.on('compile-start', file => {
         spinners[file.path] = ora(`Compiling ${file.name}`).start();
         currentFile = file.path;
       });
-      exporting.events.on('compile-done', (file) => {
+      exporting.events.on('compile-done', file => {
         spinners[file.path].succeed();
         currentFile = null;
       });

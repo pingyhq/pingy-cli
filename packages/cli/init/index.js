@@ -5,6 +5,7 @@ const ora = require('ora');
 const fs = require('fs');
 const chalk = require('chalk');
 const path = require('upath');
+const opn = require('opn');
 const compilerMap = require('@pingy/init/compilerMap');
 const scaffoldParse = require('@pingy/scaffold');
 const initLib = require('@pingy/init');
@@ -13,12 +14,14 @@ const installDeps = require('./installDeps');
 const npmInit = require('./npmInit');
 const scaffold = require('./scaffold');
 const renderLastInit = require('./renderLastInit');
+const pingy = require('../pingy');
 
 const pkgJsonPath = path.join(process.cwd(), 'package.json');
 const dotPingyJsonPath = path.join(process.cwd(), '.pingy.json');
 const pingyJsonPath = path.join(process.cwd(), 'pingy.json');
 const pkgJsonExists = fs.existsSync(pkgJsonPath);
-const pingyJsonExists = fs.existsSync(pingyJsonPath) || fs.existsSync(dotPingyJsonPath);
+const pingyJsonExists =
+  fs.existsSync(pingyJsonPath) || fs.existsSync(dotPingyJsonPath);
 
 const requiredLastInitProps = ['html', 'scripts', 'styles', 'whitespace'];
 const createChoices = type =>
@@ -75,11 +78,12 @@ function performScaffoldActions(scaffoldOptions, options, url) {
     .scaffold(scaffoldOptions, url)
     .then(() => npmInit())
     .then(() => updatePkgScripts(scaffoldOptions, options))
-    .then(() => installDeps(scaffoldOptions, options));
+    .then(() => installDeps(scaffoldOptions, options))
+    .catch(e => ora().fail(e.stack));
 }
 
 function processAnswers(options) {
-  return (answers) => {
+  return answers => {
     global.conf.set('lastInit', answers);
 
     performInitActions(answers, options).catch(e => ora().fail(e.stack));
@@ -89,7 +93,9 @@ function processAnswers(options) {
 function checkForExistingPingySite() {
   if (pingyJsonExists && pkgJsonExists) {
     console.log('Looks like you have already initialised Pingy here.');
-    console.log('Pingy has detected a pingy.json and package.json in your project.');
+    console.log(
+      'Pingy has detected a pingy.json and package.json in your project.'
+    );
     return inquirer
       .prompt([
         {
@@ -106,11 +112,11 @@ function checkForExistingPingySite() {
 
 function prompt(options) {
   const hasLastInit =
-    requiredLastInitProps.filter(prop => global.conf.has(`lastInit.${prop}`)).length ===
-    requiredLastInitProps.length;
+    requiredLastInitProps.filter(prop => global.conf.has(`lastInit.${prop}`))
+      .length === requiredLastInitProps.length;
   const lastInit = hasLastInit ? global.conf.get('lastInit') : null;
   return checkForExistingPingySite()
-    .then((resume) => {
+    .then(resume => {
       if (!resume || !lastInit || options.ask) return resume;
       return inquirer
         .prompt([
@@ -123,14 +129,14 @@ function prompt(options) {
             )}`,
           }
         ])
-        .then((answers) => {
+        .then(answers => {
           if (answers.repeatLastInit) {
             global.repeatLastInit = true;
           }
           return resume;
         });
     })
-    .then((resume) => {
+    .then(resume => {
       if (global.repeatLastInit) return processAnswers(options)(lastInit);
       if (resume) return inquirer.prompt(stage1).then(processAnswers(options));
       return null;
@@ -142,11 +148,11 @@ function init(options) {
 }
 
 function scaffoldCmd(unverifiedUrl, options) {
-  return checkForExistingPingySite().then((resume) => {
+  return checkForExistingPingySite().then(resume => {
     if (!resume) return;
     scaffoldParse
       .identifyUrlType(unverifiedUrl)
-      .then((urlObj) => {
+      .then(urlObj => {
         const { type, url } = urlObj;
         if (type === 'fs') {
           return scaffoldParse.fs(url);
@@ -154,25 +160,40 @@ function scaffoldCmd(unverifiedUrl, options) {
         if (type === 'git') {
           const gitSpinner = ora('Retrieving scaffold with git').start();
           return scaffoldParse.git(url).then(
-            (res) => {
+            res => {
               gitSpinner.succeed('Retrieved scaffold with git');
               return res;
             },
-            (err) => {
+            err => {
               gitSpinner.fail();
               throw err;
             }
           );
         }
+        throw new Error('Unrecognized URL');
       })
-      .then((res) => {
+      .then(res => {
         const { json, scaffoldPath } = res;
-        const { name, description } = json;
+        const { name, description, web } = json;
         console.log();
         console.log(`Scaffolding ${chalk.bold(name)}`);
         console.log(description);
         console.log();
-        return performScaffoldActions(json, options, scaffoldPath).catch(e => ora().fail(e.stack));
+        if (!web) return performScaffoldActions(json, options, scaffoldPath);
+        return pingy.serveScaffolder(scaffoldPath, options).then(x => {
+          const { scaffoldComplete, scaffoldUrl } = x;
+          const configureScaffold = ora(
+            `Waiting for web scaffold to be configured at ${chalk.underline(
+              scaffoldUrl
+            )}`
+          ).start();
+          // { wait: false } because otherwise the process won't exit at the end
+          opn(scaffoldUrl, { wait: false });
+          return scaffoldComplete.then(mergedJson => {
+            configureScaffold.succeed('Web scaffold configuration done');
+            return performScaffoldActions(mergedJson, options, scaffoldPath);
+          });
+        });
       })
       .catch(err => console.log(chalk.red.bold(err)));
   });

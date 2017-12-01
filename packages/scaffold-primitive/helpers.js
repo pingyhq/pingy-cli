@@ -5,23 +5,46 @@ const mark = require('markup-js');
 const detab = require('detab');
 const path = require('path');
 const isAbsolute = require('is-absolute');
+const promiseAllProps = require('promise-all-props');
+const mapObj = require('map-obj');
 
 const isValidWhitespace = options =>
-  typeof options.whitespace === 'number' || !isNaN(options.whitespace);
+  typeof options.whitespace === 'number' || !Number.isNaN(options.whitespace);
 const maybeTab = (str, options) =>
-  isValidWhitespace(options) ? detab(str, parseInt(options.whitespace, 10)) : str;
-const maybeTemplate = x => (x.vars ? mark.up(x.inputString, x.vars) : x.inputString);
+  isValidWhitespace(options)
+    ? detab(str, parseInt(options.whitespace, 10))
+    : str;
+const maybeTemplate = x =>
+  x.vars ? mark.up(x.inputString, x.vars) : x.inputString;
 const relativeJoin = (a, b) => (isAbsolute(b) ? b : path.join(a, b));
 const fixPaths = (dirToScaffoldFrom, dirToScaffoldTo) => x =>
   Object.assign({}, x, {
     input: relativeJoin(dirToScaffoldFrom, x.input),
+    includes: mapObj(x.includes || {}, (key, value) => [
+      key,
+      relativeJoin(dirToScaffoldFrom, value)
+    ]),
     output: relativeJoin(dirToScaffoldTo, x.output),
   });
 const addInputString = x =>
-  fs.readFile(x.input, 'utf8').then(inputString => Object.assign({}, x, { inputString }));
+  fs
+    .readFile(x.input, 'utf8')
+    .then(inputString => Object.assign({}, x, { inputString }));
+const readAllObj = x =>
+  mapObj(x, (key, value) => [key, fs.readFile(value, 'utf8')]);
+const resolveIncludesToVars = x =>
+  x.includes
+    ? promiseAllProps(readAllObj(x.includes)).then(includes =>
+        Object.assign({}, x, {
+          vars: Object.assign({}, x.vars, { includes }),
+        })
+      )
+    : Promise.resolve(x);
 const returnOutputFilePath = objs => () => objs.map(x => x.output);
 const tabTemplateAndOutput = options => x =>
-  fs.outputFile(x.output, maybeTab(maybeTemplate(x), options));
+  resolveIncludesToVars(x).then(y =>
+    fs.outputFile(y.output, maybeTab(maybeTemplate(y), options))
+  );
 
 module.exports = {
   isValidWhitespace,
@@ -30,6 +53,7 @@ module.exports = {
   relativeJoin,
   fixPaths,
   addInputString,
+  resolveIncludesToVars,
   returnOutputFilePath,
   tabTemplateAndOutput,
 };
