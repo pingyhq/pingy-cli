@@ -19,7 +19,7 @@ const Configstore = require('configstore');
 
 const conf = new Configstore(pkgJson.name, {});
 // `+` below will convert numeric string to number
-if (Number.isFinite(+conf.get('version'))) conf.delete('lastInit');
+if (!Number.isFinite(+conf.get('version'))) conf.delete('lastInit');
 
 // Version config so we can easily invalidate it in future
 conf.set('version', 2);
