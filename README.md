@@ -76,11 +76,11 @@ case, you can run `npm start`, instead of `pingy dev`._
 ### `scaffold`
 
 ```
-Usage: scaffold [options] <url>
+Usage: scaffold [options] <alias/url/path>
 
 Scaffold a new website using a third-party project template
 
-<url> can be:
+<alias/url/path> can be:
 
   Alias: 'bootstrap' (View alias registry at: https://github.com/pingyhq/scaffolds)
   Git URL: 'https://github.com/pingyhq/pingy-scaffold-bootstrap.git'
