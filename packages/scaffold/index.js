@@ -10,6 +10,8 @@ const rimrafCB = require('rimraf');
 const mkdirpCB = require('mkdirp');
 const { homedir } = require('os');
 const util = require('util');
+const req = require('request-promise-native');
+
 require('util.promisify').shim();
 
 const gitPullOrClone = util.promisify(gitPullOrCloneCB);
@@ -24,28 +26,39 @@ const shaDigest = string =>
     .update(string)
     .digest('hex');
 
-const hasOneSlashOnly = url => url.split('/').length === 2;
+const isGithubShortUrl = url => url.split('/').length === 2;
+const isAlias = url => url.split('/').length === 1;
 
-const handleGithubError = (err) => {
+const handleGithubError = err => {
   if (err.statusCode === 404) return null;
   // TODO: handle 403 (API rate limit exceeded)
   throw err;
 };
 
-module.exports.identifyUrlType = (url) => {
+const invalidUrlError = () =>
+  new Error('Not a valid Pingy scaffold url/path/alias.');
+function identifyUrlType(url) {
+  // TODO: Check Registry at https://pingyhq.github.io/scaffolds/scaffolds.json
   const scaffoldJsonPath = join(url, scaffoldFileName);
-  return pathExists(scaffoldJsonPath).then((exists) => {
+  return pathExists(scaffoldJsonPath).then(exists => {
     if (exists) {
       return {
         type: 'fs',
         url,
       };
+    } else if (isAlias(url)) {
+      return req('https://pingyhq.github.io/scaffolds/scaffolds.json')
+        .then(str => JSON.parse(str)[url])
+        .then(scaffold => identifyUrlType(scaffold.url))
+        .catch(() => {
+          throw invalidUrlError();
+        });
     } else if (isGitUrl(url)) {
       return {
         type: 'git',
         url,
       };
-    } else if (hasOneSlashOnly(url)) {
+    } else if (isGithubShortUrl(url)) {
       const [user, repo] = url.split('/');
       const prefixedUrl = `${user}/pingy-scaffold-${repo}`;
       const unprefixedUrl = url;
@@ -59,7 +72,7 @@ module.exports.identifyUrlType = (url) => {
       return Promise.all([
         github(`repos/${prefixedUrl}`, options).catch(handleGithubError),
         github(`repos/${unprefixedUrl}`, options).catch(handleGithubError)
-      ]).then((res) => {
+      ]).then(res => {
         let chosenRes;
         if (res[0] && res[0].body && res[0].body.git_url) {
           chosenRes = res[0];
@@ -67,7 +80,9 @@ module.exports.identifyUrlType = (url) => {
           chosenRes = res[1];
         }
         if (!chosenRes) {
-          throw new Error(`Couldn't find '${prefixedUrl}' or '${unprefixedUrl}' on github`);
+          throw new Error(
+            `Couldn't find '${prefixedUrl}' or '${unprefixedUrl}' on github`
+          );
         }
         return {
           type: 'git',
@@ -75,24 +90,28 @@ module.exports.identifyUrlType = (url) => {
         };
       });
     }
-    throw new Error('Not a valid Pingy scaffold url/path.');
+    throw invalidUrlError();
   });
-};
+}
+
+module.exports.identifyUrlType = identifyUrlType;
 
 function scaffoldFs(scaffoldFrom) {
-  return pathExists(scaffoldFrom).then((dirExists) => {
+  return pathExists(scaffoldFrom).then(dirExists => {
     if (!dirExists) {
       throw new Error(`Folder '${scaffoldFrom}' does not exists on filesystem`);
     }
     const scaffoldJsonPath = join(scaffoldFrom, scaffoldFileName);
-    return pathExists(scaffoldJsonPath).then((scaffoldExists) => {
+    return pathExists(scaffoldJsonPath).then(scaffoldExists => {
       if (!scaffoldExists) {
         throw new Error(`Scaffold doesn't contain a ${scaffoldFileName} file`);
       }
-      return readJson(scaffoldJsonPath).then((json) => {
+      return readJson(scaffoldJsonPath).then(json => {
         const { name, description } = json;
         if (!name || !description) {
-          throw new Error(`${scaffoldFileName} should contain a name and a description`);
+          throw new Error(
+            `${scaffoldFileName} should contain a name and a description`
+          );
         }
         return {
           scaffoldPath: scaffoldFrom,

@@ -18,7 +18,7 @@ const { getPingyJson, setPingyJson } = require('./pingyJson');
 const Configstore = require('configstore');
 
 const conf = new Configstore(pkgJson.name, {});
-if (isNaN(conf.get('version'))) conf.delete('lastInit');
+if (Number.isNaN(conf.get('version'))) conf.delete('lastInit');
 // Version config so we can easily invalidate it
 conf.set('version', 2);
 conf.set('cliVersion', pkgJson.version);
@@ -62,9 +62,10 @@ function run() {
         '',
         '  <url> can be:',
         '',
-        '    Git URL: https://github.com/pingyhq/pingy-scaffold-bootstrap-jumbotron.git',
-        '    Shorthand GitHub URL: pingyhq/bootstrap-jumbotron',
-        '    Filesystem path: /Users/dave/code/pingy-scaffolds/bootstrap-jumbotron'
+        "    Alias: 'bootstrap' (View alias registry at: https://github.com/pingyhq/scaffolds)",
+        "    Git URL: 'https://github.com/pingyhq/pingy-scaffold-bootstrap.git'",
+        "    Shorthand GitHub URL: 'pingyhq/bootstrap'",
+        "    Filesystem path: '/Users/dave/code/pingy-scaffolds/bootstrap'"
       ].join('\n')
     )
     .option('--yarn', 'Use Yarn instead of NPM for installing packages')
