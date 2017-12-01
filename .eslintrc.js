@@ -1,5 +1,5 @@
 module.exports = {
-  extends: 'airbnb-base',
+  extends: ['airbnb-base', 'prettier'],
   env: {
     node: true,
     mocha: true,
@@ -23,11 +23,12 @@ module.exports = {
         imports: 'never',
         exports: 'never',
         functions: 'ignore',
-      },
+      }
     ],
     'import/no-extraneous-dependencies': [
       'error',
-      { devDependencies: ['**/*.test.js', '**/*.spec.js'] },
+      { devDependencies: ['**/*.test.js', '**/*.spec.js'] }
     ],
+    quotes: ['error', 'single', { avoidEscape: true }],
   },
 };
