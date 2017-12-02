@@ -4,7 +4,7 @@
   "description": "Scaffold a Pingy project from Github or local filesystem",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Warning: no test specified\" && exit 0"
+    "test": "mocha"
   },
   "author": "Dave Jeffery <dave@davejeffery.com>",
   "license": "MIT",
@@ -22,5 +22,11 @@
     "rimraf": "^2.6.2",
     "upath": "^1.0.0",
     "util.promisify": "^1.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^4.0.0",
+    "mocha": "^4.0.1",
+    "mocha.parallel": "^0.15.3",
+    "unexpected": "^10.36.2"
   }
 }

@@ -94,12 +94,10 @@ function identifyUrlType(url) {
   });
 }
 
-module.exports.identifyUrlType = identifyUrlType;
-
 function scaffoldFs(scaffoldFrom) {
   return pathExists(scaffoldFrom).then(dirExists => {
     if (!dirExists) {
-      throw new Error(`Folder '${scaffoldFrom}' does not exists on filesystem`);
+      throw new Error(`Folder '${scaffoldFrom}' does not exist on filesystem`);
     }
     const scaffoldJsonPath = join(scaffoldFrom, scaffoldFileName);
     return pathExists(scaffoldJsonPath).then(scaffoldExists => {
@@ -134,6 +132,10 @@ function scaffoldGit(url) {
       .then(() => scaffoldFs(repoDir));
   });
 }
+
+module.exports.cacheDir = cacheDir;
+
+module.exports.identifyUrlType = identifyUrlType;
 
 module.exports.fs = scaffoldFs;
 

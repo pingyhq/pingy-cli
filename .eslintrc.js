@@ -13,7 +13,6 @@ module.exports = {
     },
   },
   rules: {
-    'mocha/no-mocha-arrows': 'error',
     strict: ['error', 'global'],
     'comma-dangle': [
       'error',
