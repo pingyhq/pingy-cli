@@ -1,6 +1,6 @@
 {
   "name": "@pingy/scaffold",
-  "version": "8.1.0",
+  "version": "9.0.0",
   "description": "Scaffold a Pingy project from Github or local filesystem",
   "main": "index.js",
   "scripts": {
