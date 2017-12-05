@@ -12,12 +12,17 @@
     "livereload",
     "css"
   ],
+  "browserslist": [
+    "last 2 versions",
+    "IE 9"
+  ],
   "homepage": "https://github.com/davej/instant",
   "repository": {
     "type": "git",
     "url": "http://github.com/davej/instant.git"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "mocha --require should",
     "prepublish": "browserify client/index.js -o client/bundle.js"
   },
@@ -30,6 +35,9 @@
   },
   "devDependencies": {
     "browserify": "^9.0.3",
+    "eslint": "^4.12.1",
+    "eslint-config-es5": "^0.5.0",
+    "eslint-plugin-compat": "^2.1.0",
     "mocha": "^3.3.0",
     "should": "^5.2.0",
     "supertest": "^0.15.0"

@@ -1,38 +1,43 @@
-var send = require('send')
-  , url = require('url')
+'use strict';
 
-exports = module.exports = function static_(root, options) {
-  if (!root) throw new Error('root path is required')
+const send = require('send');
+const url = require('url');
 
-  if (!options) options = {}
-  options.root = root
+function staticServe(root, options) {
+  if (!root) throw new Error('root path is required');
 
-  var redirect = options.redirect !== false
+  if (!options) options = {};
+  options.root = root;
 
-  return function static_(req, res, next) {
-    if ('GET' != req.method && 'HEAD' != req.method) return next()
-    var path = url.parse(req.url).pathname
+  const redirect = options.redirect !== false;
+
+  return function staticServeReq(req, res, next) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    const path = url.parse(req.url).pathname;
 
     function directory() {
-      if (!redirect) return next()
-      var pathname = url.parse(req.originalUrl).pathname
-      res.statusCode = 301
-      res.setHeader('Location', pathname + '/')
-      res.end()
+      if (!redirect) return next();
+      const pathname = url.parse(req.originalUrl).pathname;
+      res.statusCode = 301;
+      res.setHeader('Location', `${pathname}/`);
+      res.end();
     }
 
     function error(err) {
-      if (404 == err.status) return next()
-      next(err)
+      if (err.status === 404) return next();
+      return next(err);
     }
 
-    var s = send(req, path, options)
+    const s = send(req, path, options)
       .on('error', error)
-      .on('directory', directory)
+      .on('directory', directory);
 
-    if (options.onfile) s.on('file', options.onfile)
-    s.pipe(res)
-  }
+    if (options.onfile) s.on('file', options.onfile);
+    s.pipe(res);
+  };
 }
 
-exports.mime = send.mime
+module.exports = staticServe;
+exports = staticServe;
+
+exports.mime = send.mime;
