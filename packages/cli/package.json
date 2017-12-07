@@ -1,6 +1,6 @@
 {
   "name": "@pingy/cli",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "The Simple Frontend Build Tool. No Configuration, No Plugins. ",
   "main": "index.js",
   "keywords": [
@@ -33,7 +33,7 @@
     "@pingy/init": "^7.0.1",
     "@pingy/instant": "^3.3.0",
     "@pingy/middleware": "^4.1.2",
-    "@pingy/scaffold": "^9.0.1",
+    "@pingy/scaffold": "^10.0.0",
     "@pingy/scaffold-middleware": "^0.1.0",
     "@pingy/scaffold-primitive": "^2.1.0",
     "autoprefixer": "^6.7.7",
