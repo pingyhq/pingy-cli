@@ -2,7 +2,6 @@
 
 const { pathExists, readJson } = require('fs-extra');
 const { join } = require('upath');
-const github = require('gh-got');
 const isGitUrl = require('is-git-url');
 const crypto = require('crypto');
 const gitPullOrCloneCB = require('git-pull-or-clone');
@@ -10,9 +9,9 @@ const rimrafCB = require('rimraf');
 const mkdirpCB = require('mkdirp');
 const { homedir } = require('os');
 const util = require('util');
-const req = require('request-promise-native');
 const Configstore = require('configstore');
 const isOnline = require('is-online');
+const got = require('got');
 const pkgJson = require('./package.json');
 
 require('util.promisify').shim();
@@ -23,6 +22,11 @@ const rimraf = util.promisify(rimrafCB);
 const cacheDir = join(homedir(), '.pingy', 'scaffolds');
 const conf = new Configstore(pkgJson.name, {});
 const scaffoldFileName = 'pingy-scaffold.json';
+
+const urls = {
+  repoWeb: repo => `https://github.com/${repo}`,
+  repoGit: repo => `git://github.com/${repo}.git`,
+};
 
 const shaDigest = string =>
   crypto
@@ -52,8 +56,8 @@ function identifyUrlType(url) {
           shouldCache: false,
         };
       } else if (isAlias(url)) {
-        return req('https://pingyhq.github.io/scaffolds/scaffolds.json')
-          .then(str => JSON.parse(str)[url])
+        return got('https://pingyhq.github.io/scaffolds/scaffolds.json')
+          .then(response => JSON.parse(response.body)[url])
           .then(scaffold => {
             if (!(scaffold && scaffold.url)) throw invalidUrlError('alias');
             else return identifyUrlType(scaffold.url);
@@ -66,33 +70,26 @@ function identifyUrlType(url) {
         };
       } else if (isGithubShortUrl(url)) {
         const [user, repo] = url.split('/');
-        const prefixedUrl = `${user}/pingy-scaffold-${repo}`;
-        const unprefixedUrl = url;
-        let token = null;
-        if (global.conf && global.conf.has('githubToken')) {
-          token = global.conf.get('githubToken');
-        } else {
-          token = process.env.PINGY_GITHUB_TOKEN;
-        }
-        const options = token ? { token } : null;
+        const prefixed = `${user}/pingy-scaffold-${repo}`;
         return Promise.all([
-          github(`repos/${prefixedUrl}`, options).catch(handleGithubError),
-          github(`repos/${unprefixedUrl}`, options).catch(handleGithubError)
+          got.head(urls.repoWeb(prefixed)).catch(handleGithubError),
+          got.head(urls.repoWeb(url)).catch(handleGithubError)
         ]).then(res => {
-          let chosenRes;
-          if (res[0] && res[0].body && res[0].body.git_url) {
-            chosenRes = res[0];
-          } else if (res[1] && res[1].body && res[1].body.git_url) {
-            chosenRes = res[1];
+          // console.log(res[0].statusCode);
+          let repoGitUrl;
+          if (res[0] && res[0].statusCode === 200) {
+            repoGitUrl = urls.repoGit(prefixed);
+          } else if (res[1] && res[1].statusCode === 200) {
+            repoGitUrl = urls.repoGit(url);
           }
-          if (!chosenRes) {
+          if (!repoGitUrl) {
             throw new Error(
-              `Couldn't find '${prefixedUrl}' or '${unprefixedUrl}' on github`
+              `Couldn't find '${prefixed}' or '${url}' on github`
             );
           }
           return {
             type: 'git',
-            url: chosenRes.body.git_url,
+            url: repoGitUrl,
           };
         });
       }

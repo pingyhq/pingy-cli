@@ -9,7 +9,9 @@ const scaffold = require('@pingy/scaffold');
 
 // TODO: test offline
 
-parallel('identifyUrlType', () => {
+parallel('identifyUrlType', function identifyUrlType() {
+  this.timeout(10000);
+
   before(() => {
     scaffold.conf.clear();
   });
@@ -92,6 +94,15 @@ parallel('identifyUrlType', () => {
       'to be rejected with',
       new Error(errText('alias'))
     ));
+
+  it('should fail with incorrect shorthand GitHub URL', () => {
+    const url = 'pingyhq/does-not-exist';
+    return expect(
+      scaffold.identifyUrlType(url),
+      'to be rejected with error satisfying',
+      /Couldn't find/
+    );
+  });
 
   it('should not fail with incorrect github URL', () => {
     const url = 'git://github.com/foo/bar.git';
