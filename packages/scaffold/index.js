@@ -11,6 +11,9 @@ const mkdirpCB = require('mkdirp');
 const { homedir } = require('os');
 const util = require('util');
 const req = require('request-promise-native');
+const Configstore = require('configstore');
+const isOnline = require('is-online');
+const pkgJson = require('./package.json');
 
 require('util.promisify').shim();
 
@@ -18,6 +21,7 @@ const gitPullOrClone = util.promisify(gitPullOrCloneCB);
 const mkdirp = util.promisify(mkdirpCB);
 const rimraf = util.promisify(rimrafCB);
 const cacheDir = join(homedir(), '.pingy', 'scaffolds');
+const conf = new Configstore(pkgJson.name, {});
 const scaffoldFileName = 'pingy-scaffold.json';
 
 const shaDigest = string =>
@@ -35,66 +39,83 @@ const handleGithubError = err => {
   throw err;
 };
 
-const invalidUrlError = () =>
-  new Error('Not a valid Pingy scaffold url/path/alias.');
+const invalidUrlError = type =>
+  new Error(`Not a valid Pingy scaffold ${type || 'url/path/alias'}.`);
 function identifyUrlType(url) {
-  // TODO: Check Registry at https://pingyhq.github.io/scaffolds/scaffolds.json
   const scaffoldJsonPath = join(url, scaffoldFileName);
-  return pathExists(scaffoldJsonPath).then(exists => {
-    if (exists) {
-      return {
-        type: 'fs',
-        url,
-      };
-    } else if (isAlias(url)) {
-      return req('https://pingyhq.github.io/scaffolds/scaffolds.json')
-        .then(str => JSON.parse(str)[url])
-        .then(scaffold => identifyUrlType(scaffold.url))
-        .catch(() => {
-          throw invalidUrlError();
-        });
-    } else if (isGitUrl(url)) {
-      return {
-        type: 'git',
-        url,
-      };
-    } else if (isGithubShortUrl(url)) {
-      const [user, repo] = url.split('/');
-      const prefixedUrl = `${user}/pingy-scaffold-${repo}`;
-      const unprefixedUrl = url;
-      let token = null;
-      if (global.conf && global.conf.has('githubToken')) {
-        token = global.conf.get('githubToken');
-      } else {
-        token = process.env.PINGY_GITHUB_TOKEN;
-      }
-      const options = token ? { token } : null;
-      return Promise.all([
-        github(`repos/${prefixedUrl}`, options).catch(handleGithubError),
-        github(`repos/${unprefixedUrl}`, options).catch(handleGithubError)
-      ]).then(res => {
-        let chosenRes;
-        if (res[0] && res[0].body && res[0].body.git_url) {
-          chosenRes = res[0];
-        } else if (res[1] && res[1].body && res[1].body.git_url) {
-          chosenRes = res[1];
-        }
-        if (!chosenRes) {
-          throw new Error(
-            `Couldn't find '${prefixedUrl}' or '${unprefixedUrl}' on github`
-          );
-        }
+  return pathExists(scaffoldJsonPath)
+    .then(exists => {
+      if (exists) {
+        return {
+          type: 'fs',
+          url,
+          shouldCache: false,
+        };
+      } else if (isAlias(url)) {
+        return req('https://pingyhq.github.io/scaffolds/scaffolds.json')
+          .then(str => JSON.parse(str)[url])
+          .then(scaffold => {
+            if (!(scaffold && scaffold.url)) throw invalidUrlError('alias');
+            else return identifyUrlType(scaffold.url);
+          });
+      } else if (isGitUrl(url)) {
+        // TODO: validate that gitUrl is online and works
         return {
           type: 'git',
-          url: chosenRes.body.git_url,
+          url,
         };
-      });
-    }
-    throw invalidUrlError();
-  });
+      } else if (isGithubShortUrl(url)) {
+        const [user, repo] = url.split('/');
+        const prefixedUrl = `${user}/pingy-scaffold-${repo}`;
+        const unprefixedUrl = url;
+        let token = null;
+        if (global.conf && global.conf.has('githubToken')) {
+          token = global.conf.get('githubToken');
+        } else {
+          token = process.env.PINGY_GITHUB_TOKEN;
+        }
+        const options = token ? { token } : null;
+        return Promise.all([
+          github(`repos/${prefixedUrl}`, options).catch(handleGithubError),
+          github(`repos/${unprefixedUrl}`, options).catch(handleGithubError)
+        ]).then(res => {
+          let chosenRes;
+          if (res[0] && res[0].body && res[0].body.git_url) {
+            chosenRes = res[0];
+          } else if (res[1] && res[1].body && res[1].body.git_url) {
+            chosenRes = res[1];
+          }
+          if (!chosenRes) {
+            throw new Error(
+              `Couldn't find '${prefixedUrl}' or '${unprefixedUrl}' on github`
+            );
+          }
+          return {
+            type: 'git',
+            url: chosenRes.body.git_url,
+          };
+        });
+      }
+      throw invalidUrlError();
+    })
+    .then(
+      result => {
+        if (result.type === 'git' && url !== result.url) {
+          // Storing result in cache so we can still scaffold later if offline
+          conf.set(`cache.${url}`, result);
+          return Object.assign({}, result);
+        }
+        return result;
+      },
+      err => {
+        const cacheHit = conf.get(`cache.${url}`);
+        if (!cacheHit) throw err;
+        return Object.assign({}, cacheHit, { fromCache: true });
+      }
+    );
 }
 
-function scaffoldFs(scaffoldFrom) {
+function scaffoldFs(scaffoldFrom, fromCache) {
   return pathExists(scaffoldFrom).then(dirExists => {
     if (!dirExists) {
       throw new Error(`Folder '${scaffoldFrom}' does not exist on filesystem`);
@@ -112,6 +133,7 @@ function scaffoldFs(scaffoldFrom) {
           );
         }
         return {
+          fromCache,
           scaffoldPath: scaffoldFrom,
           json,
         };
@@ -123,13 +145,19 @@ function scaffoldFs(scaffoldFrom) {
 function scaffoldGit(url) {
   return mkdirp(cacheDir).then(() => {
     const repoDir = join(cacheDir, shaDigest(url));
+
     return gitPullOrClone(url, repoDir)
       .then(
-        () => null,
-        // If we get an error then try and rimraf the dir and clone from scratch
-        () => rimraf(repoDir).then(() => gitPullOrClone(url, repoDir))
+        () => false,
+        () =>
+          isOnline().then(online => {
+            // If not online then just scaffoldFS without trying git again
+            if (!online) return true;
+            // If we are online then try and rimraf the dir and clone from scratch
+            return rimraf(repoDir).then(() => gitPullOrClone(url, repoDir));
+          })
       )
-      .then(() => scaffoldFs(repoDir));
+      .then(fromCache => scaffoldFs(repoDir, fromCache));
   });
 }
 
@@ -140,3 +168,5 @@ module.exports.identifyUrlType = identifyUrlType;
 module.exports.fs = scaffoldFs;
 
 module.exports.git = scaffoldGit;
+
+module.exports.conf = conf;

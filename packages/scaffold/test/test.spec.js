@@ -7,15 +7,34 @@ const path = require('path');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const scaffold = require('@pingy/scaffold');
 
-parallel('identifyUrlType', () => {
-  /*
-  <url> can be:
+// TODO: test offline
 
-    Alias: 'bootstrap' (View alias registry at: https://github.com/pingyhq/scaffolds)
-    Git URL: 'https://github.com/pingyhq/pingy-scaffold-bootstrap.git'
-    Shorthand GitHub URL: 'pingyhq/bootstrap'
-    Filesystem path: '/Users/dave/code/pingy-scaffolds/bootstrap'
-  */
+parallel('identifyUrlType', () => {
+  before(() => {
+    scaffold.conf.clear();
+  });
+  after(() => {
+    expect(scaffold.conf.all, 'to have properties', {
+      cache: {
+        bootstrap: {
+          type: 'git',
+          url: 'git://github.com/pingyhq/pingy-scaffold-bootstrap.git',
+        },
+        'pingyhq/bootstrap': {
+          type: 'git',
+          url: 'git://github.com/pingyhq/pingy-scaffold-bootstrap.git',
+        },
+        'pingyhq/pingy-scaffold-bootstrap': {
+          type: 'git',
+          url: 'git://github.com/pingyhq/pingy-scaffold-bootstrap.git',
+        },
+      },
+    });
+    scaffold.conf.clear();
+  });
+
+  it('cache index should be clear', () =>
+    expect(scaffold.conf.all, 'to be empty'));
 
   const gitUrl = 'git://github.com/pingyhq/pingy-scaffold-bootstrap.git';
   it('should work with git URL', () =>
@@ -56,13 +75,14 @@ parallel('identifyUrlType', () => {
     });
   });
 
-  const errText = 'Not a valid Pingy scaffold url/path/alias.';
+  const errText = type =>
+    `Not a valid Pingy scaffold ${type || 'url/path/alias'}.`;
   it('should fail with incorrect path', () => {
     const pth = path.join(__dirname, 'foo');
     return expect(
       scaffold.identifyUrlType(pth),
       'to be rejected with',
-      new Error(errText)
+      new Error(errText())
     );
   });
 
@@ -70,7 +90,7 @@ parallel('identifyUrlType', () => {
     expect(
       scaffold.identifyUrlType('foo'),
       'to be rejected with',
-      new Error(errText)
+      new Error(errText('alias'))
     ));
 
   it('should not fail with incorrect github URL', () => {

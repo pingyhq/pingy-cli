@@ -9,6 +9,7 @@ const opn = require('opn');
 const compilerMap = require('@pingy/init/compilerMap');
 const scaffoldParse = require('@pingy/scaffold');
 const initLib = require('@pingy/init');
+const logSymbols = require('log-symbols');
 const updatePkgScripts = require('./updatePkgScripts');
 const installDeps = require('./installDeps');
 const npmInit = require('./npmInit');
@@ -150,22 +151,34 @@ function init(options) {
 function scaffoldCmd(unverifiedUrl, options) {
   return checkForExistingPingySite().then(resume => {
     if (!resume) return;
+
     scaffoldParse
       .identifyUrlType(unverifiedUrl)
       .then(urlObj => {
-        const { type, url } = urlObj;
+        const { type, url, fromCache } = urlObj;
         if (type === 'fs') {
           return scaffoldParse.fs(url);
         }
         if (type === 'git') {
-          const gitSpinner = ora('Retrieving scaffold with git').start();
+          if (fromCache) {
+            console.log(
+              logSymbols.warning,
+              'Scaffold request error, resolving from scaffold cache instead'
+            );
+          }
+
+          const scaffoldSpinner = ora('Retrieving scaffold with git').start();
           return scaffoldParse.git(url).then(
             res => {
-              gitSpinner.succeed('Retrieved scaffold with git');
+              scaffoldSpinner[res.fromCache ? 'info' : 'succeed'](
+                `Retrieved scaffold ${
+                  res.fromCache ? chalk.bold('from local cache') : 'with git'
+                }`
+              );
               return res;
             },
             err => {
-              gitSpinner.fail();
+              scaffoldSpinner.fail();
               throw err;
             }
           );
