@@ -42,7 +42,7 @@ exports.abstract_mapper = (abstract_mapper = function(name, direction) {
     ['jsx', 'react-tools'],
     ['cjsx', 'coffee-react-transform'],
     ['babel', 'babel-core'],
-    ['typescript', 'typescript-compiler']
+    ['typescript', 'typescript']
   ];
 
   let res = null;

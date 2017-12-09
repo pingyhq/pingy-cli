@@ -98,6 +98,7 @@ module.exports = function (inputDir, outputDir, options) {
     sourceMap: options.sourceMap,
     autoprefix: options.autoprefix,
     inputSha: true,
+    tsc: options.tsc || {}
   };
 
   if (options.exclusions) {
