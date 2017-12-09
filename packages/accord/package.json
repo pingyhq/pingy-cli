@@ -63,7 +63,8 @@
     "stylus": "^0.54.5",
     "swig": "^1.4.2",
     "toffee": "^0.1.13",
-    "typescript-compiler": "^1.4.1"
+    "typescript-compiler": "^1.4.1",
+    "typescript": "^2.6"
   },
   "homepage": "https://github.com/jescalan/accord",
   "keywords": [
