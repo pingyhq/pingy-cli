@@ -9,13 +9,20 @@ const path = require('path');
 
 const script = '/__pingy__.js';
 
+const isHTML = res =>
+  res.getHeader('content-type') &&
+  res.getHeader('content-type').indexOf('text/html') !== -1;
+
+const isJS = res =>
+  res.getHeader('content-type') &&
+  res.getHeader('content-type').indexOf('javascript') !== -1;
+
+const isCSS = res =>
+  res.getHeader('content-type') &&
+  res.getHeader('content-type').indexOf('text/css') !== -1;
+
 const injectPingy = injector(
-  (req, res) => {
-    const isHTML =
-      res.getHeader('content-type') &&
-      res.getHeader('content-type').indexOf('text/html') !== -1;
-    return isHTML;
-  },
+  (req, res) => isHTML(res),
   (data, req, res, callback) => {
     const body = data.toString();
     if (body.search(/<\/body>/i) !== -1) {
@@ -32,7 +39,11 @@ const injectPingy = injector(
 );
 
 const maybeTemplate = injector(
-  req => Object.keys(req.query).length,
+  (req, res) => {
+    const hasQueryString = Object.keys(req.query).length;
+    if (!hasQueryString) return false;
+    return isHTML(res) || isJS(res) || isCSS(res);
+  },
   (data, req, res, callback) => {
     const body = data.toString();
     const result = mark.up(body, req.query);
