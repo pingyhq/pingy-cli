@@ -110,7 +110,7 @@ parallel('scaffoldNpm', function scaffoldGit() {
   });
 
   it('should error when no pingy-scaffold.json', () => {
-    const url = 'cnpm/npminstall';
+    const url = 'sindresorhus/delay';
 
     return expect(
       scaffold.npm(url),
