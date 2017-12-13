@@ -95,7 +95,7 @@ parallel('scaffoldNpm', function scaffoldGit() {
     return expect(
       scaffold.npm(url),
       'to be rejected with error satisfying',
-      /Repository not found/
+      /exited with error code: 128/
     );
   });
 
