@@ -34,13 +34,13 @@ describe('cli scaffold', function cli() {
 
   this.timeout(100000);
 
-  describe('shorthand github scaffold', function() {
+  describe('shorthand github scaffold', () => {
     let spawnedInit;
     let stdin;
     let stdout;
     const nextStep = (matchString, write = '\n') =>
-      new Promise((resolve) => {
-        const onData = (data) => {
+      new Promise(resolve => {
+        const onData = data => {
           if (data.toString().includes(matchString)) {
             stdout.removeAllListeners('data');
             resolve();
@@ -50,10 +50,15 @@ describe('cli scaffold', function cli() {
         stdout.on('data', onData);
       });
 
-    it('should spawn scaffold command', function() {
+    it('should spawn scaffold command', () => {
       spawnedInit = spawn(
         'node',
-        ['../../cli.js', 'scaffold', 'pingyhq/bootstrap-jumbotron', '--global-pingy'],
+        [
+          '../../cli.js',
+          'scaffold',
+          'pingyhq/pingy-scaffold-bootstrap-jumbotron',
+          '--global-pingy'
+        ],
         {
           cwd: projectPath,
         }
@@ -62,20 +67,15 @@ describe('cli scaffold', function cli() {
       stdin = spawnedInit.stdin;
     });
 
-    it('should choose to scaffold files', function() {
-      return nextStep('? You are about to scaffold', 'y\n');
-    });
+    it('should choose to scaffold files', () =>
+      nextStep('? You are about to scaffold', 'y\n'));
 
-    it('with 2 spaces', function() {
-      return nextStep('? The most important question');
-    });
+    it('with 2 spaces', () => nextStep('? The most important question'));
 
-    it('and install modules', function() {
-      return nextStep('Run npm install ', '\n');
-    });
+    it('and install modules', () => nextStep('Run npm install ', '\n'));
 
-    it('and wait for finish', function(done) {
-      spawnedInit.stderr.on('data', (data) => {
+    it('and wait for finish', done => {
+      spawnedInit.stderr.on('data', data => {
         if (data.toString().includes('Installed')) {
           spawnedInit.stderr.removeAllListeners('data');
           spawnedInit.kill();
@@ -84,7 +84,7 @@ describe('cli scaffold', function cli() {
       });
     });
 
-    it('should have pingy.json', function() {
+    it('should have pingy.json', () => {
       expect(pingyJsonPath, 'to exist');
       expect(
         pingyJsonPath,
@@ -93,32 +93,32 @@ describe('cli scaffold', function cli() {
       );
     });
 
-    it('should not have pingy-scaffold.json', function() {
+    it('should not have pingy-scaffold.json', () => {
       expect(pingyScaffoldJsonPath, 'not to exist');
     });
 
-    it('should have package.json', function() {
+    it('should have package.json', () => {
       expect(pkgJsonPath, 'to exist');
     });
 
-    it('should have website docs', function() {
+    it('should have website docs', () => {
       expect(indexHtml, 'to exist');
       expect(scripts, 'to exist');
       expect(styles, 'to exist');
     });
 
-    it('should have node_modules', function() {
+    it('should have node_modules', () => {
       expect(modules, 'to exist');
     });
   });
 
-  describe('longhand github scaffold without scaffolding files or npm install', function() {
+  describe('longhand github scaffold without scaffolding files or npm install', () => {
     let spawnedInit;
     let stdin;
     let stdout;
     const nextStep = (matchString, write = '\n') =>
-      new Promise((resolve) => {
-        const onData = (data) => {
+      new Promise(resolve => {
+        const onData = data => {
           if (data.toString().includes(matchString)) {
             stdout.removeAllListeners('data');
             resolve();
@@ -130,7 +130,7 @@ describe('cli scaffold', function cli() {
 
     before(clearAndCreateDir);
 
-    it('should spawn scaffold command', function() {
+    it('should spawn scaffold command', () => {
       spawnedInit = spawn(
         'node',
         [
@@ -147,19 +147,16 @@ describe('cli scaffold', function cli() {
       stdin = spawnedInit.stdin;
     });
 
-    it('should choose not to scaffold files', function() {
-      return nextStep('? You are about to scaffold', '\u001B\u005B\u0042\n');
-    });
+    it('should choose not to scaffold files', () =>
+      nextStep('? You are about to scaffold', '\u001B\u005B\u0042\n'));
 
-    it('and not install modules', function() {
-      return nextStep('Run npm install ', 'n\n');
-    });
+    it('and not install modules', () => nextStep('Run npm install ', 'n\n'));
 
-    it('and wait for finish', function(done) {
+    it('and wait for finish', done => {
       spawnedInit.on('exit', done);
     });
 
-    it('should have pingy.json', function() {
+    it('should have pingy.json', () => {
       expect(pingyJsonPath, 'to exist');
       expect(
         pingyJsonPath,
@@ -168,22 +165,97 @@ describe('cli scaffold', function cli() {
       );
     });
 
-    it('should not have pingy-scaffold.json', function() {
+    it('should not have pingy-scaffold.json', () => {
       expect(pingyScaffoldJsonPath, 'not to exist');
     });
 
-    it('should have package.json', function() {
+    it('should have package.json', () => {
       expect(pkgJsonPath, 'to exist');
     });
 
-    it('should not have website docs', function() {
+    it('should not have website docs', () => {
       expect(indexHtml, 'not to exist');
       expect(scripts, 'not to exist');
       expect(styles, 'not to exist');
     });
 
-    it('should have node_modules', function() {
+    it('should have node_modules', () => {
       expect(modules, 'not to exist');
+    });
+  });
+
+  describe('alias scaffold', () => {
+    let spawnedInit;
+    let stdin;
+    let stdout;
+    const nextStep = (matchString, write = '\n') =>
+      new Promise(resolve => {
+        const onData = data => {
+          if (data.toString().includes(matchString)) {
+            stdout.removeAllListeners('data');
+            resolve();
+            stdin.write(write);
+          }
+        };
+        stdout.on('data', onData);
+      });
+
+    before(clearAndCreateDir);
+
+    it('should spawn scaffold command', () => {
+      spawnedInit = spawn(
+        'node',
+        ['../../cli.js', 'scaffold', 'bootstrap-jumbotron', '--global-pingy'],
+        {
+          cwd: projectPath,
+        }
+      );
+      stdout = spawnedInit.stdout;
+      stdin = spawnedInit.stdin;
+    });
+
+    it('should choose to scaffold files', () =>
+      nextStep('? You are about to scaffold', 'y\n'));
+
+    it('with 2 spaces', () => nextStep('? The most important question'));
+
+    it('and install modules', () => nextStep('Run npm install ', '\n'));
+
+    it('and wait for finish', done => {
+      spawnedInit.stderr.on('data', data => {
+        if (data.toString().includes('Installed')) {
+          spawnedInit.stderr.removeAllListeners('data');
+          spawnedInit.kill();
+          done();
+        }
+      });
+    });
+
+    it('should have pingy.json', () => {
+      expect(pingyJsonPath, 'to exist');
+      expect(
+        pingyJsonPath,
+        'to have file content',
+        '"path": "!node_modules/{bootstrap,bootstrap/dist,bootstrap/dist/**}"'
+      );
+    });
+
+    it('should not have pingy-scaffold.json', () => {
+      expect(pingyScaffoldJsonPath, 'not to exist');
+    });
+
+    it('should have package.json', () => {
+      expect(pkgJsonPath, 'to exist');
+    });
+
+    it('should have website docs', () => {
+      expect(indexHtml, 'to exist');
+      expect(scripts, 'to exist');
+      expect(styles, 'to exist');
+    });
+
+    it('should have node_modules', () => {
+      expect(modules, 'to exist');
     });
   });
 });

@@ -155,30 +155,21 @@ function scaffoldCmd(unverifiedUrl, options) {
     scaffoldParse
       .identifyUrlType(unverifiedUrl)
       .then(urlObj => {
-        const { type, url, fromCache } = urlObj;
+        const { type, url } = urlObj;
         if (type === 'fs') {
           return scaffoldParse.fs(url);
         }
-        if (type === 'git') {
-          if (fromCache) {
-            console.log(
-              logSymbols.warning,
-              'Scaffold request error, resolving from scaffold cache instead'
-            );
-          }
-
-          const scaffoldSpinner = ora('Retrieving scaffold with git').start();
-          return scaffoldParse.git(url).then(
+        if (type === 'npm') {
+          console.log(
+            logSymbols.info,
+            'Retrieving scaffold with npm, this may take a minute'
+          );
+          return scaffoldParse.npm(url).then(
             res => {
-              scaffoldSpinner[res.fromCache ? 'info' : 'succeed'](
-                `Retrieved scaffold ${
-                  res.fromCache ? chalk.bold('from local cache') : 'with git'
-                }`
-              );
+              console.log(logSymbols.success, 'Scaffold retrieved with npm');
               return res;
             },
             err => {
-              scaffoldSpinner.fail();
               throw err;
             }
           );
