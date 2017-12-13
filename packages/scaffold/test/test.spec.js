@@ -92,21 +92,13 @@ parallel('scaffoldNpm', function scaffoldGit() {
   it('should error with 404 url', () => {
     const url = 'https://github.com/foo/does-not-exist.git';
 
-    return expect(
-      scaffold.npm(url),
-      'to be rejected with error satisfying',
-      /exited with error code: 128/
-    );
+    return expect(scaffold.npm(url), 'to be rejected');
   });
 
   it('should error when no package.json', () => {
     const url = 'https://github.com/rmccue/test-repository.git';
 
-    return expect(
-      scaffold.npm(url),
-      'to be rejected with error satisfying',
-      /missing package.json/
-    );
+    return expect(scaffold.npm(url), 'to be rejected');
   });
 
   it('should error when no pingy-scaffold.json', () => {
