@@ -1,6 +1,6 @@
 {
   "name": "@pingy/init",
-  "version": "7.0.1",
+  "version": "7.1.0",
   "description": "Initialize a project for use with Pingy CLI",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/pingyhq/pingy-cli/tree/master/packages/init#readme",
   "dependencies": {
-    "@pingy/scaffold-primitive": "^2.1.0",
+    "@pingy/scaffold-primitive": "^3.0.0",
     "babel-polyfill": "^6.26.0",
     "checkdir": "^1.1.0",
     "mkdirp": "^0.5.1",

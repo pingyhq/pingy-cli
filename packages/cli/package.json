@@ -1,6 +1,6 @@
 {
   "name": "@pingy/cli",
-  "version": "0.11.2",
+  "version": "0.12.0",
   "description": "The Simple Frontend Build Tool. No Configuration, No Plugins. ",
   "main": "index.js",
   "keywords": [
@@ -29,13 +29,13 @@
     "brunch"
   ],
   "dependencies": {
-    "@pingy/export": "^5.0.3",
-    "@pingy/init": "^7.0.1",
+    "@pingy/export": "^5.0.4",
+    "@pingy/init": "^7.1.0",
     "@pingy/instant": "^3.3.0",
-    "@pingy/middleware": "^4.1.2",
-    "@pingy/scaffold": "^10.0.0",
-    "@pingy/scaffold-middleware": "^0.1.0",
-    "@pingy/scaffold-primitive": "^2.1.0",
+    "@pingy/middleware": "^4.2.0",
+    "@pingy/scaffold": "^11.0.0",
+    "@pingy/scaffold-middleware": "^1.0.0",
+    "@pingy/scaffold-primitive": "^3.0.0",
     "autoprefixer": "^6.7.7",
     "chalk": "^2.3.0",
     "colors": "^1.1.2",

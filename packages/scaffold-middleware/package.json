@@ -1,6 +1,6 @@
 {
   "name": "@pingy/scaffold-middleware",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Middleware for doing dynamic Pingy Scaffolds",
   "main": "index.js",
   "scripts": {
