@@ -27,9 +27,28 @@ const fixPaths = (dirToScaffoldFrom, dirToScaffoldTo) => x =>
     ]),
     output: relativeJoin(dirToScaffoldTo, x.output),
   });
+const isGitIgnore = x => path.basename(x) === '.gitignore';
+const removeDotFromGitIgnore = x => x.replace('.gitignore', 'gitignore');
 const addInputString = x =>
   fs
     .readFile(x.input, 'utf8')
+    .catch(err => {
+      if (isGitIgnore(x.input)) {
+        return fs
+          .readFile(removeDotFromGitIgnore(x.input), 'utf8')
+          .catch(() => {
+            throw new Error(
+              [
+                "npm doesn't allow .gitignore files.",
+                'Rename the file to `gitignore` (without the dot)',
+                'but still reference it as `.gitignore` in pingy-scaffold.json',
+                'and Pingy will fix the filename while scaffolding.'
+              ].join(' ')
+            );
+          });
+      }
+      throw err;
+    })
     .then(inputString => Object.assign({}, x, { inputString }));
 const readAllObj = x =>
   mapObj(x, (key, value) => [key, fs.readFile(value, 'utf8')]);
