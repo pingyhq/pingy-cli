@@ -69,7 +69,7 @@
     },
     {
       "name": "TypeScript",
-      "module": { "typescript-compiler": "^1.4" },
+      "module": { "typescript": "^2.6" },
       "extension": "ts"
     },
     {
