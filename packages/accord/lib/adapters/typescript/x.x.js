@@ -1,9 +1,8 @@
-let Adapter = require('../../adapter_base');
-const W     = require('when');
-const ts = require('typescript');
+const Adapter = require('../../adapter_base');
+const W = require('when');
 
 var TypeScript = (function() {
-  let compile = undefined;
+  let compile;
   TypeScript = class TypeScript extends Adapter {
     static initClass() {
       this.prototype.name = 'typescript';
@@ -12,23 +11,28 @@ var TypeScript = (function() {
       this.prototype.extensions = ['ts'];
       this.prototype.output = 'js';
       this.prototype.isolated = true;
-  
+
       // private
-  
+
       compile = function(fn) {
         let res;
-        try { res = fn(); }
-        catch (err) { return W.reject(err); }
-        return W.resolve({result: res.outputText});
+        try {
+          res = fn();
+        } catch (err) {
+          return W.reject(err);
+        }
+        return W.resolve({ result: res.outputText });
       };
     }
 
     _render(str, options) {
-      let throwOnError = function(err) { 
+      const throwOnError = function(err) {
         throw err;
       };
 
-      return compile(() => ts.transpileModule(str, { compilerOptions: options.tsc }));
+      return compile(() =>
+        this.engine.transpileModule(str, { compilerOptions: options.tsc })
+      );
     }
   };
   TypeScript.initClass();
