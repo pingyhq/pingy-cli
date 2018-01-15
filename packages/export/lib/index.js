@@ -207,6 +207,7 @@ module.exports = function exporter(_inputDir, _outputDir, _options) {
 
                       if (compiled.sourcemap) {
                         const sourcemapStr = `sourceMappingURL=${fileName}.map`;
+                        // TODO: Should fixSource be moved to @pingy/compile?
                         // eslint-disable-next-line no-param-reassign
                         compiled.sourcemap.sources = fixSources(
                           compiled.sourcemap.sources,

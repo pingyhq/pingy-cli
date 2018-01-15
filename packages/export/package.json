@@ -1,8 +1,7 @@
 {
   "name": "@pingy/export",
   "version": "5.0.5",
-  "description":
-    "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
+  "description": "Compile static site for production (with sourcemaps), auto-compiles files like `app.coffee -> app.js`",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha --timeout 15000",
@@ -34,8 +33,12 @@
   },
   "dependencies": {
     "@pingy/compile": "^6.3.1",
+    "array.prototype.flatmap": "^1.1.1",
+    "assetgraph": "github:assetgraph/assetgraph#b9dc6e3",
     "checkdir": "^1.0.0",
     "fs-extra": "^5.0.0",
+    "glob": "^7.1.2",
+    "globby": "^7.1.1",
     "micromatch": "^3.1.0",
     "mkdirp": "^0.5.1",
     "path-complete-extname": "^0.1.0",
@@ -43,6 +46,7 @@
     "rimraf": "^2.6.2",
     "through2": "^2.0.0",
     "upath": "^1.0.0",
+    "urltools": "^0.3.5",
     "util.promisify": "^1.0.0"
   },
   "devDependencies": {
