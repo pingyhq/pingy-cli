@@ -6,7 +6,7 @@ module.exports = {
   },
   plugins: ['import', 'mocha'],
   parserOptions: {
-    ecmaVersion: 6,
+    ecmaVersion: 8,
     sourceType: 'script',
     ecmaFeatures: {
       modules: false,
@@ -22,11 +22,11 @@ module.exports = {
         imports: 'never',
         exports: 'never',
         functions: 'ignore',
-      }
+      },
     ],
     'import/no-extraneous-dependencies': [
       'error',
-      { devDependencies: ['**/*.test.js', '**/*.spec.js'] }
+      { devDependencies: ['**/*.test.js', '**/*.spec.js'] },
     ],
     quotes: ['error', 'single', { avoidEscape: true }],
   },
