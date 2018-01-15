@@ -3,8 +3,7 @@
 const Path = require('upath');
 const when = require('when');
 const node = require('when/node');
-const fs = require('fs');
-const fsp = node.liftAll(fs);
+const fsp = require('fs-extra');
 const accord = require('@pingy/accord');
 const pathCompleteExtname = require('path-complete-extname');
 const crypto = require('crypto');
@@ -41,15 +40,21 @@ function load() {
   extensionMap = {};
   loadedAdapters = [];
   Object.keys(accord.all())
-    .map((engine) => {
+    .map(engine => {
       if (adapters.indexOf(engine) === -1) {
         return undefined;
       }
 
       try {
-        return accord.load(engine, global ? global.babyTolkCompilerModulePath : null);
+        return accord.load(
+          engine,
+          global ? global.babyTolkCompilerModulePath : null
+        );
       } catch (e) {
-        if (e.code !== 'MODULE_NOT_FOUND' && e.message.indexOf('Cannot find module') === -1) {
+        if (
+          e.code !== 'MODULE_NOT_FOUND' &&
+          e.message.indexOf('Cannot find module') === -1
+        ) {
           console.error(
             `${e.message.replace(
               /^error: ?/i,
@@ -63,8 +68,11 @@ function load() {
       }
     })
     .filter(engine => engine)
-    .forEach((adapter) => {
-      if (adapter.engineName === 'babel' || adapter.engineName === 'babel-core') {
+    .forEach(adapter => {
+      if (
+        adapter.engineName === 'babel' ||
+        adapter.engineName === 'babel-core'
+      ) {
         // Monkey-patching Babel adapter so that it doesn't try and compile all .js files
         adapter.extensions = ['babel.js'];
       }
@@ -74,7 +82,7 @@ function load() {
       }
       loadedAdapters.push(adapter);
       const extensions = adapter.extensions.map(extension => `.${extension}`);
-      extensions.forEach((extension) => {
+      extensions.forEach(extension => {
         if (!Array.isArray(extensionMap[extension])) {
           extensionMap[extension] = [];
         }
@@ -86,7 +94,7 @@ function load() {
   targetExtension = {};
   sourceExtension = {};
 
-  Object.keys(extensionMap).forEach((sourceExt) => {
+  Object.keys(extensionMap).forEach(sourceExt => {
     const adapters = extensionMap[sourceExt];
     const targetExt = `.${adapters[0].output}`;
 
@@ -101,20 +109,33 @@ function load() {
 }
 load();
 
-const dontCompile = function (pathName) {
+function replaceExt(npath, ext) {
+  if (typeof npath !== 'string') {
+    return npath;
+  }
+
+  if (npath.length === 0) {
+    return npath;
+  }
+
+  const nFileName = Path.basename(npath, pathCompleteExtname(npath)) + ext;
+  return Path.join(Path.dirname(npath), nFileName);
+}
+
+const dontCompile = function(pathName) {
   // Baby Tolk wont compile files that begin with an underscore `_`.
   // This is by convention.
   const baseName = Path.basename(pathName);
   return baseName[0] === '_';
 };
 
-const createHash = function (data) {
+const createHash = function(data) {
   const shasum = crypto.createHash('sha1');
   shasum.update(data);
   return shasum.digest('hex');
 };
 
-const sanitizeOptions = function (options) {
+const sanitizeOptions = function(options) {
   options = options || {};
   options.sourceMap = options.sourceMap !== false;
   if (options.sha) {
@@ -131,19 +152,22 @@ const sanitizeOptions = function (options) {
   return options;
 };
 
-const getAdapter = function (extension) {
+const getAdapter = function(extension) {
   const adapters = extensionMap[extension];
   return adapters && adapters[0];
 };
 
-const _getTransformId = function (adapter, options, extension) {
+const _getTransformId = function(adapter, options, extension) {
   let transformId = '';
   if (adapter) {
     transformId = `${adapter.engineName}@${adapter.engine.version}`;
   }
 
   if (options.autoprefix) {
-    if (extension === '.css' || (adapter && targetExtension[extension] === '.css')) {
+    if (
+      extension === '.css' ||
+      (adapter && targetExtension[extension] === '.css')
+    ) {
       transformId += `::autoprefix=${options.autoprefix}`;
     }
   }
@@ -156,12 +180,65 @@ const _getTransformId = function (adapter, options, extension) {
   return transformId;
 };
 
-const getTransformId = function (pathName, options) {
+const getTransformId = function(pathName, options) {
   options = sanitizeOptions(options);
   const extension = pathCompleteExtname(pathName);
   const adapter = !dontCompile(pathName) && getAdapter(extension);
   return _getTransformId(adapter, options, extension);
 };
+
+function canCompile(pathName) {
+  const extension = pathCompleteExtname(pathName);
+  return !dontCompile(pathName) && !!targetExtension[extension];
+}
+
+/**
+ * Lists all paths to potential source files
+ * @param  {string} compiledFile
+ * @return {Array}               paths to potential source files
+ */
+function listPotentialSourceFiles(compiledFile) {
+  const compiledExtension = Path.extname(compiledFile);
+  const targetExtensions = sourceExtension[compiledExtension] || [];
+
+  return targetExtensions.map(extension =>
+    compiledFile.replace(compiledExtension, extension)
+  );
+}
+
+function findTargetFile(compiledFilePath) {
+  const srcExt = pathCompleteExtname(compiledFilePath);
+  const compiledExt = targetExtension[srcExt];
+  if (!compiledExt) return compiledFilePath;
+  return replaceExt(compiledFilePath, compiledExt);
+}
+
+/**
+ * Find the corresponding source file when given the path to the compiled file
+ * @param  {string}                compiledFile path
+ * @return {Promise<string, null>}              path to source file or reject with null
+ */
+function findSourceFile(compiledFile) {
+  const dir = Path.dirname(compiledFile);
+  const potentialSourceFiles = listPotentialSourceFiles(compiledFile);
+  if (!potentialSourceFiles.length) {
+    // Exit early instead of doing pointless IO
+    return Promise.resolve(null);
+  }
+
+  return fsp.readdir(dir).then(files => {
+    // Find the first source file match in dir
+    const sourceFile = files
+      .map(file =>
+        // Give files their full path
+        Path.join(dir, file)
+      )
+      .find(file =>
+        potentialSourceFiles.find(potentialSource => potentialSource === file)
+      );
+    return sourceFile || null;
+  }, () => null);
+}
 
 module.exports = {
   get extensions() {
@@ -173,6 +250,10 @@ module.exports = {
   get targetExtensionMap() {
     return targetExtension;
   },
+  canCompile,
+  listPotentialSourceFiles,
+  findTargetFile,
+  findSourceFile,
   reload: load,
   adapters: loadedAdapters,
   isMinifiable: minify.isMinifiable,
@@ -188,7 +269,7 @@ module.exports = {
     const sourceFile = fsp.readFile(pathName, 'utf8');
     let sourceFileContents = null;
 
-    let continuation = sourceFile.then((result) => {
+    let continuation = sourceFile.then(result => {
       const obj = { result };
       sourceFileContents = result;
       // if (options.inputSha) { obj.inputSha = createHash(result); }
@@ -210,15 +291,16 @@ module.exports = {
 
       const manuallyTrackedSourceFiles = [];
       if (adapter.engineName === 'ejs') {
-        adapter.engine.fileLoader = (filePath) => {
+        adapter.engine.fileLoader = filePath => {
           manuallyTrackedSourceFiles.push(filePath);
           return fs.readFileSync(filePath);
         };
       }
 
       continuation = continuation.then(source =>
-        adapter.render(source.result, transpilerOptions).then((compiled) => {
-          compiled.manuallyTrackedSourceFiles = compiled.dependencies || manuallyTrackedSourceFiles;
+        adapter.render(source.result, transpilerOptions).then(compiled => {
+          compiled.manuallyTrackedSourceFiles =
+            compiled.dependencies || manuallyTrackedSourceFiles;
           compiled.extension = `.${adapter.output}`;
           compiled.inputPath = pathName;
           if (options.inputSha) {
@@ -228,7 +310,7 @@ module.exports = {
         })
       );
     } else {
-      continuation = continuation.then((source) => {
+      continuation = continuation.then(source => {
         source.extension = extension;
         source.inputPath = pathName;
         return source;
@@ -236,7 +318,7 @@ module.exports = {
     }
 
     if (isCss && options.autoprefix) {
-      continuation = continuation.then((compiled) => {
+      continuation = continuation.then(compiled => {
         const postCssOptions = {};
         if (compiled.sourcemap) {
           postCssOptions.map = {
@@ -245,7 +327,7 @@ module.exports = {
         }
         return postcss([autoprefixer({ browsers: options.autoprefix })])
           .process(compiled.result, postCssOptions)
-          .then((result) => {
+          .then(result => {
             compiled.result = result.css;
             if (result.map) {
               compiled.sourcemap = result.map;
@@ -255,7 +337,7 @@ module.exports = {
       });
     }
 
-    continuation = continuation.then((compiled) => {
+    continuation = continuation.then(compiled => {
       if (options.minify) {
         compiled = minify(compiled, options);
       }
@@ -292,7 +374,7 @@ module.exports = {
         }
         if (compiled.sourcemap || compiled.manuallyTrackedSourceFiles) {
           inputSha = inputSha.concat(
-            shaSources.map((path) => {
+            shaSources.map(path => {
               if (Path.normalize(path) === pathName) {
                 return null;
               }
@@ -306,7 +388,7 @@ module.exports = {
             })
           );
         }
-        return when.all(inputSha).then((shas) => {
+        return when.all(inputSha).then(shas => {
           compiled.inputSha = shas.filter(x => Boolean(x));
           return compiled;
         });

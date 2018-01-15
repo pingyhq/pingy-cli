@@ -46,6 +46,7 @@
     "app-module-path": "1.1.0",
     "autoprefixer": "7.1.5",
     "clean-css": "^3.4.18",
+    "fs-extra": "5.0.0",
     "html-minifier": "3.0.3",
     "path-complete-extname": "0.1.0",
     "postcss": "6.0.13",
