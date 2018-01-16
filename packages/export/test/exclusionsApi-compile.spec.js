@@ -79,12 +79,7 @@ describe('baconize', () => {
             'styles/main.styl',
             'scripts/log.babel.js'
           )
-            .and(
-              'not to contain',
-              'about.html',
-              'styles/typography.css',
-              'styles/typography.css'
-            )
+            .and('not to contain', 'about.html', 'styles/typography.css')
             .and('to have length', 4)
         ])
       );
