@@ -47,7 +47,7 @@ function load() {
       try {
         return accord.load(
           engine,
-          global ? global.babyTolkCompilerModulePath : null
+          global ? global.pingyCompilerModulePath : null
         );
       } catch (e) {
         if (
