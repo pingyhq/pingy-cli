@@ -1,6 +1,6 @@
 {
   "name": "@pingy/middleware",
-  "version": "4.2.1",
+  "version": "4.3.0",
   "description": "Express/Connect middleware for transpiling to html/css/js on-the-fly",
   "main": "lib/middleware.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "url": "https://github.com/davej/piggy-in-the-middle.git"
   },
   "dependencies": {
-    "@pingy/compile": "^6.3.1",
+    "@pingy/compile": "^6.3.2",
     "csserror": "^2.0.2",
     "filewatcher": "^3.0.1",
     "fs-extra": "^4.0.2",
@@ -32,7 +32,7 @@
     "upath": "^1.0.0"
   },
   "devDependencies": {
-    "@pingy/instant": "^3.3.0",
+    "@pingy/instant": "^3.4.0",
     "coffee-script": "^1.10.0",
     "connect": "^3.4.0",
     "express": "^4.13.3",

@@ -1,15 +1,15 @@
 {
   "name": "@pingy/compile",
-  "version": "6.3.1",
-  "description":
-    "A file reader that promises to translate non-web assets to web assets given the available transpilers, sourcemaps and all",
+  "version": "6.3.2",
+  "description": "A file reader that promises to translate non-web assets to web assets given the available transpilers, sourcemaps and all",
   "main": "lib/compile.js",
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "lint": "jshint .",
     "test": "mocha",
-    "coverage":
-      "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- --reporter dot",
     "travis": "npm run coverage"
   },
   "engines": {
@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/davej/baby-tolk",
   "dependencies": {
-    "@pingy/accord": "^1.0.1",
+    "@pingy/accord": "^1.1.0",
     "app-module-path": "1.1.0",
     "autoprefixer": "7.1.5",
     "clean-css": "^3.4.18",
