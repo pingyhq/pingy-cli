@@ -159,7 +159,12 @@ describe('cli advanced', function cli() {
             browser: 'chrome',
             capabilities: {
               chromeOptions: {
-                args: ['headless', 'disable-gpu', 'window-size=1200x600'],
+                args: [
+                  'headless',
+                  'disable-gpu',
+                  'window-size=1200x600',
+                  'no-sandbox'
+                ],
               },
             },
           });
