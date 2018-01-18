@@ -12,9 +12,8 @@ const { inspect } = require('util');
 const colors = require('colors/safe');
 const chalk = require('chalk');
 const pkgJson = require('./package');
-const pingy = require('./pingy');
+const pingy = require('@pingy/core');
 const init = require('./init');
-const { getPingyJson, setPingyJson } = require('./pingyJson');
 const Configstore = require('configstore');
 
 const conf = new Configstore(pkgJson.name, {});
@@ -30,6 +29,15 @@ const pingyAscii = fs.readFileSync(
   require.resolve('./pingy-ascii.txt'),
   'utf8'
 );
+
+function getPingyJson() {
+  try {
+    return pingy.getPingyJson();
+  } catch (e) {
+    console.log(chalk.red.bold(e.name));
+    console.log(chalk.red(e.message));
+  }
+}
 
 function run() {
   try {
@@ -97,9 +105,7 @@ function run() {
         if (typeof port === 'number' && port !== freePort) {
           console.log(
             chalk.red.bold(
-              `Port ${port} is not available, using random port ${
-                freePort
-              } instead\n`
+              `Port ${port} is not available, using random port ${freePort} instead\n`
             )
           );
         }
@@ -110,7 +116,7 @@ function run() {
         );
         console.log(`Serving at ${url}`);
         if (options.open) opn(url, { wait: false });
-        if (jsonPort !== freePort) setPingyJson(serveOptions);
+        if (jsonPort !== freePort) pingy.setPingyJson(serveOptions);
       });
     });
 

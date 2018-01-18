@@ -1,0 +1,30 @@
+{
+  "name": "@pingy/core",
+  "version": "1.0.0",
+  "description": "Core connector of Pingy modules",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "author": "Dave Jeffery <dave@davejeffery.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@pingy/export": "^5.0.5",
+    "@pingy/instant": "^3.3.0",
+    "@pingy/middleware": "^4.2.1",
+    "@pingy/scaffold-middleware": "^1.0.0",
+    "@pingy/scaffold-primitive": "^3.0.0",
+    "connect": "^3.6.5",
+    "express": "^4.16.2",
+    "express-autoprefixer": "^5.3.0",
+    "find-up": "^2.1.0",
+    "get-port": "^3.2.0",
+    "serve-static": "^1.13.1",
+    "server-destroy": "^1.0.1",
+    "upath": "^1.0.2"
+  },
+  "devDependencies": {}
+}

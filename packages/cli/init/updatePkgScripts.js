@@ -1,42 +1,26 @@
 'use strict';
 
 const ora = require('ora');
-const { updatePkgJson, addPingyJson } = require('@pingy/scaffold-primitive');
+const { updatePkgJsonAndPingyJson } = require('@pingy/core');
 const { version } = require('../package.json');
 
-function createDotPingy(scaffoldOptions) {
-  const spinner = ora('Creating pingy.json').start();
-  return addPingyJson(process.cwd(), scaffoldOptions).then(
-    () => {
-      spinner.succeed('Created pingy.json');
-    },
-    (err) => {
-      spinner.fail(err.stack);
-    }
-  );
-}
-
-function maybeAddPingyDep(scaffoldOptions, options) {
-  const newScaffoldedOptions = Object.assign({}, scaffoldOptions);
-  if (!options.globalPingy) {
-    newScaffoldedOptions.devDependencies = Object.assign({}, scaffoldOptions.devDependencies, {
-      '@pingy/cli': `^${version}`,
-    });
+async function update(scaffoldOptions, options) {
+  let pkgJsonSpinner;
+  let pingyJsonSpinner;
+  try {
+    pkgJsonSpinner = ora('Updating package.json').start();
+    const doPingyJson = await updatePkgJsonAndPingyJson(
+      version,
+      scaffoldOptions,
+      options
+    );
+    pkgJsonSpinner.succeed('Updated package.json');
+    pingyJsonSpinner = ora('Creating pingy.json').start();
+    await doPingyJson();
+    pingyJsonSpinner.succeed('Created pingy.json');
+  } catch (err) {
+    (pingyJsonSpinner || pkgJsonSpinner).fail(err.stack);
   }
-  return newScaffoldedOptions;
-}
-
-function update(scaffoldOptions, options) {
-  const spinner = ora('Updating package.json').start();
-  return updatePkgJson(process.cwd(), maybeAddPingyDep(scaffoldOptions, options)).then(
-    () => {
-      spinner.succeed('Updated package.json');
-      return createDotPingy(scaffoldOptions);
-    },
-    (err) => {
-      spinner.fail(err.stack);
-    }
-  );
 }
 
 module.exports = update;

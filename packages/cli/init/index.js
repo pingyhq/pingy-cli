@@ -15,7 +15,7 @@ const installDeps = require('./installDeps');
 const npmInit = require('./npmInit');
 const scaffold = require('./scaffold');
 const renderLastInit = require('./renderLastInit');
-const pingy = require('../pingy');
+const { serveScaffolder } = require('@pingy/core');
 
 const pkgJsonPath = path.join(process.cwd(), 'package.json');
 const dotPingyJsonPath = path.join(process.cwd(), '.pingy.json');
@@ -184,7 +184,7 @@ function scaffoldCmd(unverifiedUrl, options) {
         console.log(description);
         console.log();
         if (!web) return performScaffoldActions(json, options, scaffoldPath);
-        return pingy.serveScaffolder(scaffoldPath, options).then(x => {
+        return serveScaffolder(scaffoldPath, options).then(x => {
           const { scaffoldComplete, scaffoldUrl } = x;
           const configureScaffold = ora(
             `Waiting for web scaffold to be configured at ${chalk.underline(
