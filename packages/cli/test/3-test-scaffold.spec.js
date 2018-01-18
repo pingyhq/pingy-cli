@@ -50,7 +50,7 @@ describe('cli scaffold', function cli() {
         stdout.on('data', onData);
       });
 
-    it('should spawn scaffold command', () => {
+    it('should choose to scaffold files', () => {
       spawnedInit = spawn(
         'node',
         [
@@ -65,10 +65,8 @@ describe('cli scaffold', function cli() {
       );
       stdout = spawnedInit.stdout;
       stdin = spawnedInit.stdin;
+      return nextStep('? You are about to scaffold', 'y\n');
     });
-
-    it('should choose to scaffold files', () =>
-      nextStep('? You are about to scaffold', 'y\n'));
 
     it('with 2 spaces', () => nextStep('? The most important question'));
 
