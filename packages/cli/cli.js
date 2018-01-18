@@ -9,7 +9,7 @@ const cliRunName = './cli-run';
 const pkgName = './package';
 const localCliPath = path.join(process.cwd(), 'node_modules', '@pingy', 'cli');
 
-const run = (type) => {
+const run = type => {
   try {
     const cliPath = type === 'local' ? localCliPath : null;
     /* eslint-disable global-require, import/no-dynamic-require */
@@ -19,9 +19,11 @@ const run = (type) => {
     console.log(`${pkg.version} (${type})`);
     cli.run();
   } catch (err) {
-    if (semver.lte(process.version, '6.0.0') && err.name === 'SyntaxError') {
+    if (semver.lte(process.version, '7.10.1') && err.name === 'SyntaxError') {
       console.log(
-        `Pingy CLI is compatible with Node v6+. You are running ${process.version}. Please upgrade Node.`
+        `Pingy CLI is compatible with Node v7.10.1+. You are running ${
+          process.version
+        }. Please upgrade Node.`
       );
     } else {
       throw err;
