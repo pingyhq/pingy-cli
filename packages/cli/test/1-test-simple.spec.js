@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('unexpected').clone();
-const spawn = require('child-process-promise').spawn;
+const { spawn } = require('child-process-promise');
 const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
@@ -26,14 +26,14 @@ expect.use(unexpectedWebdriver());
 let wd;
 const projectPath = path.join(__dirname, 'simple-project');
 
-after(function (done) {
+after(function afterTests(done) {
   this.timeout(20000);
   rimraf(projectPath, () => {
     if (wd) return wd.quit().then(done);
     done();
   });
 });
-before(function (done) {
+before(function beforeTests(done) {
   this.timeout(20000);
   rimraf(projectPath, () => mkdirp(projectPath, done));
 });
@@ -57,17 +57,25 @@ describe('cli simple', function cli() {
 
   function changeAutoprefixConfig() {
     const p = fs.readFileSync(pingyJsonPath, 'utf8');
-    fs.writeFileSync(pingyJsonPath, p.replace('"autoprefix": true', '"autoprefix": "> 5%"'));
+    fs.writeFileSync(
+      pingyJsonPath,
+      p.replace('"autoprefix": true', '"autoprefix": "> 5%"')
+    );
   }
 
   function changeBackAutoprefixConfig() {
     const p = fs.readFileSync(pingyJsonPath, 'utf8');
-    fs.writeFileSync(pingyJsonPath, p.replace('"autoprefix": "> 5%"', '"autoprefix": true'));
+    fs.writeFileSync(
+      pingyJsonPath,
+      p.replace('"autoprefix": "> 5%"', '"autoprefix": true')
+    );
   }
 
-  it('should display help text when called with no args', function() {
-    const spawned = spawn('node', ['cli.js'], { capture: ['stdout', 'stderr'] });
-    return spawned.then((data) => {
+  it('should display help text when called with no args', () => {
+    const spawned = spawn('node', ['cli.js'], {
+      capture: ['stdout', 'stderr'],
+    });
+    return spawned.then(data => {
       const output = data.stdout.toString();
       return expect.promise.all({
         commands: expect(output, 'to contain', 'Commands:'),
@@ -78,8 +86,8 @@ describe('cli simple', function cli() {
     });
   });
 
-  describe('init', function() {
-    before(function() {
+  describe('init', () => {
+    before(() => {
       try {
         fs.unlinkSync(pingyJsonPath);
         fs.unlinkSync(indexHtml);
@@ -87,15 +95,15 @@ describe('cli simple', function cli() {
         fs.unlinkSync(styles);
       } catch (e) {}
     });
-    it('should create pingy.json and scaffold using init command', function() {
+    it('should create pingy.json and scaffold using init command', () => {
       const spawned = spawn('node', ['../../cli.js', 'init', '--ask'], {
         cwd: projectPath,
       });
       const { stdout, stdin } = spawned.childProcess;
 
       const nextStep = (matchString, write = '\n') =>
-        new Promise((resolve) => {
-          const onData = (data) => {
+        new Promise(resolve => {
+          const onData = data => {
             if (data.toString().includes(matchString)) {
               stdout.removeListener('data', onData);
               resolve();
@@ -124,11 +132,11 @@ describe('cli simple', function cli() {
     });
   });
 
-  describe('dev', function() {
+  describe('dev', () => {
     const helpers = {
       isServingSite(stdout) {
-        return new Promise((resolve) => {
-          stdout.on('data', (data) => {
+        return new Promise(resolve => {
+          stdout.on('data', data => {
             const str = data.toString();
             const index = str.indexOf('http://');
             if (index !== -1) resolve(str.substring(index).replace('\n', ''));
@@ -136,19 +144,21 @@ describe('cli simple', function cli() {
         });
       },
       waitForCss(el, prop, val) {
-        return delay(1000).then(() => expect(wd.find(el).css(prop), 'to be fulfilled with', val));
+        return delay(1000).then(() =>
+          expect(wd.find(el).css(prop), 'to be fulfilled with', val)
+        );
       },
     };
 
-    it('should serve site', function() {
+    it('should serve site', () => {
       const spawned = spawn('node', ['../../cli.js', 'dev', '--no-open'], {
         cwd: projectPath,
-      }).catch((err) => {});
+      }).catch(err => {});
       const { stdout } = spawned.childProcess;
 
       return helpers
         .isServingSite(stdout)
-        .then((url) => {
+        .then(url => {
           siteUrl = url.split('\n')[0];
           stylesUrl = `${siteUrl}/styles/main.css`;
           wd = webdriver({
@@ -156,7 +166,12 @@ describe('cli simple', function cli() {
             browser: 'chrome',
             capabilities: {
               chromeOptions: {
-                args: ['headless', 'disable-gpu', 'window-size=1200x600'],
+                args: [
+                  'headless',
+                  'disable-gpu',
+                  'window-size=1200x600',
+                  'no-sandbox'
+                ],
               },
             },
           });
@@ -173,42 +188,68 @@ describe('cli simple', function cli() {
             'rgba(0, 0, 0, 0)'
           )
         )
-        .then(() => appendToFile(styles, 'body { background: rgba(255, 255, 0, 1) }'))
-        .then(() => helpers.waitForCss('body', 'background-color', 'rgba(255, 255, 0, 1)'))
         .then(() =>
-          replaceInFile(indexHtml, '<body>', '<body style="background: rgba(255, 0, 0, 1)">')
+          appendToFile(styles, 'body { background: rgba(255, 255, 0, 1) }')
         )
-        .then(() => helpers.waitForCss('body', 'background-color', 'rgba(255, 0, 0, 1)'))
         .then(() =>
-          appendToFile(scripts, "document.body.style.background = 'rgba(255, 255, 255, 1)';")
+          helpers.waitForCss('body', 'background-color', 'rgba(255, 255, 0, 1)')
         )
-        .then(() => helpers.waitForCss('body', 'background-color', 'rgba(255, 255, 255, 1)'))
+        .then(() =>
+          replaceInFile(
+            indexHtml,
+            '<body>',
+            '<body style="background: rgba(255, 0, 0, 1)">'
+          )
+        )
+        .then(() =>
+          helpers.waitForCss('body', 'background-color', 'rgba(255, 0, 0, 1)')
+        )
+        .then(() =>
+          appendToFile(
+            scripts,
+            "document.body.style.background = 'rgba(255, 255, 255, 1)';"
+          )
+        )
+        .then(() =>
+          helpers.waitForCss(
+            'body',
+            'background-color',
+            'rgba(255, 255, 255, 1)'
+          )
+        )
         .then(() => appendToFile(styles, 'body { display: flex }'))
         .then(() => fetch(stylesUrl).then(res => res.text()))
         .then(css =>
-          expect(css, 'to contain', 'body { display: flex }').and('not to contain', '-ms-flexbox')
+          expect(css, 'to contain', 'body { display: flex }').and(
+            'not to contain',
+            '-ms-flexbox'
+          )
         )
-        .then(() => appendToFile(styles, 'p { background: rgba(0, 255, 0, 1) }'))
-        .then(() => helpers.waitForCss('p', 'background-color', 'rgba(0, 255, 0, 1)'))
+        .then(() =>
+          appendToFile(styles, 'p { background: rgba(0, 255, 0, 1) }')
+        )
+        .then(() =>
+          helpers.waitForCss('p', 'background-color', 'rgba(0, 255, 0, 1)')
+        )
         .then(
           () =>
-            new Promise((resolve) => {
+            new Promise(resolve => {
               spawned.childProcess.on('exit', resolve);
               spawned.childProcess.kill();
             })
         );
     });
 
-    it('should serve autoprefixed site', function() {
+    it('should serve autoprefixed site', () => {
       let siteUrl;
       addAutoprefixConfig();
       const spawned = spawn('node', ['../../cli.js', 'dev', '--no-open'], {
         cwd: projectPath,
-      }).catch((err) => {});
+      }).catch(err => {});
       const { stdout } = spawned.childProcess;
       return helpers
         .isServingSite(stdout)
-        .then((url) => {
+        .then(url => {
           siteUrl = url;
           stylesUrl = `${url}/styles/main.css`;
           return fetch(stylesUrl).then(res => res.text());
@@ -216,33 +257,36 @@ describe('cli simple', function cli() {
         .then(css => expect(css, 'to contain', '-ms-flexbox'))
         .then(() =>
           // Test for https://github.com/gustavnikolaj/express-autoprefixer/pull/18
-           fetch(`${siteUrl}/styles/main.css?v=123`).then(res => res.text()))
+          fetch(`${siteUrl}/styles/main.css?v=123`).then(res => res.text())
+        )
         .then(css => expect(css, 'to contain', '-ms-flexbox'))
         .then(() => {
           wd.goto(siteUrl);
           return expect(wd.find('script'), 'to exist');
         })
         .then(() => appendToFile(styles, 'html { background: blue }'))
-        .then(() => helpers.waitForCss('html', 'background-color', 'rgba(0, 0, 255, 1)'))
+        .then(() =>
+          helpers.waitForCss('html', 'background-color', 'rgba(0, 0, 255, 1)')
+        )
         .then(
           () =>
-            new Promise((resolve) => {
+            new Promise(resolve => {
               spawned.childProcess.on('exit', resolve);
               spawned.childProcess.kill();
             })
         );
     });
 
-    it('should serve autoprefixed site with browsers > 5%', function() {
+    it('should serve autoprefixed site with browsers > 5%', () => {
       let siteUrl;
       changeAutoprefixConfig();
       const spawned = spawn('node', ['../../cli.js', 'dev', '--no-open'], {
         cwd: projectPath,
-      }).catch((err) => {});
+      }).catch(err => {});
       const { stdout } = spawned.childProcess;
       return helpers
         .isServingSite(stdout)
-        .then((url) => {
+        .then(url => {
           siteUrl = url;
           stylesUrl = `${url}/styles/main.css`;
           return fetch(stylesUrl).then(res => res.text());
@@ -253,12 +297,16 @@ describe('cli simple', function cli() {
           return expect(wd.find('script'), 'to exist');
         })
         .then(() => appendToFile(styles, 'html { background: yellow }'))
-        .then(() => helpers.waitForCss('html', 'background-color', 'rgba(255, 255, 0, 1)'))
+        .then(() =>
+          helpers.waitForCss('html', 'background-color', 'rgba(255, 255, 0, 1)')
+        )
         .then(() => appendToFile(styles, 'html { background: blue }'))
-        .then(() => helpers.waitForCss('html', 'background-color', 'rgba(0, 0, 255, 1)'))
+        .then(() =>
+          helpers.waitForCss('html', 'background-color', 'rgba(0, 0, 255, 1)')
+        )
         .then(
           () =>
-            new Promise((resolve) => {
+            new Promise(resolve => {
               spawned.childProcess.on('exit', resolve);
               spawned.childProcess.kill();
             })
@@ -266,7 +314,7 @@ describe('cli simple', function cli() {
     });
   });
 
-  describe('export', function() {
+  describe('export', () => {
     const distDir = path.join(projectPath, 'dist');
     const scriptsDir = path.join(projectPath, 'scripts');
     const stylesDir = path.join(projectPath, 'styles');
@@ -278,15 +326,18 @@ describe('cli simple', function cli() {
     const hasExportedSite = spawned =>
       new Promise(resolve => spawned.childProcess.on('exit', resolve));
 
-    after(function(done) {
+    after(done => {
       fs.unlinkSync(pingyJsonPath);
       fs.unlinkSync(indexPath);
       rimraf(distDir, () => rimraf(scriptsDir, () => rimraf(stylesDir, done)));
     });
 
-    it('should export site (minified)', function() {
+    it('should export site (minified)', () => {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
-      const newPingyContent = pingyContent.replace('"minify": false,', '"minify": true,');
+      const newPingyContent = pingyContent.replace(
+        '"minify": false,',
+        '"minify": true,'
+      );
       fs.writeFileSync(pingyJsonPath, newPingyContent);
 
       const spawned = spawn('node', ['../../cli.js', 'export'], {
@@ -297,7 +348,11 @@ describe('cli simple', function cli() {
         expect.promise.all({
           dir: expect(distDir, 'to exist'),
           shas: expect(shas, 'to exist'),
-          index: expect(fs.readFileSync(distIndexPath, 'utf8'), 'to contain', '<h1>Hello'),
+          index: expect(
+            fs.readFileSync(distIndexPath, 'utf8'),
+            'to contain',
+            '<h1>Hello'
+          ),
           styles: expect(
             fs.readFileSync(stylesDistFile, 'utf8'),
             'to contain',
@@ -307,9 +362,12 @@ describe('cli simple', function cli() {
       );
     });
 
-    it('should export site (autoprefixed + minified)', function() {
+    it('should export site (autoprefixed + minified)', () => {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
-      const newPingyContent = pingyContent.replace('"minify": true,', '"minify": false,');
+      const newPingyContent = pingyContent.replace(
+        '"minify": true,',
+        '"minify": false,'
+      );
       fs.writeFileSync(pingyJsonPath, newPingyContent);
 
       const spawned = spawn('node', ['../../cli.js', 'export'], {
@@ -327,7 +385,7 @@ describe('cli simple', function cli() {
       );
     });
 
-    it('should export site (autoprefixed)', function() {
+    it('should export site (autoprefixed)', () => {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
       const newPingyContent = pingyContent
         .replace('"minify": true,', '"minify": false,')
@@ -352,9 +410,12 @@ describe('cli simple', function cli() {
       );
     });
 
-    it('should export site (autoprefixed + minified)', function() {
+    it('should export site (autoprefixed + minified)', () => {
       const pingyContent = fs.readFileSync(pingyJsonPath, 'utf8');
-      const newPingyContent = pingyContent.replace('"minify": false,', '"minify": true,');
+      const newPingyContent = pingyContent.replace(
+        '"minify": false,',
+        '"minify": true,'
+      );
       fs.writeFileSync(pingyJsonPath, newPingyContent);
 
       const spawned = spawn('node', ['../../cli.js', 'export'], {
@@ -372,7 +433,7 @@ describe('cli simple', function cli() {
       );
     });
 
-    it('should export site (after edit)', function() {
+    it('should export site (after edit)', () => {
       const css = fs.readFileSync(styles, 'utf8');
       const newCss = `${css}\nh4 { display: flex }`;
       fs.writeFileSync(styles, newCss);
@@ -393,8 +454,8 @@ describe('cli simple', function cli() {
     });
   });
 
-  describe('re-init', function() {
-    before(function() {
+  describe('re-init', () => {
+    before(() => {
       try {
         fs.unlinkSync(pingyJsonPath);
         fs.unlinkSync(indexHtml);
@@ -402,15 +463,15 @@ describe('cli simple', function cli() {
         fs.unlinkSync(styles);
       } catch (e) {}
     });
-    it('should create pingy.json and scaffold using init command', function() {
+    it('should create pingy.json and scaffold using init command', () => {
       const spawned = spawn('node', ['../../cli.js', 'init'], {
         cwd: projectPath,
       });
       const { stdout, stdin } = spawned.childProcess;
 
       const nextStep = (matchString, write = '\n') =>
-        new Promise((resolve) => {
-          const onData = (data) => {
+        new Promise(resolve => {
+          const onData = data => {
             if (data.toString().includes(matchString)) {
               stdout.removeListener('data', onData);
               resolve();

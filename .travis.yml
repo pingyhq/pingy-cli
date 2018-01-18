@@ -3,12 +3,13 @@ os:
 language: node_js
 sudo: false
 node_js:
-  - "6"
   - "7"
   - "8"
   - "9"
 addons:
-  chrome: stable
+  apt:
+    packages:
+      - google-chrome-stable
 env:
   global:
     secure: fQxPABC3XlnH6U2CUR/+s+yk5Oi1P6CLdfYSAbJlLcPc1Qzcfv5Q/vDra68rclJR2l1AZ9jmz1kGZ0XVjfwfg8smgKtUoR0Ipd8ucHhIZd1ruHkr611K7jmEsAf3EmmqwXzglpSeY1fIqfDvJQP67epy8SAPpr8HQlnRucYw+j2NBEjV3AsTc0+M0u0TeYCHgWfqIDsNrllP8Y5nBOLHy2snbWAGRhlGpchFP0IJ+aoY+FVVw+je8ej+UuW/j6hWjc2oBM3/mxJFTDOkCEZ/CCCVRl7al4DO8foiJ9R7lQiv6z2LO1b/nvC/ZIt4wpXY+2YqHtWMCAuxX6sMzioAtxY22+ibDQaInzsxLvzPo4afKr1fx6vlZl780MWoh2KVpr+Q1X0y2vmFfxN6WPdghZ1sf0n2kgUAUgMhF5I0i0gI2fQUrJIS6QP6bJLsd5h2gY6a9kj1vqSNjjkU9avPIM0k5jH8awRfAY/bBA9xXQWZ4QTb2+suLjNBi1X/sXOKWMNWL5d5svFZqY8baIokfGWKOGks1COe5gTK/qk6eJoL02DjqCPyRXJjL9dPBqSr6pGpgmCAiPkm4MM7t3yLlVyVLwi0GAPcu2lPEQnxV9vG8FJH1xorA26qpNWbr7DPRiH2T3hqqxDjxfHot00w4v0ig9IymkXMK9Ho7TMIeSw=

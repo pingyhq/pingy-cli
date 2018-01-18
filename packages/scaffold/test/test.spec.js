@@ -3,7 +3,7 @@
 require('dotenv').config();
 const expect = require('unexpected').clone();
 const parallel = require('mocha.parallel');
-const path = require('path');
+const path = require('upath');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const scaffold = require('@pingy/scaffold');
 

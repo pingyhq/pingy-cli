@@ -1,7 +1,7 @@
 'use strict';
 
 const { pathExists, readJson } = require('fs-extra');
-const { join } = require('upath');
+const { join, normalize, isAbsolute, resolve } = require('upath');
 const mkdirpCB = require('mkdirp');
 const { homedir } = require('os');
 const util = require('util');
@@ -40,7 +40,11 @@ function identifyUrlType(url) {
   });
 }
 
-function scaffoldFs(scaffoldPath) {
+function scaffoldFs(rawScaffoldPath) {
+  const scaffoldPath = isAbsolute(rawScaffoldPath)
+    ? normalize(rawScaffoldPath)
+    : resolve(__dirname, rawScaffoldPath);
+
   return pathExists(scaffoldPath).then(dirExists => {
     if (!dirExists) {
       throw new Error(`Folder '${scaffoldPath}' does not exist on filesystem`);

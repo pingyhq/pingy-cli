@@ -1,31 +1,27 @@
 'use strict';
 
-const fs = require('fs');
+const filewatcher = require('filewatcher');
 const { normalize, join, relative } = require('upath');
 const isAbsolute = require('is-absolute');
-
-const isMac = process.platform === 'darwin';
 
 module.exports = function Cache(mountPath, events) {
   // Set-up cache and watchers
   const cache = {};
+  const watcher = filewatcher();
   const watchers = {};
-  const fileChangedRecently = {};
+  const sourceToCompiledMap = {};
 
-  function exists(compiledPath) {
-    return compiledPath in cache;
-  }
-
-  function get(compiledPath) {
-    return cache[compiledPath];
-  }
+  (function init() {
+    // eslint-disable-next-line no-use-before-define
+    watcher.on('change', onFileChange);
+  })();
 
   function delAll() {
-    Object.keys(cache).forEach((c) => {
+    Object.keys(cache).forEach(c => {
       cache[c] = null;
       delete cache[c];
     });
-    Object.keys(watchers).forEach((w) => {
+    Object.keys(watchers).forEach(w => {
       watchers[w] = null;
       delete watchers[w];
     });
@@ -38,13 +34,32 @@ module.exports = function Cache(mountPath, events) {
     }
   }
 
-  function add(sourcePath, compiledPath, compiled) {
-    _add(compiledPath, compiled);
-    const sources = _getSources(compiled, sourcePath);
-    _preAddWatcher(compiledPath, sources);
+  function absolutePath(source) {
+    if (isAbsolute(source)) return source;
+    return join(mountPath, source);
   }
 
-  function _getSources(compiled, sourcePath) {
+  function relativizePath(absoluteSource) {
+    return relative(mountPath, absoluteSource);
+  }
+
+  function onFileChange(sourceFile) {
+    const relativeSource = relativizePath(sourceFile);
+    const compiledPath = sourceToCompiledMap[relativeSource];
+
+    del(compiledPath);
+    events.emit('fileChanged', compiledPath, relativeSource);
+  }
+
+  function exists(compiledPath) {
+    return compiledPath in cache;
+  }
+
+  function get(compiledPath) {
+    return cache[compiledPath];
+  }
+
+  function getSources(compiled, sourcePath) {
     let sources;
     if (compiled.sourcemap) {
       // Remove preceeding slash to make the path relative (instead of absolute)
@@ -56,61 +71,43 @@ module.exports = function Cache(mountPath, events) {
     return sources || [sourcePath];
   }
 
-  function _add(compiledPath, contents) {
-    if (contents) {
-      cache[compiledPath] = contents;
-    }
-  }
-
-  function _preAddWatcher(compiledPath, sources) {
-    if (!watchers[compiledPath]) {
-      _addWatcher(compiledPath, sources);
-    } else {
-      const newSources = sources.filter(src => watchers[compiledPath].indexOf(src) === -1);
-      _addWatcher(compiledPath, newSources);
-    }
-  }
-
-  function absolutePath(source) {
-    if (isAbsolute(source)) return source;
-    return join(mountPath, source);
-  }
-
-  function relativizePath(absoluteSource) {
-    return relative(mountPath, absoluteSource);
-  }
-
-  const onFileChange = (relativeSource, compiledPath) => () => {
-    // TODO: Code below needs more testing on mac before enabling it
-    if (!isMac) {
-      if (fileChangedRecently[relativeSource]) return;
-      fileChangedRecently[relativeSource] = true;
-      setTimeout(() => (fileChangedRecently[relativeSource] = false), 50);
-    }
-    del(compiledPath);
-    events.emit('fileChanged', compiledPath, relativeSource);
-  };
-
-  function _addWatcher(compiledPath, sources) {
+  function addWatcher(compiledPath, sources) {
     const normalizedCompilePath = normalize(compiledPath);
 
-    sources.forEach((source) => {
+    sources.forEach(source => {
       const absoluteSource = absolutePath(source);
       const relativeSource = relativizePath(absoluteSource);
+      sourceToCompiledMap[relativeSource] = normalizedCompilePath;
 
-      try {
-        fs.watch(absoluteSource, onFileChange(relativeSource, normalizedCompilePath));
-      } catch (e) {
-        if (e.code === 'ENOENT') return;
-        throw e;
-      }
+      watcher.add(absoluteSource);
     });
 
     if (!watchers[normalizedCompilePath]) {
       watchers[normalizedCompilePath] = sources;
     } else {
-      watchers[normalizedCompilePath] = watchers[normalizedCompilePath].concat(sources);
+      watchers[normalizedCompilePath] = watchers[normalizedCompilePath].concat(
+        sources
+      );
     }
+  }
+
+  function preAddWatcher(compiledPath, sources) {
+    if (!watchers[compiledPath]) {
+      addWatcher(compiledPath, sources);
+    } else {
+      const newSources = sources.filter(
+        src => watchers[compiledPath].indexOf(src) === -1
+      );
+      addWatcher(compiledPath, newSources);
+    }
+  }
+
+  function add(sourcePath, compiledPath, compiled) {
+    if (compiled) {
+      cache[compiledPath] = compiled;
+    }
+    const sources = getSources(compiled, sourcePath);
+    preAddWatcher(compiledPath, sources);
   }
 
   return {

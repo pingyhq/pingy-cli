@@ -13,6 +13,7 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-mocha": "^4.11.0",
-    "lerna": "^2.5.1"
-  }
+    "lerna": "^2.7.1"
+  },
+  "workspaces": ["packages/*"]
 }

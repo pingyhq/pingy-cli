@@ -27,7 +27,7 @@
     "prepublish": "browserify client/index.js -o client/bundle.js"
   },
   "dependencies": {
-    "filewatcher": "^2.2.0",
+    "filewatcher": "^3.0.1",
     "send": "^0.12.1",
     "sendevent": "^1.0.5",
     "stacked": "^1.1.1",

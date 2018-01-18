@@ -2,8 +2,7 @@
 
 const Path = require('upath');
 const when = require('when');
-const node = require('when/node');
-const fsp = require('fs-extra');
+const fs = require('fs-extra');
 const accord = require('@pingy/accord');
 const pathCompleteExtname = require('path-complete-extname');
 const crypto = require('crypto');
@@ -48,7 +47,7 @@ function load() {
       try {
         return accord.load(
           engine,
-          global ? global.babyTolkCompilerModulePath : null
+          global ? global.pingyCompilerModulePath : null
         );
       } catch (e) {
         if (
@@ -226,7 +225,7 @@ function findSourceFile(compiledFile) {
     return Promise.resolve(null);
   }
 
-  return fsp.readdir(dir).then(files => {
+  return fs.readdir(dir).then(files => {
     // Find the first source file match in dir
     const sourceFile = files
       .map(file =>
@@ -266,7 +265,7 @@ module.exports = {
     const adapter = !dontCompile(pathName) && getAdapter(extension);
     let isCss = Path.extname(pathName) === '.css';
 
-    const sourceFile = fsp.readFile(pathName, 'utf8');
+    const sourceFile = fs.readFile(pathName, 'utf8');
     let sourceFileContents = null;
 
     let continuation = sourceFile.then(result => {
@@ -378,7 +377,7 @@ module.exports = {
               if (Path.normalize(path) === pathName) {
                 return null;
               }
-              return fsp.readFile(path, 'utf8').then(
+              return fs.readFile(path, 'utf8').then(
                 content => ({
                   file: path,
                   sha: createHash(content),

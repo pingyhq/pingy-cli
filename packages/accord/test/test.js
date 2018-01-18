@@ -1773,7 +1773,7 @@ describe('toffee', () => {
       .then(res => should.match_expected(this.toffee, res.result, lpath));
   });
 
-  it('should client-compile a string', function () {
+  it.skip('should client-compile a string', function () {
     return this.toffee
       .compileClient(
         `\
@@ -1807,7 +1807,7 @@ describe('toffee', () => {
       );
   });
 
-  winSkip('should client-compile a file', function () {
+  it.skip('should client-compile a file', function () {
     const lpath = path.join(path.relative(process.cwd(), this.path), 'my_templates-2.toffee');
     return this.toffee
       .compileFileClient(lpath, {})
