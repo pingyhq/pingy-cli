@@ -14,7 +14,7 @@ const getPort = require('get-port');
 const findUp = require('find-up');
 
 function serveSite(sitePath, options) {
-  const newOptions = { ...options };
+  const newOptions = Object.assign({}, options);
   // eslint-disable-next-line global-require
   const pingyMiddleware = require('@pingy/middleware');
 

@@ -19,7 +19,7 @@ const run = type => {
     console.log(`${pkg.version} (${type})`);
     cli.run();
   } catch (err) {
-    if (semver.lte(process.version, '7.10.1') && err.name === 'SyntaxError') {
+    if (semver.lt(process.version, '7.10.1') && err.name === 'SyntaxError') {
       console.log(
         `Pingy CLI is compatible with Node v7.10.1+. You are running ${
           process.version
