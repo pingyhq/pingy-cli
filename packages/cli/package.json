@@ -1,6 +1,6 @@
 {
   "name": "@pingy/cli",
-  "version": "0.12.5",
+  "version": "0.13.0",
   "description": "The Simple Frontend Build Tool. No Configuration, No Plugins. ",
   "main": "cli.js",
   "keywords": [
