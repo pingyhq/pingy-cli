@@ -1,6 +1,6 @@
 {
   "name": "@pingy/core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Core connector of Pingy modules",
   "main": "index.js",
   "files": [
@@ -12,7 +12,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@pingy/export": "^5.0.6",
+    "@pingy/export": "^5.0.7",
     "@pingy/instant": "^3.4.0",
     "@pingy/middleware": "^4.3.0",
     "@pingy/scaffold-middleware": "^1.0.0",
