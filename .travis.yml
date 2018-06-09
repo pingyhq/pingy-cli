@@ -3,7 +3,6 @@ os:
 language: node_js
 sudo: false
 node_js:
-  - "7"
   - "8"
   - "9"
 addons:
