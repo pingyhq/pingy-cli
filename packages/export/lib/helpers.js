@@ -33,7 +33,7 @@ function useExclusionsApi(_options, outputDir) {
 
   options.directoryFilter = entry => {
     if (entry.name[0] === '.') return false;
-    if (entry.fullPath === outputDir) return false;
+    if (path.normalize(entry.fullPath) === outputDir) return false;
     return !mm([entry.path], excludeDirs).length;
   };
   options.fileFilter = options.exclusions
