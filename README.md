@@ -1,6 +1,6 @@
 # Not actively maintained. Caveat Emptor.
 
-I'm not actively maintaining Pingy CLI anymore. I'm happy to lookover PRs however if you wish to contribute.
+I'm not actively maintaining Pingy CLI anymore. I'm happy to look at and merge PRs however if you wish to contribute.
 
 # Pingy CLI [![Join the chat at https://gitter.im/pingy-cli/Lobby](https://badges.gitter.im/pingy-cli/Lobby.svg)](https://gitter.im/pingy-cli/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
