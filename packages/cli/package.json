@@ -53,7 +53,7 @@
     "friendly-webdriver": "^2.0.0",
     "mkdirp": "^0.5.1",
     "mocha": "^4.0.1",
-    "node-fetch": "^1.7.3",
+    "node-fetch": "^2.6.1",
     "rimraf": "^2.6.2",
     "unexpected": "^10.36.2",
     "unexpected-webdriver": "^2.0.0"
