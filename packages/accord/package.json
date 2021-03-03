@@ -58,7 +58,7 @@
     "polytest": "0.0.1",
     "postcss": "^5.2.17",
     "postcss-simple-vars": "^3.1.0",
-    "pug": "^2.0.0-rc.1",
+    "pug": "^3.0.1",
     "react-tools": "^0.13.3",
     "stylus": "^0.54.5",
     "swig": "^1.4.2",
