@@ -40,6 +40,6 @@
     "eslint-plugin-compat": "^2.1.0",
     "mocha": "^3.3.0",
     "should": "^5.2.0",
-    "supertest": "^0.15.0"
+    "supertest": "^6.3.2"
   }
 }
