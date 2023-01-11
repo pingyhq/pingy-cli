@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "filewatcher": "^3.0.1",
-    "send": "^0.12.1",
+    "send": "^0.18.0",
     "sendevent": "^1.0.5",
     "stacked": "^1.1.1",
     "tamper": "^0.1.0"
